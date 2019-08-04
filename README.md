@@ -13,7 +13,7 @@ This project is published under MIT license.
 ### Authors
 *Main Developers*:
 - Amirali Monjar
-- Parmis Jafari
+- Parmis Shahinfard
 - Mohammad Jafari
 
 
