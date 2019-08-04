@@ -27,7 +27,7 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-hateoas'
     // JPA Data (We are going to use Repositories, Entities, Hibernate)
 
-    compile('org.modelmapper:modelmapper')
+    compile('org.modelmapper:modelmapper:0.7.5')
     compile 'org.springframework.boot:spring-boot-starter-data-jpa'
 
 
