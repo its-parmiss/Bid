@@ -8,6 +8,8 @@ import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
+import rahnema.tumaj.bid.backend.utils.exceptions.AuctionNotFoundException;
+import rahnema.tumaj.bid.backend.utils.exceptions.IllegalAuctionInputException;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
@@ -31,7 +33,14 @@ public class AuctionController {
 
     @PostMapping("/auctions")
     public Resource<AuctionOutputDTO> addAuction (@RequestBody AuctionInputDTO auctionInput){
-//        if (!isAuctionValid(auctionInput))
+        if (!isAuctionValid(auctionInput))
+            return passAuctionToService(auctionInput);
+        else
+            throw new IllegalAuctionInputException();
+
+    }
+
+    private Resource<AuctionOutputDTO> passAuctionToService(@RequestBody AuctionInputDTO auctionInput) {
         Auction auction = auctionInput.toModel();
         Auction addedAuction = service.addAuction(auction);
         return assembler.assemble(addedAuction);
@@ -52,7 +61,7 @@ public class AuctionController {
     @GetMapping("/auctions/{id}")
     public Resource<AuctionOutputDTO> getOne (@PathVariable Long id){
         Optional<Auction> auctionOptional = service.getOne(id);
-        Auction auction = auctionOptional.orElseThrow( ()  -> new EntityNotFoundException(id.toString()));
+        Auction auction = auctionOptional.orElseThrow( ()  -> new AuctionNotFoundException(id));
         return this.assembler.assemble(auction);
     }
 
