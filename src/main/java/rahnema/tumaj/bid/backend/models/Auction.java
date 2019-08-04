@@ -22,9 +22,9 @@ public class Auction {
     @Column(name = "last_bid")
     Long last_bid;
     @Column(name = "active_bidders_limit",columnDefinition="int DEFAULT '0'")
-    Date active_bidders_limit;
+    Integer active_bidders_limit;
     @Column(name = "is_active",columnDefinition="boolean DEFAULT true")
-    boolean is_active;
+    Boolean is_active;
     @Column(name = "expire_date")
     Date expire_date;
     @Column(name = "created_at",columnDefinition="DATE DEFAULT CURRENT_DATE")

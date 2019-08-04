@@ -1,8 +1,12 @@
 package rahnema.tumaj.bid.backend.models;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.util.Date;
-
+@Entity
+@Table(name="Images")
+@Data
 public class Images {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
