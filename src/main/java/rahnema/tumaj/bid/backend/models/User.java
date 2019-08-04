@@ -25,7 +25,7 @@ public class User {
     @Column(name = "profile_picture")
     String profile_picture;
     @Column(name = "created_at",columnDefinition="DATE DEFAULT CURRENT_DATE")
-    Date created_at;
+    java.sql.Date created_at;
 
   @ManyToMany
   @JoinTable(
