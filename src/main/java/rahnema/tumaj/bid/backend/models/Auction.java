@@ -18,8 +18,8 @@ public class Auction {
     String title;
     @Column(name = "description")
     String description;
-    @Column(name = "start_date" ,columnDefinition = "DATE DEFAULT CURRENT_DATE")
-    java.sql.Date start_date;
+    @Column(name = "start_date")
+    Date start_date;
     @Column(name = "last_bid")
     Long last_bid;
     @Column(name = "active_bidders_limit", columnDefinition = "int DEFAULT '0'")
@@ -28,8 +28,8 @@ public class Auction {
     boolean is_active;
     @Column(name = "expire_date")
     Date expire_date;
-    @Column(name = "created_at", columnDefinition = "DATE DEFAULT CURRENT_DATE")
-    java.sql.Date created_at;
+    @Column(name = "created_at")
+    Date created_at;
     @ManyToOne
     Category category;
     @ManyToOne
