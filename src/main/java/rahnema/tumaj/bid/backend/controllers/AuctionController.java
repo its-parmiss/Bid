@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.controllers.auction;
+package rahnema.tumaj.bid.backend.controllers;
 
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
@@ -11,7 +11,6 @@ import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
 import rahnema.tumaj.bid.backend.utils.exceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalAuctionInputException;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

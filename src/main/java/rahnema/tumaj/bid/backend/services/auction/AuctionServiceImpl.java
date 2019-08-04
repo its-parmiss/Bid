@@ -2,18 +2,18 @@ package rahnema.tumaj.bid.backend.services.auction;
 
 import org.springframework.stereotype.Service;
 import rahnema.tumaj.bid.backend.models.Auction;
-import rahnema.tumaj.bid.backend.repositories.auction.AuctionRepository;
+import rahnema.tumaj.bid.backend.repositories.AuctionRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AuctionServiceimpl implements AuctionService {
+public class AuctionServiceImpl implements AuctionService {
 
     private final AuctionRepository repository;
 
-    public AuctionServiceimpl(AuctionRepository repository) {
+    public AuctionServiceImpl(AuctionRepository repository) {
         this.repository = repository;
     }
     @Override
