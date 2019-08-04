@@ -3,8 +3,8 @@ package rahnema.tumaj.bid.backend.models;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.awt.print.Book;
-import java.util.Date;
+//import java.awt.print.Book;
+//import java.util.Date;
 import java.util.Set;
 
 @Entity

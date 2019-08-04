@@ -3,7 +3,7 @@ package rahnema.tumaj.bid.backend.models;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Date;
+//import java.util.Date;
 
 @Entity
 @Table(name="Bids")
@@ -15,7 +15,7 @@ public class Bid {
     @Column(nullable = false)
     String title;
     @Column(name = "created_at",columnDefinition="DATE DEFAULT CURRENT_DATE")
-    Date created_at;
+    java.sql.Date created_at;
     @ManyToOne
     Auction related_auction;
     @ManyToOne
