@@ -11,7 +11,6 @@ import java.util.Set;
 @Table(name="Users")
 @Data
 public class User {
-
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     Long id;
@@ -22,16 +21,19 @@ public class User {
     @Column(nullable = false,name = "email",unique = true)
     String email;
     @Column(nullable = false,name = "password")
+    String password;
+    @Column(name = "profile_picture")
     String profile_picture;
     @Column(name = "created_at",columnDefinition="DATE DEFAULT CURRENT_DATE")
     Date created_at;
 
   @ManyToMany
   @JoinTable(
-          name = "bookmarks",
+          name = "Bookmarks",
           joinColumns = @JoinColumn(name = "user_id"),
           inverseJoinColumns = @JoinColumn(name = "auction_id"))
   Set<Auction> auctions;
+
   @OneToMany(mappedBy = "bidder")
     Set<Bid> bids;
 }
