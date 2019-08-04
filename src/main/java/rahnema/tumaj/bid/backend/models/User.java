@@ -3,6 +3,7 @@ package rahnema.tumaj.bid.backend.models;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.awt.print.Book;
 import java.util.Date;
 import java.util.Set;
 
@@ -25,8 +26,14 @@ public class User {
     @Column(name = "created_at",columnDefinition="DATE DEFAULT CURRENT_DATE")
     Date created_at;
 
-    @OneToMany(mappedBy="user")
-    Set<Auction> auctions;
+  @ManyToMany
+  @JoinTable(
+          name = "bookmarks",
+          joinColumns = @JoinColumn(name = "user_id"),
+          inverseJoinColumns = @JoinColumn(name = "auction_id"))
+  Set<Auction> auctions;
+  @OneToMany(mappedBy = "bidder")
+    Set<Bid> bids;
 }
 
 //
