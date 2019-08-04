@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.domains;
+package rahnema.tumaj.bid.backend.domains.user;
 
 import lombok.Data;
 import org.modelmapper.ModelMapper;
@@ -11,8 +11,8 @@ public class UserInputDTO {
     private String email;
     private String profilePicture;
 
-    public static UserInputDTO fromModel(User user) {
+    public static User toModel(UserInputDTO user) {
         ModelMapper mapper = new ModelMapper();
-        return mapper.map(user, UserInputDTO.class);
+        return mapper.map(user, User.class);
     }
 }
