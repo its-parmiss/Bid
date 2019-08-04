@@ -2,8 +2,8 @@ package rahnema.tumaj.bid.backend.utils.assemblers;
 
 import org.springframework.hateoas.Resource;
 import org.springframework.stereotype.Component;
-import rahnema.tumaj.bid.backend.controllers.AuctionController;
-import rahnema.tumaj.bid.backend.domains.AuctionOutputDTO;
+import rahnema.tumaj.bid.backend.controllers.auction.AuctionController;
+import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
 import rahnema.tumaj.bid.backend.models.Auction;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;

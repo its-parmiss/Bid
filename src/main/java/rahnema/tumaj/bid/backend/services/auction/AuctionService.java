@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.services;
+package rahnema.tumaj.bid.backend.services.auction;
 
 import org.springframework.stereotype.Service;
 import rahnema.tumaj.bid.backend.models.Auction;

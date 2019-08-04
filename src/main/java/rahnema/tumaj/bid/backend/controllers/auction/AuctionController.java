@@ -1,15 +1,22 @@
-package rahnema.tumaj.bid.backend.controllers;
+package rahnema.tumaj.bid.backend.controllers.auction;
 
 import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.Resources;
 import org.springframework.web.bind.annotation.*;
-import rahnema.tumaj.bid.backend.domains.AuctionInputDTO;
-import rahnema.tumaj.bid.backend.domains.AuctionOutputDTO;
+import rahnema.tumaj.bid.backend.domains.auction.AuctionInputDTO;
+import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
 import rahnema.tumaj.bid.backend.models.Auction;
-import rahnema.tumaj.bid.backend.services.AuctionService;
+import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
 public class AuctionController {
@@ -24,20 +31,33 @@ public class AuctionController {
 
     @PostMapping("/auctions")
     public Resource<AuctionOutputDTO> addAuction (@RequestBody AuctionInputDTO auctionInput){
+//        if (!isAuctionValid(auctionInput))
         Auction auction = auctionInput.toModel();
         Auction addedAuction = service.addAuction(auction);
         return assembler.assemble(addedAuction);
     }
 
     @GetMapping("/auctions")
-    public Resource<AuctionOutputDTO> getAll (){
-            return null;
+    public Resources<Resource<AuctionOutputDTO>> getAll (){
+        List<Resource<AuctionOutputDTO>> auctions = collectAllAuctions();
+        return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll()).withSelfRel());
     }
+
+    private List<Resource<AuctionOutputDTO>> collectAllAuctions() {
+        return service.getAll().stream()
+                .map(this.assembler::assemble)
+                .collect(Collectors.toList());
+    }
+
     @GetMapping("/auctions/{id}")
     public Resource<AuctionOutputDTO> getOne (@PathVariable Long id){
         Optional<Auction> auctionOptional = service.getOne(id);
         Auction auction = auctionOptional.orElseThrow( ()  -> new EntityNotFoundException(id.toString()));
         return this.assembler.assemble(auction);
+    }
+
+    private boolean isAuctionValid(AuctionInputDTO auction){
+        return true;
     }
 
 

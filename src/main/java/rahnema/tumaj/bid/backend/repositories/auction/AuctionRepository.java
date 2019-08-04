@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.repositories;
+package rahnema.tumaj.bid.backend.repositories.auction;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
