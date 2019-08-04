@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.user.UserInputDTO;
 import rahnema.tumaj.bid.backend.domains.user.UserOutputDTO;
 import rahnema.tumaj.bid.backend.models.User;
-import rahnema.tumaj.bid.backend.services.UserService;
+import rahnema.tumaj.bid.backend.services.user.UserServiceImpl;
 import rahnema.tumaj.bid.backend.utils.assemblers.UserResourceAssembler;
+import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,10 +19,10 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RestController
 public class RegisterController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final UserResourceAssembler assembler;
 
-    public RegisterController(UserService userService,
+    public RegisterController(UserServiceImpl userService,
                               UserResourceAssembler assembler) {
         this.userService = userService;
         this.assembler = assembler;
@@ -30,7 +30,7 @@ public class RegisterController {
 
     @GetMapping(path = "/users/{id}")
     public Resource<UserOutputDTO> getOneUser(@PathVariable Long id) {
-        User user = userService.getOne(id).orElseThrow(EntityNotFoundException::new);
+        User user = userService.getOne(id).orElseThrow(() -> new UserNotFoundException(id));
         return assembler.toResource(user);
     }
 

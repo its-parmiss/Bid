@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.services;
+package rahnema.tumaj.bid.backend.services.user;
 
 import org.springframework.stereotype.Service;
 import rahnema.tumaj.bid.backend.domains.user.UserInputDTO;
@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service("userService")
-public class UserService {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
