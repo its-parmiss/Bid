@@ -16,7 +16,7 @@ public class Category {
     @Column(nullable = false,name="title",unique = true)
     String title;
     @Column(name = "created_at",columnDefinition="DATE DEFAULT CURRENT_DATE")
-    Date created_at;
+    java.sql.Date created_at;
     @OneToMany(mappedBy = "category")
     Set<Auction> auctions;
 }

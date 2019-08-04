@@ -18,18 +18,18 @@ public class Auction {
     String title;
     @Column(name = "description")
     String description;
-    @Column(name = "start_date", columnDefinition = "DATE DEFAULT CURRENT_DATE")
-    Date start_date;
+    @Column(name = "start_date" ,columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    java.sql.Date start_date;
     @Column(name = "last_bid")
     Long last_bid;
     @Column(name = "active_bidders_limit", columnDefinition = "int DEFAULT '0'")
-    Integer active_bidders_limit;
+    int active_bidders_limit;
     @Column(name = "is_active", columnDefinition = "boolean DEFAULT true")
-    Boolean is_active;
+    boolean is_active;
     @Column(name = "expire_date")
     Date expire_date;
     @Column(name = "created_at", columnDefinition = "DATE DEFAULT CURRENT_DATE")
-    Date created_at;
+    java.sql.Date created_at;
     @ManyToOne
     Category category;
     @ManyToOne
@@ -38,6 +38,6 @@ public class Auction {
     Set<Images> images;
     @OneToMany(mappedBy = "related_auction")
     Set<Bid> bids;
-    @ManyToMany(mappedBy = "auctions")
+    @ManyToMany(mappedBy = "auctions") //bookmarks
     Set<User> users;
 }
