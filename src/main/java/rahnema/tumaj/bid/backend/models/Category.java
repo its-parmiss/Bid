@@ -18,6 +18,6 @@ public class Category {
     String title;
     @Column(name = "created_at")
     Date created_at;
-    @OneToMany(mappedBy = "category")
+    @OneToMany(fetch=FetchType.EAGER,mappedBy = "category")
     Set<Auction> auctions;
 }

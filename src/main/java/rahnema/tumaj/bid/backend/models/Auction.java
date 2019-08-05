@@ -3,6 +3,7 @@ package rahnema.tumaj.bid.backend.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.awt.print.Book;
@@ -36,11 +37,11 @@ public class Auction {
     Category category;
     @ManyToOne
     User user;
-    @OneToMany(mappedBy = "auction")
+    @OneToMany(fetch=FetchType.EAGER,mappedBy = "auction")
     Set<Images> images;
-    @OneToMany(mappedBy = "related_auction")
+    @OneToMany(fetch=FetchType.EAGER,mappedBy = "related_auction")
     Set<Bid> bids;
     @JsonBackReference
-    @ManyToMany(mappedBy = "auctions",cascade=CascadeType.ALL) //bookmarks
+    @ManyToMany(fetch=FetchType.EAGER,mappedBy = "auctions",cascade=CascadeType.ALL) //bookmarks
     Set<User> users;
 }

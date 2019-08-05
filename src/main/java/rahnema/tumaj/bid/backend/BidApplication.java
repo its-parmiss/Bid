@@ -6,6 +6,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.repositories.AuctionRepository;
@@ -28,7 +30,7 @@ public class BidApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        auctionRepository.deleteAll();
+       /* auctionRepository.deleteAll();
         userRepository.deleteAll();
         List<User> users = new ArrayList<>();
         List<Auction> auctions = new ArrayList<>();
@@ -49,8 +51,8 @@ public class BidApplication implements CommandLineRunner {
         }
 
         for (int i = 0; i < 50; i++) {
-//            int random = (int) (Math.random() * 50);
-            for (int j = 0; j < 20; j++) {
+            int random = (int) (Math.random() * 50);
+            for (int j = 0; j < random; j++) {
                 auctions.get(i).getUsers().add(users.get(j));
                 users.get(j).getAuctions().add(auctions.get(i));
             }
@@ -61,6 +63,12 @@ public class BidApplication implements CommandLineRunner {
         }
         for (Auction auction : auctions) {
             auctionRepository.save(auction);
+        }*/
+//        System.out.println(userRepository.findById((long)2256));
+        List<Auction> auctionss = (auctionRepository.findAllAuctionsHottest(PageRequest.of(0, 5)));
+        for (Auction auc:auctionss
+             ) {
+            System.out.println(auc.getUsers().size());
         }
     }
 }

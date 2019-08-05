@@ -15,6 +15,6 @@ public class Images {
     String url;
     @Column(name = "created_at")
     Date created_at;
-    @ManyToOne
+    @ManyToOne (fetch=FetchType.EAGER)
     Auction auction;
 }
