@@ -26,16 +26,16 @@ public class User {
     String profile_picture;
     @Column(name = "created_at")
     Date created_at;
+    @Column(name = "reset_token")
+    String resetToken;
 
-  @ManyToMany
-  @JoinTable(
+    @ManyToMany
+    @JoinTable(
           name = "Bookmarks",
           joinColumns = @JoinColumn(name = "user_id"),
           inverseJoinColumns = @JoinColumn(name = "auction_id"))
-  Set<Auction> auctions;
+    Set<Auction> auctions;
 
-  @OneToMany(mappedBy = "bidder")
+    @OneToMany(mappedBy = "bidder")
     Set<Bid> bids;
 }
-
-//
