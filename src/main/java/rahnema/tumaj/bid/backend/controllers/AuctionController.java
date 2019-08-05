@@ -46,7 +46,11 @@ public class AuctionController {
     }
 
     @GetMapping("/auctions")
-    public Resources<Resource<AuctionOutputDTO>> getAll (@RequestParam Integer page,@RequestParam Integer limit){
+    public Resources<Resource<AuctionOutputDTO>> getAll (@RequestParam (required = false)Integer page ,@RequestParam (required = false) Integer limit){
+        if(page == null)
+            page = 0;
+        if (limit == null)
+            limit = 10;
         List<Resource<AuctionOutputDTO>> auctions = collectAllAuctions(page, limit);
         return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit)).withSelfRel());
     }

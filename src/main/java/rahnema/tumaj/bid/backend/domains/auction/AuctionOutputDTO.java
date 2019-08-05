@@ -27,7 +27,6 @@ public class AuctionOutputDTO {
     private Category category;
     private User user;
     private Set<Images> images;
-//    Set<Resource<UserOutputDTO>> users;
 
     public static AuctionOutputDTO fromModel(Auction auction){
         ModelMapper mapper = new ModelMapper();

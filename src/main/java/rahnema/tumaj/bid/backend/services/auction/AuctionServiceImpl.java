@@ -29,12 +29,7 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public List<Auction> getAll(Integer page, Integer limit) {
-//        repository.findAll(
-//        repository
-        Iterable<Auction> auctionsIterable = repository.findAll(PageRequest.of(page,limit));
-        List<Auction> auctions = new ArrayList<>();
-        auctionsIterable.forEach(auctions::add);
-        return auctions;
+        return repository.findAllAuctionsHottest(PageRequest.of(page,limit));
     }
 
     @Override
