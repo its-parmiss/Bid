@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.Resource;
+import rahnema.tumaj.bid.backend.domains.user.UserOutputDTO;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.models.Category;
 import rahnema.tumaj.bid.backend.models.Images;
@@ -25,6 +27,7 @@ public class AuctionOutputDTO {
     private Category category;
     private User user;
     private Set<Images> images;
+//    Set<Resource<UserOutputDTO>> users;
 
     public static AuctionOutputDTO fromModel(Auction auction){
         ModelMapper mapper = new ModelMapper();

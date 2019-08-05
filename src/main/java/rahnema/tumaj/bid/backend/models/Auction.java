@@ -1,5 +1,7 @@
 package rahnema.tumaj.bid.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -38,6 +40,7 @@ public class Auction {
     Set<Images> images;
     @OneToMany(mappedBy = "related_auction")
     Set<Bid> bids;
-    @ManyToMany(mappedBy = "auctions") //bookmarks
+    @JsonBackReference
+    @ManyToMany(mappedBy = "auctions",cascade=CascadeType.ALL) //bookmarks
     Set<User> users;
 }
