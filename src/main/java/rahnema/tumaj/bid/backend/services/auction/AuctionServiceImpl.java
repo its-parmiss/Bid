@@ -1,5 +1,6 @@
 package rahnema.tumaj.bid.backend.services.auction;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.repositories.AuctionRepository;
@@ -27,11 +28,8 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public List<Auction> getAll() {
-        Iterable<Auction> auctionsIterable = repository.findAll();
-        List<Auction> auctions = new ArrayList<>();
-        auctionsIterable.forEach(auctions::add);
-        return auctions;
+    public List<Auction> getAll(Integer page, Integer limit) {
+        return repository.findAllAuctionsHottest(PageRequest.of(page,limit));
     }
 
     @Override

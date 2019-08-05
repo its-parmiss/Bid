@@ -32,7 +32,7 @@ public class AuctionController {
 
     @PostMapping("/auctions")
     public Resource<AuctionOutputDTO> addAuction (@RequestBody AuctionInputDTO auctionInput){
-        if (!isAuctionValid(auctionInput))
+        if (isAuctionValid(auctionInput))
             return passAuctionToService(auctionInput);
         else
             throw new IllegalAuctionInputException();
@@ -46,13 +46,17 @@ public class AuctionController {
     }
 
     @GetMapping("/auctions")
-    public Resources<Resource<AuctionOutputDTO>> getAll (){
-        List<Resource<AuctionOutputDTO>> auctions = collectAllAuctions();
-        return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll()).withSelfRel());
+    public Resources<Resource<AuctionOutputDTO>> getAll (@RequestParam (required = false)Integer page ,@RequestParam (required = false) Integer limit){
+        if(page == null)
+            page = 0;
+        if (limit == null)
+            limit = 10;
+        List<Resource<AuctionOutputDTO>> auctions = collectAllAuctions(page, limit);
+        return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit)).withSelfRel());
     }
 
-    private List<Resource<AuctionOutputDTO>> collectAllAuctions() {
-        return service.getAll().stream()
+    private List<Resource<AuctionOutputDTO>> collectAllAuctions(Integer page, Integer limit) {
+        return service.getAll(page, limit).stream()
                 .map(this.assembler::assemble)
                 .collect(Collectors.toList());
     }

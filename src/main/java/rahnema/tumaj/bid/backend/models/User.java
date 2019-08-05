@@ -1,6 +1,10 @@
 package rahnema.tumaj.bid.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 //import java.awt.print.Book;
@@ -10,6 +14,8 @@ import java.util.Set;
 @Entity
 @Table(name="Users")
 @Data
+@EqualsAndHashCode(exclude="auctions")
+@ToString(exclude = "auctions")
 public class User {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -29,13 +35,15 @@ public class User {
     @Column(name = "reset_token")
     String resetToken;
 
-    @ManyToMany
-    @JoinTable(
+    @JsonManagedReference
+  @ManyToMany (cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+  @JoinTable(
           name = "Bookmarks",
           joinColumns = @JoinColumn(name = "user_id"),
           inverseJoinColumns = @JoinColumn(name = "auction_id"))
     Set<Auction> auctions;
 
-    @OneToMany(mappedBy = "bidder")
+
+  @OneToMany(fetch=FetchType.EAGER,mappedBy = "bidder")
     Set<Bid> bids;
 }

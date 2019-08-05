@@ -12,7 +12,7 @@ public interface AuctionService {
 
     void deleteAuction(Long id);
 
-    List<Auction> getAll();
+    List<Auction> getAll(Integer page, Integer limit);
 
     Optional<Auction> getOne(Long id);
 }

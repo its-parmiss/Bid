@@ -21,6 +21,7 @@ public class AuctionInputDTO {
     private Date expire_date;
     private Category category;
     private User user;
+    private Long base_price;
     private Set<Images> images;
 
     public Auction toModel(){

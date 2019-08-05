@@ -1,6 +1,9 @@
 package rahnema.tumaj.bid.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.awt.print.Book;
@@ -22,8 +25,8 @@ public class Auction {
     Date start_date;
     @Column(name = "last_bid")
     Long last_bid;
-    @Column(name="base_price",nullable = false)
-    Long best_price;
+    @Column(name = "base_price",nullable = false)
+    Long base_price;
     @Column(name = "active_bidders_limit", columnDefinition = "int DEFAULT '0'")
     int active_bidders_limit;
     @Column(name = "is_active", columnDefinition = "boolean DEFAULT true")
@@ -36,10 +39,11 @@ public class Auction {
     Category category;
     @ManyToOne
     User user;
-    @OneToMany(mappedBy = "auction")
+    @OneToMany(fetch=FetchType.EAGER,mappedBy = "auction")
     Set<Images> images;
-    @OneToMany(mappedBy = "related_auction")
+    @OneToMany(fetch=FetchType.EAGER,mappedBy = "related_auction")
     Set<Bid> bids;
-    @ManyToMany(mappedBy = "auctions") //bookmarks
+    @JsonBackReference
+    @ManyToMany(fetch=FetchType.EAGER,mappedBy = "auctions",cascade=CascadeType.ALL) //bookmarks
     Set<User> users;
 }

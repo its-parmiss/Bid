@@ -1,6 +1,7 @@
 package rahnema.tumaj.bid.backend.models;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -16,8 +17,8 @@ public class Bid {
     String title;
     @Column(name = "created_at")
     Date created_at;
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER)
     Auction related_auction;
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER)
     User bidder;
 }

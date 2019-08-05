@@ -31,7 +31,9 @@ public class UserServiceImpl implements UserService {
 
     public UserOutputDTO addOne(UserInputDTO user) {
         User userModel = UserInputDTO.toModel(user);
+        System.out.println(user.getFirst_name());
         userRepository.save(userModel);
+
         return UserOutputDTO.fromModel(userModel);
     }
 }
