@@ -11,4 +11,7 @@ public interface UserService {
     Optional<User> getOne(Long id);
     List<User> getAll();
     UserOutputDTO addOne(UserInputDTO user);
+    Optional<User> findByEmail(String email);
+    void saveUser(User user);
+    Optional<User> findByResetToken(String token);
 }

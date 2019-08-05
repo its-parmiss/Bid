@@ -11,9 +11,9 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @Component
 public class UserResourceAssembler {
-    public Resource<UserOutputDTO> toResource(User user){
+    public Resource<UserOutputDTO> toResource(UserOutputDTO user){
         return new Resource<>(
-            UserOutputDTO.fromModel(user),
+            user,
             linkTo(methodOn(RegisterController.class).getOneUser(user.getId())).withSelfRel(),
             linkTo(methodOn(RegisterController.class).getAllUsers()).withRel("all")
         );

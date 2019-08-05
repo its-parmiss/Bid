@@ -32,13 +32,13 @@ public class RegisterController {
     @GetMapping(path = "/users/{id}")
     public Resource<UserOutputDTO> getOneUser(@PathVariable Long id) {
         User user = userService.getOne(id).orElseThrow(() -> new UserNotFoundException(id));
-        return assembler.toResource(user);
+        return assembler.toResource(UserOutputDTO.fromModel(user));
     }
 
     @GetMapping(path = "/users")
     public Resources<Resource<UserOutputDTO>> getAllUsers() {
         List<Resource<UserOutputDTO>> users = userService.getAll().stream()
-                .map(assembler::toResource)
+                .map((user) -> assembler.toResource(UserOutputDTO.fromModel(user)))
                 .collect(Collectors.toList());
         return new Resources<>(
             users,
@@ -49,8 +49,8 @@ public class RegisterController {
     @PostMapping(path = "/users")
     public Resource<UserOutputDTO> addUser(@RequestBody UserInputDTO user) {
         if(isUserValid(user)){
-            this.userService.addOne(user);
-            return assembler.toResource(UserInputDTO.toModel(user));
+            UserOutputDTO savedUser = this.userService.addOne(user);
+            return assembler.toResource(savedUser);
         } else
             throw new IllegalUserInputException();
     }
