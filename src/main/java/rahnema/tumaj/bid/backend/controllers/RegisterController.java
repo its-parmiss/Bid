@@ -8,6 +8,7 @@ import rahnema.tumaj.bid.backend.domains.user.UserOutputDTO;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.user.UserServiceImpl;
 import rahnema.tumaj.bid.backend.utils.assemblers.UserResourceAssembler;
+import rahnema.tumaj.bid.backend.utils.exceptions.IllegalUserInputException;
 import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
 
 import java.util.List;
@@ -47,8 +48,24 @@ public class RegisterController {
 
     @PostMapping(path = "/users")
     public Resource<UserOutputDTO> addUser(@RequestBody UserInputDTO user) {
-        this.userService.addOne(user);
-        return assembler.toResource(UserInputDTO.toModel(user));
+        if(isUserValid(user)){
+            this.userService.addOne(user);
+            return assembler.toResource(UserInputDTO.toModel(user));
+        } else
+            throw new IllegalUserInputException();
+    }
+
+    private boolean isUserValid(UserInputDTO user) {
+        String emailValidator = "^[\\w-_.+]*[\\w-_.]@([\\w]+\\.)+[\\w]+[\\w]$";
+        String passwordValidator = "^.{6,37}$";
+        String nameValidator = "^.{3,36}$";
+        return  user.getEmail().matches(emailValidator) &&
+                user.getPassword().matches(passwordValidator) &&
+                user.getFirst_name().matches(nameValidator) &&
+                (
+                    user.getLast_name() == null ||
+                    user.getLast_name().matches(nameValidator)
+                );
     }
 
 }

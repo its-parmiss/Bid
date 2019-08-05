@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import rahnema.tumaj.bid.backend.utils.exceptions.AuctionNotFoundException;
-import rahnema.tumaj.bid.backend.utils.exceptions.ExceptionMessage;
-import rahnema.tumaj.bid.backend.utils.exceptions.IllegalAuctionInputException;
-import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
+import rahnema.tumaj.bid.backend.utils.exceptions.*;
 
 @ControllerAdvice
 public class ErrorController extends ResponseEntityExceptionHandler {
@@ -23,7 +20,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex,
                 gson.toJson(new ExceptionMessage(ex.getMessage(), 404)),
                 new HttpHeaders(),
-                HttpStatus.INTERNAL_SERVER_ERROR, request
+                HttpStatus.NOT_FOUND, request
         );
     }
 
@@ -32,7 +29,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex,
                 gson.toJson(new ExceptionMessage(ex.getMessage(), 400)),
                 new HttpHeaders(),
-                HttpStatus.INTERNAL_SERVER_ERROR, request
+                HttpStatus.BAD_REQUEST, request
         );
     }
 
@@ -41,7 +38,16 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex,
                 gson.toJson(new ExceptionMessage(ex.getMessage(), 404)),
                 new HttpHeaders(),
-                HttpStatus.INTERNAL_SERVER_ERROR, request
+                HttpStatus.NOT_FOUND, request
+        );
+    }
+
+    @ExceptionHandler(value = {IllegalUserInputException.class})
+    public ResponseEntity<Object> illegalInput(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex,
+                gson.toJson(new ExceptionMessage(ex.getMessage(), 400)),
+                new HttpHeaders(),
+                HttpStatus.BAD_REQUEST, request
         );
     }
 }
