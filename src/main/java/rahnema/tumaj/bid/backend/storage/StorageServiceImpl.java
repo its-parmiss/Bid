@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+
+import java.util.Date;
 import java.util.stream.Stream;
 
 @Service
@@ -30,10 +32,10 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void store(MultipartFile file,String storage) {
-        if(storage.equals("profilePicture")) {
 
-            String filename = StringUtils.cleanPath(file.getOriginalFilename());
+    public String store(MultipartFile file,String storage) {
+        String filename = StringUtils.cleanPath(new Date().hashCode()+file.getOriginalFilename());
+        if(storage.equals("profilePicture")) {
             try {
                 if (file.isEmpty()) {
                     throw new StorageException("Failed to store empty file " + filename);
@@ -52,8 +54,6 @@ public class StorageServiceImpl implements StorageService {
                 throw new StorageException("Failed to store file " + filename, e);
             }
         }else if(storage.equals("auctionPicture")){
-
-            String filename = StringUtils.cleanPath(file.getOriginalFilename());
             try {
                 if (file.isEmpty()) {
                     throw new StorageException("Failed to store empty file " + filename);
@@ -72,6 +72,7 @@ public class StorageServiceImpl implements StorageService {
                 throw new StorageException("Failed to store file " + filename, e);
             }
         }
+        return filename;
     }
 
 //    @Override

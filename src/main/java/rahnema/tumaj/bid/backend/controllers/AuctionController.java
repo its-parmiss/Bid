@@ -93,9 +93,10 @@ public class AuctionController {
 
     @PostMapping("/upload/auctionImage")
     public ResponseEntity<org.springframework.core.io.Resource> handleFileUpload(@RequestBody MultipartFile file) {
-        storageService.store(file,"auctionPicture");
 
-        org.springframework.core.io.Resource tempFile = storageService.loadAsResource( StringUtils.cleanPath(file.getOriginalFilename()),"auctionPicture");
+        String name=storageService.store(file,"auctionPicture");
+
+        org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name,"auctionPicture");
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + tempFile.getFilename() + "\"").body(tempFile);
 
