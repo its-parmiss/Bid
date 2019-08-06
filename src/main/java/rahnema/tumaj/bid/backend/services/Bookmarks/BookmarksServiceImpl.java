@@ -6,7 +6,8 @@ import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.repositories.UserRepository;
 import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +22,6 @@ public class BookmarksServiceImpl implements BookmarksService {
     public List<Auction> getAll(Long id) {
         User user = userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id));
         Set<Auction> auctions = user.getAuctions();
-        return List.copyOf(auctions);
+        return new ArrayList<>(auctions);
     }
 }
