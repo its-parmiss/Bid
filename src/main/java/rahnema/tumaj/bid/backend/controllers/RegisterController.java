@@ -1,7 +1,9 @@
 package rahnema.tumaj.bid.backend.controllers;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.user.UserInputDTO;
 import rahnema.tumaj.bid.backend.domains.user.UserOutputDTO;

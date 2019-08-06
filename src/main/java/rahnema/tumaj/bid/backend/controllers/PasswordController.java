@@ -1,6 +1,5 @@
 package rahnema.tumaj.bid.backend.controllers;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.email.EmailDTO;
 import rahnema.tumaj.bid.backend.models.User;
