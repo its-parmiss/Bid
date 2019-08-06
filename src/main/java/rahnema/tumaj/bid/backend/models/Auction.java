@@ -46,4 +46,9 @@ public class Auction {
     @JsonBackReference
     @ManyToMany(fetch=FetchType.EAGER,mappedBy = "auctions",cascade=CascadeType.ALL) //bookmarks
     Set<User> users;
+
+    @PrePersist
+    protected void onCreate() {
+        this.created_at = new Date(System.currentTimeMillis());
+    }
 }

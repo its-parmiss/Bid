@@ -17,4 +17,9 @@ public class Images {
     Date created_at;
     @ManyToOne (fetch=FetchType.EAGER)
     Auction auction;
+
+    @PrePersist
+    protected void onCreate() {
+        this.created_at = new Date();
+    }
 }

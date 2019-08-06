@@ -20,4 +20,9 @@ public class Category {
     Date created_at;
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "category")
     Set<Auction> auctions;
+
+    @PrePersist
+    protected void onCreate() {
+        this.created_at = new Date();
+    }
 }

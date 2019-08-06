@@ -30,6 +30,14 @@ public class User {
     Date created_at;
     @Column(name = "reset_token")
     String resetToken;
+    @JsonManagedReference
+    @OneToMany (cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+    Set<Auction> myAuctions;
+
+    @PrePersist
+    protected void onCreate() {
+        this.created_at = new Date();
+    }
 
     @JsonManagedReference
     @ManyToMany (cascade=CascadeType.ALL, fetch=FetchType.EAGER)

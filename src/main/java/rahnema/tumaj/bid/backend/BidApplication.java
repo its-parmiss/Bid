@@ -52,7 +52,7 @@ public class BidApplication implements CommandLineRunner {
             auctions.add(auction);
         }
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 10; i++) {
             int random = (int) (Math.random() * 50);
             for (int j = 0; j < random; j++) {
                 auctions.get(i).getUsers().add(users.get(j));
@@ -70,12 +70,13 @@ public class BidApplication implements CommandLineRunner {
             auctionRepository.save(auction);
 
         }*/
-//        System.out.println(userRepository.findById((long)2256));
-//        List<Auction> auctionss = (auctionRepository.findAllAuctionsHottest(PageRequest.of(0, 5)));
-//        for (Auction auc:auctionss
-//             ) {
-//            System.out.println(auc.getUsers().size());
-//        }
 
+//        System.out.println(userRepository.findById((long)2256));
+
+        List<Auction> auctionss = (auctionRepository.findAllAuctionsHottest(PageRequest.of(0, 50)));
+        for (Auction auc:auctionss
+             ) {
+            System.out.println(auc.getId()+ " " + auc.getUsers().size());
+        }
     }
 }

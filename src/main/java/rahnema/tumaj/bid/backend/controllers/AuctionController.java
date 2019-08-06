@@ -17,7 +17,6 @@ import rahnema.tumaj.bid.backend.storage.StorageService;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
 import rahnema.tumaj.bid.backend.utils.exceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalAuctionInputException;
-import sun.text.resources.FormatData;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,12 +40,13 @@ public class AuctionController {
     }
 
     @PostMapping("/auctions")
-    public Resource<AuctionOutputDTO> addAuction (@RequestBody AuctionInputDTO auctionInput){
-        if (isAuctionValid(auctionInput))
-            return      passAuctionToService(auctionInput);
-        else
-            throw new IllegalAuctionInputException();
 
+    public Resource<AuctionOutputDTO> addAuction(@RequestBody AuctionInputDTO auctionInput) {
+        if (isAuctionValid(auctionInput)) {
+            return passAuctionToService(auctionInput);
+        } else {
+            throw new IllegalAuctionInputException();
+        }
     }
 
     private Resource<AuctionOutputDTO> passAuctionToService(@RequestBody AuctionInputDTO auctionInput) {
@@ -55,9 +55,9 @@ public class AuctionController {
         return assembler.assemble(addedAuction);
     }
     @GetMapping("/auctions")
-    public Resources<Resource<AuctionOutputDTO>> getAll (@RequestParam (required = false)Integer page ,@RequestParam (required = false) Integer limit){
-        System.out.println("HERE1");
-        if(page == null)
+
+    public Resources<Resource<AuctionOutputDTO>> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit) {
+        if (page == null)
             page = 0;
         if (limit == null)
             limit = 10;
@@ -73,9 +73,9 @@ public class AuctionController {
     }
 
     @GetMapping("/auctions/{id}")
-    public Resource<AuctionOutputDTO> getOne (@PathVariable Long id){
+    public Resource<AuctionOutputDTO> getOne(@PathVariable Long id) {
         Optional<Auction> auctionOptional = service.getOne(id);
-        Auction auction = auctionOptional.orElseThrow( ()  -> new AuctionNotFoundException(id));
+        Auction auction = auctionOptional.orElseThrow(() -> new AuctionNotFoundException(id));
         return this.assembler.assemble(auction);
     }
     @GetMapping("/auctions/find")
@@ -94,30 +94,28 @@ public class AuctionController {
                 .collect(Collectors.toList());
     }
     private boolean isAuctionValid(AuctionInputDTO auction){
+
         return true;
     }
 
     @GetMapping("/auctions/images/{filename:.+}")
     @ResponseBody
     public ResponseEntity<org.springframework.core.io.Resource> serveFile(@PathVariable String filename) {
-
-        org.springframework.core.io.Resource file = storageService.loadAsResource(filename,"auctionPicture");
+        org.springframework.core.io.Resource file = storageService.loadAsResource(filename, "auctionPicture");
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
     @PostMapping("/upload/auctionImage")
     public ResponseEntity<org.springframework.core.io.Resource> handleFileUpload(@RequestBody MultipartFile file) {
+
         String name=storageService.store(file,"auctionPicture");
 
         org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name,"auctionPicture");
+
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + tempFile.getFilename() + "\"").body(tempFile);
     }
-
-
-
-
 
 
 }

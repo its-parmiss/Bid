@@ -21,4 +21,9 @@ public class Bid {
     Auction related_auction;
     @ManyToOne(fetch=FetchType.EAGER)
     User bidder;
+
+    @PrePersist
+    protected void onCreate() {
+        this.created_at = new Date();
+    }
 }
