@@ -2,6 +2,7 @@ package rahnema.tumaj.bid.backend.controllers;
 
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +13,7 @@ import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
 import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +41,7 @@ public class UserController {
                 .collect(Collectors.toList());
         return new Resources<>(
                 auctions,
-                linkTo(methodOn(AuctionController.class).getAll(null, null)).withSelfRel()
+                linkTo(methodOn(AuctionController.class).getAll(null, null, new HttpHeaders())).withSelfRel()
         );
     }
     @GetMapping("/users/{id}/auctions")

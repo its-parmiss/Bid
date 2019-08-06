@@ -51,6 +51,6 @@ public class Auction {
 
     @PrePersist
     protected void onCreate() {
-        this.created_at = new Date(System.currentTimeMillis());
+        this.created_at = new Date();
     }
 }
