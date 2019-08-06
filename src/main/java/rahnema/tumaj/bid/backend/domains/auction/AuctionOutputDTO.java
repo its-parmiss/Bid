@@ -34,6 +34,7 @@ public class AuctionOutputDTO {
     public static AuctionOutputDTO fromModel(Auction auction){
         ModelMapper mapper = new ModelMapper();
         AuctionOutputDTO outputDTO = mapper.map(auction, AuctionOutputDTO.class);
+
         outputDTO.setCreated_at(auction.getCreated_at().toString());
         return outputDTO;
     }

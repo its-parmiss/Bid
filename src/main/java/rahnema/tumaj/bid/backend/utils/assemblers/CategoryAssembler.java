@@ -3,6 +3,7 @@ package rahnema.tumaj.bid.backend.utils.assemblers;
 
 import org.springframework.hateoas.Resource;
 import org.springframework.stereotype.Component;
+import rahnema.tumaj.bid.backend.controllers.CategoryController;
 import rahnema.tumaj.bid.backend.controllers.RegisterController;
 import rahnema.tumaj.bid.backend.domains.Category.CategoryOutputDTO;
 import rahnema.tumaj.bid.backend.domains.user.UserOutputDTO;
@@ -17,8 +18,7 @@ public class CategoryAssembler {
     public Resource<CategoryOutputDTO> toResource(Category category){
         return new Resource<>(
                 CategoryOutputDTO.fromModel(category),
-                linkTo(methodOn(RegisterController.class).getOneUser(category.getId())).withSelfRel(),
-                linkTo(methodOn(RegisterController.class).getAllUsers()).withRel("all")
+                linkTo(methodOn(CategoryController.class).getAllCategories()).withRel("all")
         );
     }
 }

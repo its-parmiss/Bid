@@ -9,8 +9,10 @@ import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import rahnema.tumaj.bid.backend.models.Auction;
+import rahnema.tumaj.bid.backend.models.Category;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.repositories.AuctionRepository;
+import rahnema.tumaj.bid.backend.repositories.CategoryRepository;
 import rahnema.tumaj.bid.backend.repositories.UserRepository;
 
 import java.util.ArrayList;
@@ -23,6 +25,8 @@ public class BidApplication implements CommandLineRunner {
     AuctionRepository auctionRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    CategoryRepository categoryRepository;
 
     public static void main(String[] args) {
         SpringApplication.run(BidApplication.class, args);
@@ -30,11 +34,12 @@ public class BidApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-    /*
         auctionRepository.deleteAll();
         userRepository.deleteAll();
         List<User> users = new ArrayList<>();
         List<Auction> auctions = new ArrayList<>();
+        Category digitalCat = new Category("mammadCategory");
+        categoryRepository.save(digitalCat);
         for (int i = 0; i < 50; i++) {
             User user = new User();
             user.setFirst_name(String.valueOf(i));
@@ -48,11 +53,12 @@ public class BidApplication implements CommandLineRunner {
             Auction auction = new Auction();
             auction.setTitle(String.valueOf(j));
             auction.setBase_price((long) j);
+            auction.setCategory(digitalCat);
             auction.setUsers(new HashSet<>());
             auctions.add(auction);
         }
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 30; i++) {
             int random = (int) (Math.random() * 50);
             for (int j = 0; j < random; j++) {
                 auctions.get(i).getUsers().add(users.get(j));
@@ -69,14 +75,14 @@ public class BidApplication implements CommandLineRunner {
         for (Auction auction : auctions) {
             auctionRepository.save(auction);
 
-        }*/
+        }
 
 //        System.out.println(userRepository.findById((long)2256));
 
-        List<Auction> auctionss = (auctionRepository.findAllAuctionsHottest(PageRequest.of(0, 50)));
+        /*List<Auction> auctionss = (auctionRepository.findAllAuctionsHottest(PageRequest.of(0, 50)));
         for (Auction auc:auctionss
              ) {
             System.out.println(auc.getId()+ " " + auc.getUsers().size());
-        }
+        }*/
     }
 }
