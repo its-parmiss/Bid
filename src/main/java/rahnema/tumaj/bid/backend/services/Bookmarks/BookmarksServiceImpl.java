@@ -7,7 +7,7 @@ import rahnema.tumaj.bid.backend.repositories.UserRepository;
 import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
 
 import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.List;
 import java.util.Set;
 

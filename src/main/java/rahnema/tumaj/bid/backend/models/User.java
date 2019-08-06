@@ -31,7 +31,6 @@ public class User {
     @Column(name = "reset_token")
     String resetToken;
 
-
     @PrePersist
     protected void onCreate() {
         this.created_at = new Date();
