@@ -1,12 +1,14 @@
 package rahnema.tumaj.bid.backend.controllers;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.user.UserInputDTO;
 import rahnema.tumaj.bid.backend.domains.user.UserOutputDTO;
 import rahnema.tumaj.bid.backend.models.User;
-import rahnema.tumaj.bid.backend.services.user.UserServiceImpl;
+import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.assemblers.UserResourceAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalUserInputException;
 import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
@@ -20,10 +22,10 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RestController
 public class RegisterController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final UserResourceAssembler assembler;
 
-    public RegisterController(UserServiceImpl userService,
+    public RegisterController(UserService userService,
                               UserResourceAssembler assembler) {
         this.userService = userService;
         this.assembler = assembler;
@@ -32,13 +34,13 @@ public class RegisterController {
     @GetMapping(path = "/users/{id}")
     public Resource<UserOutputDTO> getOneUser(@PathVariable Long id) {
         User user = userService.getOne(id).orElseThrow(() -> new UserNotFoundException(id));
-        return assembler.toResource(user);
+        return assembler.toResource(UserOutputDTO.fromModel(user));
     }
 
     @GetMapping(path = "/users")
     public Resources<Resource<UserOutputDTO>> getAllUsers() {
         List<Resource<UserOutputDTO>> users = userService.getAll().stream()
-                .map(assembler::toResource)
+                .map((user) -> assembler.toResource(UserOutputDTO.fromModel(user)))
                 .collect(Collectors.toList());
         return new Resources<>(
             users,
@@ -49,8 +51,8 @@ public class RegisterController {
     @PostMapping(path = "/users")
     public Resource<UserOutputDTO> addUser(@RequestBody UserInputDTO user) {
         if(isUserValid(user)){
-            this.userService.addOne(user);
-            return assembler.toResource(UserInputDTO.toModel(user));
+            UserOutputDTO savedUser = this.userService.addOne(user);
+            return assembler.toResource(savedUser);
         } else
             throw new IllegalUserInputException();
     }

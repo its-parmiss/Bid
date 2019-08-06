@@ -30,7 +30,8 @@ public class BidApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-       /* auctionRepository.deleteAll();
+    /*
+        auctionRepository.deleteAll();
         userRepository.deleteAll();
         List<User> users = new ArrayList<>();
         List<Auction> auctions = new ArrayList<>();
@@ -40,12 +41,13 @@ public class BidApplication implements CommandLineRunner {
             user.setEmail(String.valueOf(i));
             user.setPassword(String.valueOf(i));
             user.setAuctions(new HashSet<>());
+            user.setMyAuctions(new HashSet<>());
             users.add(user);
         }
         for (int j = 0; j < 50; j++) {
             Auction auction = new Auction();
             auction.setTitle(String.valueOf(j));
-
+            auction.setBase_price((long) j);
             auction.setUsers(new HashSet<>());
             auctions.add(auction);
         }
@@ -55,6 +57,9 @@ public class BidApplication implements CommandLineRunner {
             for (int j = 0; j < random; j++) {
                 auctions.get(i).getUsers().add(users.get(j));
                 users.get(j).getAuctions().add(auctions.get(i));
+
+                auctions.get(i).setUser(users.get(j));
+                users.get(j).getMyAuctions().add(auctions.get(i));
             }
         }
 
@@ -63,12 +68,12 @@ public class BidApplication implements CommandLineRunner {
         }
         for (Auction auction : auctions) {
             auctionRepository.save(auction);
-        }*/
-//        System.out.println(userRepository.findById((long)2256));
+        }
         List<Auction> auctionss = (auctionRepository.findAllAuctionsHottest(PageRequest.of(0, 5)));
         for (Auction auc:auctionss
              ) {
             System.out.println(auc.getUsers().size());
         }
+    */
     }
 }
