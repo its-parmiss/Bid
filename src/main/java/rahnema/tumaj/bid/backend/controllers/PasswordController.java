@@ -1,5 +1,6 @@
 package rahnema.tumaj.bid.backend.controllers;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.email.EmailDTO;
 import rahnema.tumaj.bid.backend.models.User;
@@ -18,12 +19,15 @@ import java.util.UUID;
 public class PasswordController {
     private final UserService userService;
     private final EmailService emailService;
+    private final SecurityController securityController;
 
     public PasswordController(UserService userService,
                               UserResourceAssembler assembler,
-                              EmailService emailService) {
+                              EmailService emailService,
+                              SecurityController securityController) {
         this.userService = userService;
         this.emailService = emailService;
+        this.securityController = securityController;
     }
 
     @PostMapping("/forgot")
@@ -33,7 +37,7 @@ public class PasswordController {
         user.setResetToken(UUID.randomUUID().toString());
         userService.saveUser(user);
         String message = "Click this link below to reset your password:\n" +
-                         "localhost:8080/reset?token=" +
+                         "localhost:8080/reset.html?token=" +
                           user.getResetToken();
 
         emailService.sendSimpleEmail(emailDto.email, "Tumaj Password Recovery", message);
@@ -48,7 +52,10 @@ public class PasswordController {
 
         String passwordValidator = "^.{6,37}$";
         if(params.get("password").matches(passwordValidator)){
-            user.setPassword(params.get("password"));
+            user.setPassword(
+                securityController.bCryptPasswordEncoder
+                        .encode(params.get("password"))
+            );
             user.setResetToken(null);
             userService.saveUser(user);
         } else {

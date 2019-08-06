@@ -35,4 +35,8 @@ dependencies {
 
     // Email sender
     compile 'org.springframework.boot:spring-boot-starter-mail'
+
+    // Secutiry https://mvnrepository.com/artifact/org.springframework.security/spring-security-crypto
+    compile group: 'org.springframework.security', name: 'spring-security-crypto'
+
 }

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.user.UserInputDTO;
 import rahnema.tumaj.bid.backend.domains.user.UserOutputDTO;
 import rahnema.tumaj.bid.backend.models.User;
-import rahnema.tumaj.bid.backend.services.user.UserServiceImpl;
+import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.assemblers.UserResourceAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalUserInputException;
 import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
@@ -20,10 +20,10 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RestController
 public class RegisterController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final UserResourceAssembler assembler;
 
-    public RegisterController(UserServiceImpl userService,
+    public RegisterController(UserService userService,
                               UserResourceAssembler assembler) {
         this.userService = userService;
         this.assembler = assembler;

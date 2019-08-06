@@ -25,13 +25,8 @@ public class Auction {
     Date start_date;
     @Column(name = "last_bid")
     Long last_bid;
-<<<<<<< HEAD
     @Column(name = "base_price",nullable = false)
     Long base_price;
-=======
-    @Column(name="base_price",nullable = false)
-    Long best_price;
->>>>>>> base price added
     @Column(name = "active_bidders_limit", columnDefinition = "int DEFAULT '0'")
     int active_bidders_limit;
     @Column(name = "is_active", columnDefinition = "boolean DEFAULT true")
