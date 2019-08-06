@@ -68,12 +68,14 @@ public class BidApplication implements CommandLineRunner {
         }
         for (Auction auction : auctions) {
             auctionRepository.save(auction);
-        }
-        List<Auction> auctionss = (auctionRepository.findAllAuctionsHottest(PageRequest.of(0, 5)));
-        for (Auction auc:auctionss
-             ) {
-            System.out.println(auc.getUsers().size());
-        }
-    */
+
+        }*/
+//        System.out.println(userRepository.findById((long)2256));
+//        List<Auction> auctionss = (auctionRepository.findAllAuctionsHottest(PageRequest.of(0, 5)));
+//        for (Auction auc:auctionss
+//             ) {
+//            System.out.println(auc.getUsers().size());
+//        }
+
     }
 }

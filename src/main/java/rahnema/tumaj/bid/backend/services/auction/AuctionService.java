@@ -15,4 +15,5 @@ public interface AuctionService {
     List<Auction> getAll(Integer page, Integer limit);
 
     Optional<Auction> getOne(Long id);
+    List<Auction> findByTitle(String title,Integer page,Integer limit);
 }

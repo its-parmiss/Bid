@@ -43,7 +43,7 @@ public class AuctionController {
     @PostMapping("/auctions")
     public Resource<AuctionOutputDTO> addAuction (@RequestBody AuctionInputDTO auctionInput){
         if (isAuctionValid(auctionInput))
-            return passAuctionToService(auctionInput);
+            return      passAuctionToService(auctionInput);
         else
             throw new IllegalAuctionInputException();
 
@@ -54,14 +54,15 @@ public class AuctionController {
         Auction addedAuction = service.addAuction(auction);
         return assembler.assemble(addedAuction);
     }
-
     @GetMapping("/auctions")
     public Resources<Resource<AuctionOutputDTO>> getAll (@RequestParam (required = false)Integer page ,@RequestParam (required = false) Integer limit){
+        System.out.println("HERE1");
         if(page == null)
             page = 0;
         if (limit == null)
             limit = 10;
         List<Resource<AuctionOutputDTO>> auctions = collectAllAuctions(page, limit);
+        System.out.println(auctions.size());
         return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit)).withSelfRel());
     }
 
@@ -77,7 +78,21 @@ public class AuctionController {
         Auction auction = auctionOptional.orElseThrow( ()  -> new AuctionNotFoundException(id));
         return this.assembler.assemble(auction);
     }
+    @GetMapping("/auctions/find")
+    public Resources<Resource<AuctionOutputDTO>> find (@RequestParam (required = false)Integer page ,@RequestParam (required = false) Integer limit,@RequestParam String title){
+        if(page == null)
+            page = 0;
+        if (limit == null)
+            limit = 10;
+        List<Resource<AuctionOutputDTO>> auctions = CollectFoundAuctions(title,page, limit);
+        return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit)).withSelfRel());
+    }
 
+    private List<Resource<AuctionOutputDTO>> CollectFoundAuctions(String title,Integer page, Integer limit) {
+        return service.findByTitle(title,page, limit).stream()
+                .map(this.assembler::assemble)
+                .collect(Collectors.toList());
+    }
     private boolean isAuctionValid(AuctionInputDTO auction){
         return true;
     }
@@ -93,14 +108,11 @@ public class AuctionController {
 
     @PostMapping("/upload/auctionImage")
     public ResponseEntity<org.springframework.core.io.Resource> handleFileUpload(@RequestBody MultipartFile file) {
-
         String name=storageService.store(file,"auctionPicture");
 
         org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name,"auctionPicture");
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + tempFile.getFilename() + "\"").body(tempFile);
-
-
     }
 
 

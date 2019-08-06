@@ -37,4 +37,9 @@ public class AuctionServiceImpl implements AuctionService {
         return this.repository.findById(id);
 
     }
+
+    @Override
+    public List<Auction> findByTitle(String title,Integer page,Integer limit) {
+        return this.repository.findByTitleContaining(title,PageRequest.of(page,limit));
+    }
 }
