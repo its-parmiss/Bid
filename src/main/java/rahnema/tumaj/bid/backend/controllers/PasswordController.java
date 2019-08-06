@@ -4,29 +4,25 @@ import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.email.EmailDTO;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.email.EmailService;
-import rahnema.tumaj.bid.backend.services.email.EmailServiceImpl;
-import rahnema.tumaj.bid.backend.services.user.UserServiceImpl;
+import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.assemblers.UserResourceAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalUserInputException;
 import rahnema.tumaj.bid.backend.utils.exceptions.TokenNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 
 @RestController
 public class PasswordController {
-    private final UserServiceImpl userService;
-    private final UserResourceAssembler assembler;
-    private final EmailServiceImpl emailService;
+    private final UserService userService;
+    private final EmailService emailService;
 
-    public PasswordController(UserServiceImpl userService,
+    public PasswordController(UserService userService,
                               UserResourceAssembler assembler,
-                              EmailServiceImpl emailService) {
+                              EmailService emailService) {
         this.userService = userService;
-        this.assembler = assembler;
         this.emailService = emailService;
     }
 
