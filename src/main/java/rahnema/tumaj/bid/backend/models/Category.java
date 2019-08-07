@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 @Entity
 @Table(name="Categories")
-@Data @NoArgsConstructor
+@Data @NoArgsConstructor @EqualsAndHashCode(exclude = "auctions")
 public class Category {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

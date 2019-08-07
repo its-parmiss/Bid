@@ -28,7 +28,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryOutputDTO addOne(CategoryInputDTO category) {
         Category categoryModel = CategoryInputDTO.toModel(category);
-        repository.save(categoryModel);
-        return CategoryOutputDTO.fromModel(categoryModel);
+        return CategoryOutputDTO.fromModel(repository.save(categoryModel));
     }
+
+    @Override
+    public Category findByTitle(String title) {
+        Category category=repository.findByTitle(title);
+        return category;
+    }
+
 }
