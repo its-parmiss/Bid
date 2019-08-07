@@ -22,6 +22,10 @@ import rahnema.tumaj.bid.backend.utils.exceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalAuctionInputException;
 import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,17 +55,31 @@ public class AuctionController {
     @PostMapping("/auctions")
 
     public Resource<AuctionOutputDTO> addAuction(@RequestBody AuctionInputDTO auctionInput) {
-        if (isAuctionValid(auctionInput)) {
+        if (isAuctionValid(auctionInput))
             return passAuctionToService(auctionInput);
-        } else {
+        else
             throw new IllegalAuctionInputException();
-        }
+
     }
 
     private Resource<AuctionOutputDTO> passAuctionToService(@RequestBody AuctionInputDTO auctionInput) {
         Auction auction = auctionInput.toModel();
+        try {
+            parseInputDate(auctionInput, auction);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         Auction addedAuction = service.addAuction(auction);
         return assembler.assemble(addedAuction);
+    }
+
+    private void parseInputDate(AuctionInputDTO auctionInput, Auction auction) throws ParseException {
+        Date expDate, startDate;
+        DateFormat df = new SimpleDateFormat();
+        expDate = df.parse(auctionInput.getExpireDate());
+        startDate = df.parse(auctionInput.getStartDate());
+        auction.setExpire_date(expDate);
+        auction.setStart_date(startDate);
     }
 
 
@@ -71,7 +89,7 @@ public class AuctionController {
         User user = getUserWithId(headers);
         page = defaultPage(page);
         limit = defaultLimit(limit);
-        return  getAuctionsWithPage(page, limit, user);
+        return getAuctionsWithPage(page, limit, user);
     }
 
     private String getAuthorization(@RequestHeader HttpHeaders headers) {
@@ -166,11 +184,8 @@ public class AuctionController {
 
     @PostMapping("/upload/auctionImage")
     public ResponseEntity<org.springframework.core.io.Resource> handleFileUpload(@RequestBody MultipartFile file) {
-
         String name = storageService.store(file, "auctionPicture");
-
         org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name, "auctionPicture");
-
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + tempFile.getFilename() + "\"").body(tempFile);
     }

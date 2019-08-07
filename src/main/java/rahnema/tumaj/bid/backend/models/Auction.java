@@ -34,6 +34,7 @@ public class Auction {
     @Column(name = "expire_date")
     Date expire_date;
     @Column(name = "created_at")
+//    @Temporal(TemporalType.DATE)
     Date created_at;
     @ManyToOne
     @JsonManagedReference

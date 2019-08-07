@@ -43,14 +43,14 @@ public class RegisterController {
                 .map((user) -> assembler.toResource(UserOutputDTO.fromModel(user)))
                 .collect(Collectors.toList());
         return new Resources<>(
-            users,
-            linkTo(methodOn(RegisterController.class).getAllUsers()).withSelfRel()
+                users,
+                linkTo(methodOn(RegisterController.class).getAllUsers()).withSelfRel()
         );
     }
 
     @PostMapping(path = "/users")
     public Resource<UserOutputDTO> addUser(@RequestBody UserInputDTO user) {
-        if(isUserValid(user)){
+        if (isUserValid(user)) {
             UserOutputDTO savedUser = this.userService.addOne(user);
             return assembler.toResource(savedUser);
         } else
@@ -61,12 +61,12 @@ public class RegisterController {
         String emailValidator = "^[\\w-_.+]*[\\w-_.]@([\\w]+\\.)+[\\w]+[\\w]$";
         String passwordValidator = "^.{6,37}$";
         String nameValidator = "^.{3,36}$";
-        return  user.getEmail().matches(emailValidator) &&
+        return user.getEmail().matches(emailValidator) &&
                 user.getPassword().matches(passwordValidator) &&
                 user.getFirst_name().matches(nameValidator) &&
                 (
-                    user.getLast_name() == null ||
-                    user.getLast_name().matches(nameValidator)
+                        user.getLast_name() == null ||
+                                user.getLast_name().matches(nameValidator)
                 );
     }
 
