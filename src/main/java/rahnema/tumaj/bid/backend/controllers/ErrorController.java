@@ -59,4 +59,13 @@ public class ErrorController extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST, request
         );
     }
+
+    @ExceptionHandler(value = {CategoryNotFoundException.class})
+    public ResponseEntity<Object> catNotFound(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex,
+                gson.toJson(new ExceptionMessage(ex.getMessage(), 400)),
+                new HttpHeaders(),
+                HttpStatus.BAD_REQUEST, request
+        );
+    }
 }

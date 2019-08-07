@@ -1,6 +1,7 @@
 package rahnema.tumaj.bid.backend.services.auction;
 
 import org.springframework.stereotype.Service;
+import rahnema.tumaj.bid.backend.domains.auction.AuctionInputDTO;
 import rahnema.tumaj.bid.backend.models.Auction;
 
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.Optional;
 
 public interface AuctionService {
 
-    Auction addAuction(Auction user);
+    Auction addAuction(AuctionInputDTO auctionInput);
 
     void deleteAuction(Long id);
 

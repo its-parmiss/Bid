@@ -63,24 +63,12 @@ public class AuctionController {
     }
 
     private Resource<AuctionOutputDTO> passAuctionToService(@RequestBody AuctionInputDTO auctionInput) {
-        Auction auction = auctionInput.toModel();
-        try {
-            parseInputDate(auctionInput, auction);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        Auction addedAuction = service.addAuction(auction);
+
+        Auction addedAuction = service.addAuction(auctionInput);
         return assembler.assemble(addedAuction);
     }
 
-    private void parseInputDate(AuctionInputDTO auctionInput, Auction auction) throws ParseException {
-        Date expDate, startDate;
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        expDate = df.parse(auctionInput.getExpireDate());
-        startDate = df.parse(auctionInput.getStartDate());
-        auction.setExpire_date(expDate);
-        auction.setStart_date(startDate);
-    }
+
 
 
     @GetMapping("/auctions")
@@ -170,8 +158,16 @@ public class AuctionController {
     }
 
     private boolean isAuctionValid(AuctionInputDTO auction) {
-
+//        boolean isBaseValid = auction.getBase_price()!= null && auction.getBase_price() >= 1e3 &&  auction.getBase_price() <= 1e12;
+//        boolean isDescValid = auction.getDescription().length() < 100;
+//        boolean isTitleValid = auction.getTitle()!=null && auction.getTitle().length() >= 6 && auction.getTitle().length() <= 36;
+//        boolean isStartValid = auction.getStartDate()!= null;
+//        boolean isBiddersValid = auction.getActive_bidders_limit()<=50 && auction.getActive_bidders_limit()>= 2;
+//
+//
+//        return isBaseValid && isBiddersValid && isDescValid && isTitleValid && isStartValid;
         return true;
+
     }
 
     @GetMapping("/auctions/images/{filename:.+}")

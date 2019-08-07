@@ -18,8 +18,7 @@ public class AuctionInputDTO {
     private String startDate;
     private Long last_bid;
     private int active_bidders_limit;
-    private String expireDate;
-    private Category category;
+    private Long categoryId;
     private User user;
     private Long base_price;
     private Set<Images> images;
