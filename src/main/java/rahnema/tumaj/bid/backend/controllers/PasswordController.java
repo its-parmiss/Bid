@@ -1,5 +1,7 @@
 package rahnema.tumaj.bid.backend.controllers;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.email.EmailDTO;
@@ -31,7 +33,7 @@ public class PasswordController {
     }
 
     @PostMapping("/forgot")
-    public void resetPasswordViaEmail(@RequestBody EmailDTO emailDto) {
+    public ResponseEntity<String> resetPasswordViaEmail(@RequestBody EmailDTO emailDto) {
         User user = userService.findByEmail(emailDto.email)
                 .orElseThrow(() -> new UserNotFoundException(emailDto.email));
         user.setResetToken(UUID.randomUUID().toString());
@@ -41,11 +43,11 @@ public class PasswordController {
                 user.getResetToken();
 
         emailService.sendSimpleEmail(emailDto.email, "Tumaj Password Recovery", message);
-        System.out.println("sent");
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/reset")
-    public void reset(@RequestParam Map<String, String> params) {
+    public ResponseEntity<String> reset(@RequestParam Map<String, String> params) {
         User user = userService.findByResetToken(params.get("token"))
                 .orElseThrow(TokenNotFoundException::new);
 
@@ -57,6 +59,7 @@ public class PasswordController {
             );
             user.setResetToken(null);
             userService.saveUser(user);
+            return new ResponseEntity<>(HttpStatus.OK);
         } else {
             throw new IllegalUserInputException();
         }

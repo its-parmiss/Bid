@@ -3,6 +3,8 @@ package rahnema.tumaj.bid.backend.controllers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.user.UserInputDTO;
@@ -49,12 +51,15 @@ public class RegisterController {
     }
 
     @PostMapping(path = "/users")
-    public Resource<UserOutputDTO> addUser(@RequestBody UserInputDTO user) {
+    public ResponseEntity<Resource<UserOutputDTO>> addUser(@RequestBody UserInputDTO user) {
         if (isUserValid(user)) {
             UserOutputDTO savedUser = this.userService.addOne(user);
-            return assembler.toResource(savedUser);
-        } else
+            return new ResponseEntity<>(
+                    assembler.toResource(savedUser), HttpStatus.CREATED
+            );
+        } else {
             throw new IllegalUserInputException();
+        }
     }
 
     private boolean isUserValid(UserInputDTO user) {
