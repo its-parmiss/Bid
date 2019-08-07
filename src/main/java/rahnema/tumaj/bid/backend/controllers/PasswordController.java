@@ -37,8 +37,8 @@ public class PasswordController {
         user.setResetToken(UUID.randomUUID().toString());
         userService.saveUser(user);
         String message = "Click this link below to reset your password:\n" +
-                         "http://localhost:8080/forgot?token=" +
-                          user.getResetToken();
+                "http://localhost:8080/forgot?token=" +
+                user.getResetToken();
 
         emailService.sendSimpleEmail(emailDto.email, "Tumaj Password Recovery", message);
         System.out.println("sent");
@@ -50,10 +50,10 @@ public class PasswordController {
                 .orElseThrow(TokenNotFoundException::new);
 
         String passwordValidator = "^.{6,37}$";
-        if(params.get("password").matches(passwordValidator)){
+        if (params.get("password").matches(passwordValidator)) {
             user.setPassword(
-                securityController.bCryptPasswordEncoder
-                        .encode(params.get("password"))
+                    securityController.bCryptPasswordEncoder
+                            .encode(params.get("password"))
             );
             user.setResetToken(null);
             userService.saveUser(user);

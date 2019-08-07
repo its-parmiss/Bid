@@ -15,10 +15,10 @@ public class AuctionInputDTO {
 
     private String title;
     private String description;
-    private Date start_date;
+    private String startDate;
     private Long last_bid;
     private int active_bidders_limit;
-    private Date expire_date;
+    private String expireDate;
     private Category category;
     private User user;
     private Long base_price;

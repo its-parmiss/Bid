@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class ResetPasswordController {
     @GetMapping("/forgot")
-    public String displayResetPassword (
+    public String displayResetPassword(
             @RequestParam("token") String token,
             Model model) {
         model.addAttribute("token", token);
