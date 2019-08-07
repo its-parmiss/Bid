@@ -50,7 +50,7 @@ public class AuctionServiceImpl implements AuctionService {
 
     private void parseInputDate(AuctionInputDTO auctionInput, Auction auction) throws ParseException {
         Date startDate;
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         startDate = df.parse(auctionInput.getStartDate());
         auction.setStart_date(startDate);
     }
