@@ -6,6 +6,7 @@ import rahnema.tumaj.bid.backend.domains.user.UserInputDTO;
 import rahnema.tumaj.bid.backend.domains.user.UserOutputDTO;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.repositories.UserRepository;
+import rahnema.tumaj.bid.backend.utils.exceptions.EmailAlreadyExistsException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserOutputDTO addOne(UserInputDTO user) {
+        if (this.userRepository.existsByEmail(user.getEmail()))
+            throw new EmailAlreadyExistsException(user.getEmail());
         User userModel = UserInputDTO.toModel(user);
         userModel.setPassword(
             this.securityController.bCryptPasswordEncoder
