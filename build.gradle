@@ -38,4 +38,6 @@ dependencies {
     // Secutiry https://mvnrepository.com/artifact/org.springframework.security/spring-security-crypto
     compile group: 'org.springframework.security', name: 'spring-security-crypto'
 
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
 }
