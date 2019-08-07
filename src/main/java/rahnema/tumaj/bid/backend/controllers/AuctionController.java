@@ -75,7 +75,7 @@ public class AuctionController {
 
     private void parseInputDate(AuctionInputDTO auctionInput, Auction auction) throws ParseException {
         Date expDate, startDate;
-        DateFormat df = new SimpleDateFormat();
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         expDate = df.parse(auctionInput.getExpireDate());
         startDate = df.parse(auctionInput.getStartDate());
         auction.setExpire_date(expDate);

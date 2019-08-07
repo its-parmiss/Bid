@@ -9,7 +9,7 @@ import rahnema.tumaj.bid.backend.models.Category;
 import rahnema.tumaj.bid.backend.models.Image;
 import rahnema.tumaj.bid.backend.models.User;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.Set;
 
 @Data @AllArgsConstructor @NoArgsConstructor
@@ -17,7 +17,7 @@ public class AuctionOutputDTO {
     private Long id;
     private String title;
     private String description;
-    private Date start_date;
+    private String start_date;
     private Long last_bid;
     private Long base_price;
     private int active_bidders_limit;
