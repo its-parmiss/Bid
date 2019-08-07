@@ -25,6 +25,7 @@ public class UserController {
     private final UserService userService;
     private final AuctionAssemler assembler;
     private final BookmarksService bookmarksService;
+
     public UserController(UserService userService,
                           AuctionAssemler assembler,
                           BookmarksService bookmarksService) {
@@ -44,10 +45,11 @@ public class UserController {
                 linkTo(methodOn(AuctionController.class).getAll(null, null, new HttpHeaders())).withSelfRel()
         );
     }
+
     @GetMapping("/users/{id}/auctions")
     public Resources<Resource<AuctionOutputDTO>> getAll(@PathVariable(required = false) Long id) {
         List<Resource<AuctionOutputDTO>> auctions = collectAllBookmarks(id);
-        return new Resources<>(auctions ,linkTo(methodOn(UserController.class).getAll(id)).withSelfRel());
+        return new Resources<>(auctions, linkTo(methodOn(UserController.class).getAll(id)).withSelfRel());
     }
 
     private List<Resource<AuctionOutputDTO>> collectAllBookmarks(Long id) {

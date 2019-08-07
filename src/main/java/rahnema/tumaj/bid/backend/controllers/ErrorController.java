@@ -50,4 +50,12 @@ public class ErrorController extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST, request
         );
     }
+    @ExceptionHandler(value = {EmailAlreadyExistsException.class})
+    public ResponseEntity<Object> emailExists(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex,
+                gson.toJson(new ExceptionMessage(ex.getMessage(), 400)),
+                new HttpHeaders(),
+                HttpStatus.BAD_REQUEST, request
+        );
+    }
 }
