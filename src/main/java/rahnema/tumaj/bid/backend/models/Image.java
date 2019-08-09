@@ -5,9 +5,9 @@ import lombok.Data;
 import javax.persistence.*;
 import java.util.Date;
 @Entity
-@Table(name="Images")
+@Table(name="Image")
 @Data
-public class Images {
+public class Image {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     Long id;

@@ -4,15 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.hateoas.Resource;
-import rahnema.tumaj.bid.backend.domains.user.UserOutputDTO;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.models.Category;
-import rahnema.tumaj.bid.backend.models.Images;
+import rahnema.tumaj.bid.backend.models.Image;
 import rahnema.tumaj.bid.backend.models.User;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.Set;
 
 @Data @AllArgsConstructor @NoArgsConstructor
@@ -29,7 +26,7 @@ public class AuctionOutputDTO {
     private String created_at;
     private Category category;
     private User user;
-    private Set<Images> images;
+    private Set<Image> images;
     private boolean is_for_user;
 
     public static AuctionOutputDTO fromModel(Auction auction){

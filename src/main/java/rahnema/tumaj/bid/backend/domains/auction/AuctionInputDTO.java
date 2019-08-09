@@ -4,7 +4,7 @@ import lombok.Data;
 import org.modelmapper.ModelMapper;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.models.Category;
-import rahnema.tumaj.bid.backend.models.Images;
+import rahnema.tumaj.bid.backend.models.Image;
 import rahnema.tumaj.bid.backend.models.User;
 
 import java.util.Date;
@@ -22,7 +22,7 @@ public class AuctionInputDTO {
     private Category category;
     private User user;
     private Long base_price;
-    private Set<Images> images;
+    private Set<Image> images;
 
     public Auction toModel(){
         ModelMapper mapper = new ModelMapper();
