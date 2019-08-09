@@ -63,7 +63,6 @@ public class AuctionController {
     }
 
     private Resource<AuctionOutputDTO> passAuctionToService(@RequestBody AuctionInputDTO auctionInput) {
-
         Auction addedAuction = service.addAuction(auctionInput);
         return assembler.assemble(addedAuction);
     }
