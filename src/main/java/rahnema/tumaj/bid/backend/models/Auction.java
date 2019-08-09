@@ -43,7 +43,7 @@ public class Auction {
     @JsonBackReference
     User user;
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "auction")
-    Set<Image> images;
+    Set<Images> images;
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "related_auction")
     Set<Bid> bids;
     @JsonBackReference
