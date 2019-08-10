@@ -16,9 +16,11 @@ import rahnema.tumaj.bid.backend.services.Images.ImageService;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;
+import rahnema.tumaj.bid.backend.utils.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalAuctionInputException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,14 +38,17 @@ public class AuctionController {
 
     private final UserService userService;
 
-    public AuctionController(StorageService storageService, AuctionService service, AuctionAssemler assembler, UserService userService,ImageService imageService) {
+
+    private final TokenUtil tokenUtil;
+
+    public AuctionController(StorageService storageService, ImageService imageService, AuctionService service, AuctionAssemler assembler, UserService userService, TokenUtil tokenUtil) {
         this.storageService = storageService;
+        this.imageService = imageService;
         this.service = service;
         this.assembler = assembler;
         this.userService = userService;
-        this.imageService=imageService;
+        this.tokenUtil = tokenUtil;
     }
-
 
     @PostMapping("/auctions")
 
@@ -70,9 +75,9 @@ public class AuctionController {
     }
     
     @GetMapping("/auctions")
-    public Resources<Resource<AuctionOutputDTO>> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestHeader HttpHeaders headers) {
+    public Resources<Resource<AuctionOutputDTO>> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestHeader("Authorization") String token) {
 
-        User user = getUserWithId(headers);
+        User user = getUserWithToken(token);
         page = defaultPage(page);
         limit = defaultLimit(limit);
         return getAuctionsWithPage(page, limit, user);
@@ -89,12 +94,14 @@ public class AuctionController {
     private Resources<Resource<AuctionOutputDTO>> getAuctionsWithPage(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, User user) {
         List<Resource<AuctionOutputDTO>> auctions = collectAllAuctions(page, limit);
         evaluateBookmarkedAuctions(user, auctions);
-        return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit, new HttpHeaders()/*params*/)).withSelfRel());
+        return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit, null )).withSelfRel());
     }
 
-    private User getUserWithId(HttpHeaders headers) {
-        Long token = Long.valueOf(getAuthorization(headers));
-        return userService.getOne(token).orElseThrow(() -> new UserNotFoundException(token));
+    private User getUserWithToken(String token) {
+        String email = tokenUtil
+                .getUsernameFromToken(token.split(" ")[1])
+                .orElseThrow(TokenNotFoundException::new);
+       return userService.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
     }
 
     private void evaluateBookmarkedAuctions(User user, List<Resource<AuctionOutputDTO>> auctions) {

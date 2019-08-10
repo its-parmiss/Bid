@@ -24,7 +24,7 @@ public class AuctionAssemler {
 //        assembler.toResource()
         return new Resource<>(AuctionOutputDTO.fromModel(auction),
                 linkTo(methodOn(AuctionController.class).getOne(auction.getId())).withSelfRel(),
-                linkTo(methodOn(AuctionController.class).getAll(defaultPage, defaultPageLimit, new HttpHeaders())).withRel("all")
+                linkTo(methodOn(AuctionController.class).getAll(defaultPage, defaultPageLimit, null)).withRel("all")
         );
     }
 }
