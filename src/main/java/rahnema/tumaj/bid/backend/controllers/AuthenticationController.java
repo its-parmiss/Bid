@@ -44,10 +44,8 @@ public class AuthenticationController {
 		try {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 		} catch (DisabledException e) {
-			System.out.println("kir1");
 			throw new Exception("USER_DISABLED", e);
 		} catch (BadCredentialsException e) {
-			System.out.println("kir2");
 			throw new Exception("INVALID_CREDENTIALS", e);
 		}
 	}
