@@ -6,10 +6,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import rahnema.tumaj.bid.backend.domains.Image.ImageInputDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionInputDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
 import rahnema.tumaj.bid.backend.models.Auction;
+import rahnema.tumaj.bid.backend.models.Images;
 import rahnema.tumaj.bid.backend.models.User;
+import rahnema.tumaj.bid.backend.services.Images.ImageService;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;
@@ -17,9 +20,7 @@ import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalAuctionInputException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
-
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -29,25 +30,27 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RestController
 public class AuctionController {
     private final StorageService storageService;
-
+    private final ImageService imageService;
     private final AuctionService service;
     private final AuctionAssemler assembler;
 
     private final UserService userService;
 
-    public AuctionController(StorageService storageService, AuctionService service, AuctionAssemler assembler, UserService userService) {
+    public AuctionController(StorageService storageService, AuctionService service, AuctionAssemler assembler, UserService userService,ImageService imageService) {
         this.storageService = storageService;
         this.service = service;
         this.assembler = assembler;
         this.userService = userService;
+        this.imageService=imageService;
     }
 
 
     @PostMapping("/auctions")
 
     public Resource<AuctionOutputDTO> addAuction(@RequestBody AuctionInputDTO auctionInput) {
-        if (isAuctionValid(auctionInput))
+        if (isAuctionValid(auctionInput)){
             return passAuctionToService(auctionInput);
+        }
         else
             throw new IllegalAuctionInputException();
 
@@ -55,12 +58,17 @@ public class AuctionController {
 
     private Resource<AuctionOutputDTO> passAuctionToService(@RequestBody AuctionInputDTO auctionInput) {
         Auction addedAuction = service.addAuction(auctionInput);
+        Set<Images> images=new HashSet<>();
+            for(String url:auctionInput.getImageUrls()){
+              ImageInputDTO imageInputDTO=new ImageInputDTO();
+              imageInputDTO.setUrl(url);
+              Images img=imageService.addOne(imageInputDTO);
+              images.add(img);
+        }
+        addedAuction.setImages(images);
         return assembler.assemble(addedAuction);
     }
-
-
-
-
+    
     @GetMapping("/auctions")
     public Resources<Resource<AuctionOutputDTO>> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestHeader HttpHeaders headers) {
 

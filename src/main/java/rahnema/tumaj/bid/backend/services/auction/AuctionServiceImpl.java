@@ -28,6 +28,7 @@ public class AuctionServiceImpl implements AuctionService {
     @Override
     public Auction addAuction(AuctionInputDTO auctionInput) {
         Auction auction = auctionInput.toModel();
+        System.out.println(auction.getTitle());
         setAuctionCategoryById(auctionInput, auction);
         parseDateAndHandleException(auctionInput, auction);
         return this.repository.save(auction);

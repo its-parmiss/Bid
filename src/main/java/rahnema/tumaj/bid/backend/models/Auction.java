@@ -12,7 +12,7 @@ import java.util.Set;
 @Entity
 @Table(name="Auctions")
 @Data
-@EqualsAndHashCode(exclude={"users", "user","category"})
+@EqualsAndHashCode(exclude={"users", "user","category","images"})
 public class Auction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,6 +43,7 @@ public class Auction {
     @JsonBackReference
     User user;
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "auction")
+    @JsonManagedReference
     Set<Images> images;
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "related_auction")
     Set<Bid> bids;

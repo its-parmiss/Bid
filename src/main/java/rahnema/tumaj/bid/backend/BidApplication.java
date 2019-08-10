@@ -34,7 +34,8 @@ public class BidApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        userRepository.deleteAll();
+//        userRepository.deleteAll();
+//        auctionRepository.deleteAll();
        /* auctionRepository.deleteAll();
         userRepository.deleteAll();
         List<User> users = new ArrayList<>();

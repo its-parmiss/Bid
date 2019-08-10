@@ -1,5 +1,7 @@
 package rahnema.tumaj.bid.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -15,6 +17,7 @@ public class Images {
     String url;
     @Column(name = "created_at")
     Date created_at;
+    @JsonBackReference
     @ManyToOne (fetch=FetchType.EAGER)
     Auction auction;
 
