@@ -10,14 +10,17 @@ import rahnema.tumaj.bid.backend.domains.Image.ImageInputDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionInputDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
 import rahnema.tumaj.bid.backend.models.Auction;
+import rahnema.tumaj.bid.backend.models.Category;
 import rahnema.tumaj.bid.backend.models.Images;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.Images.ImageService;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
+import rahnema.tumaj.bid.backend.services.category.CategoryService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;
 import rahnema.tumaj.bid.backend.utils.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
+import rahnema.tumaj.bid.backend.utils.assemblers.CategoryAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalAuctionInputException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
@@ -35,23 +38,25 @@ public class AuctionController {
     private final ImageService imageService;
     private final AuctionService service;
     private final AuctionAssemler assembler;
-
+    private final CategoryAssembler categoryAssembler;
+    private final CategoryService categoryService;
     private final UserService userService;
 
 
     private final TokenUtil tokenUtil;
 
-    public AuctionController(StorageService storageService, ImageService imageService, AuctionService service, AuctionAssemler assembler, UserService userService, TokenUtil tokenUtil) {
+    public AuctionController(CategoryService categoryService,CategoryAssembler categoryAssembler,StorageService storageService, ImageService imageService, AuctionService service, AuctionAssemler assembler, UserService userService, TokenUtil tokenUtil) {
         this.storageService = storageService;
         this.imageService = imageService;
         this.service = service;
         this.assembler = assembler;
         this.userService = userService;
         this.tokenUtil = tokenUtil;
+        this.categoryAssembler=categoryAssembler;
+        this.categoryService=categoryService;
     }
 
     @PostMapping("/auctions")
-
     public Resource<AuctionOutputDTO> addAuction(@RequestBody AuctionInputDTO auctionInput) {
         if (isAuctionValid(auctionInput)){
             return passAuctionToService(auctionInput);
@@ -75,26 +80,23 @@ public class AuctionController {
     }
     
     @GetMapping("/auctions")
-    public Resources<Resource<AuctionOutputDTO>> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestHeader("Authorization") String token) {
-
-        User user = getUserWithToken(token);
-        page = defaultPage(page);
-        limit = defaultLimit(limit);
-        return getAuctionsWithPage(page, limit, user);
+    public Resources<Resource<AuctionOutputDTO>> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestHeader("Authorization") String token,@RequestParam(required = false)String title,@RequestParam(required = false)Long categoryId) {
+        if(categoryId!=null){
+            return filter(categoryId);
+        }else if(title!=null){
+            return find(page,limit,title);
+        }
+        else {
+            User user = getUserWithToken(token);
+            page = defaultPage(page);
+            limit = defaultLimit(limit);
+            return getAuctionsWithPage(page, limit, user);
+        }
     }
-
-    private String getAuthorization(@RequestHeader HttpHeaders headers) {
-        List<String> authList = headers.get(HttpHeaders.AUTHORIZATION);
-        if (authList != null)
-            return authList.get(0);
-        else
-            throw new UserNotFoundException("-1");
-    }
-
     private Resources<Resource<AuctionOutputDTO>> getAuctionsWithPage(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, User user) {
         List<Resource<AuctionOutputDTO>> auctions = collectAllAuctions(page, limit);
         evaluateBookmarkedAuctions(user, auctions);
-        return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit, null )).withSelfRel());
+        return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit, null,null,null )).withSelfRel());
     }
 
     private User getUserWithToken(String token) {
@@ -148,14 +150,27 @@ public class AuctionController {
         return this.assembler.assemble(auction);
     }
 
-    @GetMapping("/auctions/find")
-    public Resources<Resource<AuctionOutputDTO>> find(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestParam String title) {
+//    @GetMapping("/auctions/find")
+    public Resources<Resource<AuctionOutputDTO>> find(Integer page,  Integer limit, String title) {
         page = defaultPage(page);
         limit = defaultLimit(limit);
         List<Resource<AuctionOutputDTO>> auctions = CollectFoundAuctions(title, page, limit);
-        return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).find(page, limit, title)).withSelfRel());
+        return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit,null,title,null)).withSelfRel());
     }
 
+    public Resources<Resource<AuctionOutputDTO>> filter( Long id) {
+        Category category = categoryService.findById(id).get();
+        List<Auction> auctions = new ArrayList<>(category.getAuctions());
+        System.out.println("auctions.size = " + auctions.size());
+        for (Auction a : auctions) {
+            System.out.println("a.getTitle() = " + a.getTitle());
+        }
+        List<Resource<AuctionOutputDTO>> auctionlists = auctions.stream()
+                .map(this.assembler::assemble)
+                .collect(Collectors.toList());
+        return new Resources<>(auctionlists, linkTo(methodOn(AuctionController.class).getAll(null,null,null,null,id)).withSelfRel());
+
+    }
     private List<Resource<AuctionOutputDTO>> CollectFoundAuctions(String title, Integer page, Integer limit) {
         return service.findByTitle(title, page, limit).stream()
                 .map(this.assembler::assemble)

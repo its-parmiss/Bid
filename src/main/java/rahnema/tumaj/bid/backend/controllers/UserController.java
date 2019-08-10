@@ -41,7 +41,7 @@ public class UserController {
                 .collect(Collectors.toList());
         return new Resources<>(
                 auctions,
-                linkTo(methodOn(AuctionController.class).getAll(null, null, null)).withSelfRel()
+                linkTo(methodOn(AuctionController.class).getAll(null, null, null,null,null)).withSelfRel()
         );
     }
 
