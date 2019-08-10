@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import rahnema.tumaj.bid.backend.models.Auction;
+import rahnema.tumaj.bid.backend.models.Category;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,4 +33,5 @@ public interface AuctionRepository extends PagingAndSortingRepository<Auction, L
 //
     Optional<List<Auction>> findByTitle(String title);
     List<Auction> findByTitleContaining(String title,Pageable pageable);
+    List<Auction> findByTitleContainingAndCategory(String title, Category category,Pageable pageable);
 }
