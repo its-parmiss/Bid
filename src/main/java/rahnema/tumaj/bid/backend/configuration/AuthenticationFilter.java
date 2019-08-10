@@ -12,6 +12,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import rahnema.tumaj.bid.backend.services.UserDetailsServiceImpl;
 import rahnema.tumaj.bid.backend.utils.JwtTokenUtil;
 import rahnema.tumaj.bid.backend.utils.TokenUtil;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -40,7 +42,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
 			jwtToken = requestTokenHeader.substring(7);
 			try {
-				username = tokenUtil.getUsernameFromToken(jwtToken);
+				username = tokenUtil.getUsernameFromToken(jwtToken).orElseThrow(TokenNotFoundException::new);
 			} catch (IllegalArgumentException e) {
 				System.out.println("Unable to get JWT Token");
 			} catch (ExpiredJwtException e) {

@@ -1,6 +1,7 @@
 package rahnema.tumaj.bid.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,16 +31,18 @@ public class SettingsController {
     public void changeAccountSettings(@RequestHeader("Authorization") String token,
                                       @RequestParam Map<String, String> params) {
 
-        String email = tokenUtil.getUsernameFromToken(token).orElseThrow(TokenNotFoundException::new);
+        String email = tokenUtil
+                .getUsernameFromToken(token.split(" ")[1])
+                .orElseThrow(TokenNotFoundException::new);
         User user = userService.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
 
-        extractUserFieldsFromParams(params, user);
+        changeUserFieldsFromParams(params, user);
 
         userService.saveUser(user);
 
     }
 
-    private void extractUserFieldsFromParams(@RequestParam Map<String, String> params, User user) {
+    private void changeUserFieldsFromParams(@RequestParam Map<String, String> params, User user) {
         String newFirstName = params.get("first_name");
         String newLastName = params.get("last_name");
         String newEmail = params.get("email");
@@ -51,5 +54,20 @@ public class SettingsController {
         user.setFirst_name(newFirstName);
         user.setLast_name(newLastName);
         user.setEmail(newEmail);
+    }
+
+    @PostMapping("/user/settings/change-password")
+    private void changeAccountPassword(@RequestHeader("Authorization") String token,
+                                       @RequestParam Map<String, String> params) {
+
+        String email = tokenUtil
+                .getUsernameFromToken(token.split(" ")[1])
+                .orElseThrow(TokenNotFoundException::new);
+        User user = userService.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+
+        String newPassword = params.get("password");
+        user.setPassword(newPassword);
+
+        userService.saveUser(user);
     }
 }
