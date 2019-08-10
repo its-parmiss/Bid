@@ -81,18 +81,24 @@ public class AuctionController {
     
     @GetMapping("/auctions")
     public Resources<Resource<AuctionOutputDTO>> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestHeader("Authorization") String token,@RequestParam(required = false)String title,@RequestParam(required = false)Long categoryId) {
-        if(categoryId!=null){
-            return filter(categoryId);
-        }else if(title!=null){
-            return find(page,limit,title);
-        }
-        else {
+        if(categoryId==null && title==null){
             User user = getUserWithToken(token);
             page = defaultPage(page);
             limit = defaultLimit(limit);
             return getAuctionsWithPage(page, limit, user);
+        }else if(categoryId==null && title!=null){
+            return find(page,limit,title);
+        }
+        else if(categoryId!=null && title==null){
+            return filter(categoryId);
+        }
+        else {
+           return findByFilterAndCategory(title,categoryId,page,limit);
         }
     }
+//    private Resources<Resource<AuctionOutputDTO>> findByTitleAndCategory(String title,Long categoryId){
+//        filter(categoryId);
+//    }
     private Resources<Resource<AuctionOutputDTO>> getAuctionsWithPage(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, User user) {
         List<Resource<AuctionOutputDTO>> auctions = collectAllAuctions(page, limit);
         evaluateBookmarkedAuctions(user, auctions);
@@ -149,7 +155,16 @@ public class AuctionController {
         Auction auction = auctionOptional.orElseThrow(() -> new AuctionNotFoundException(id));
         return this.assembler.assemble(auction);
     }
+public Resources<Resource<AuctionOutputDTO>> findByFilterAndCategory(String title,Long categoryId,Integer page,Integer limit){
+    page = defaultPage(page);
+    limit = defaultLimit(limit);
+    List<Auction> auctions = service.findByTitleAndCategory(title,categoryId,page,limit);
+    List<Resource<AuctionOutputDTO>> auctionss=auctions.stream()
+            .map(this.assembler::assemble)
+            .collect(Collectors.toList());
+    return new Resources<>(auctionss, linkTo(methodOn(AuctionController.class).getAll(page, limit,null,title,null)).withSelfRel());
 
+}
 //    @GetMapping("/auctions/find")
     public Resources<Resource<AuctionOutputDTO>> find(Integer page,  Integer limit, String title) {
         page = defaultPage(page);
@@ -157,26 +172,19 @@ public class AuctionController {
         List<Resource<AuctionOutputDTO>> auctions = CollectFoundAuctions(title, page, limit);
         return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit,null,title,null)).withSelfRel());
     }
-
     public Resources<Resource<AuctionOutputDTO>> filter( Long id) {
         Category category = categoryService.findById(id).get();
         List<Auction> auctions = new ArrayList<>(category.getAuctions());
-        System.out.println("auctions.size = " + auctions.size());
-        for (Auction a : auctions) {
-            System.out.println("a.getTitle() = " + a.getTitle());
-        }
         List<Resource<AuctionOutputDTO>> auctionlists = auctions.stream()
                 .map(this.assembler::assemble)
                 .collect(Collectors.toList());
         return new Resources<>(auctionlists, linkTo(methodOn(AuctionController.class).getAll(null,null,null,null,id)).withSelfRel());
-
     }
     private List<Resource<AuctionOutputDTO>> CollectFoundAuctions(String title, Integer page, Integer limit) {
         return service.findByTitle(title, page, limit).stream()
                 .map(this.assembler::assemble)
                 .collect(Collectors.toList());
     }
-
     private boolean isAuctionValid(AuctionInputDTO auction) {
 //        boolean isBaseValid = auction.getBase_price()!= null && auction.getBase_price() >= 1e3 &&  auction.getBase_price() <= 1e12;
 //        boolean isDescValid = auction.getDescription().length() < 100;

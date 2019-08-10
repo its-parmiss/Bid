@@ -74,4 +74,11 @@ public class AuctionServiceImpl implements AuctionService {
     public List<Auction> findByTitle(String title,Integer page,Integer limit) {
         return this.repository.findByTitleContaining(title,PageRequest.of(page,limit));
     }
+
+    @Override
+    public List<Auction> findByTitleAndCategory(String title, Long categoryId, Integer page, Integer limit) {
+        Category category=categoryRepository.findById(categoryId).get();
+        return repository.findByTitleContainingAndCategory(title,category,PageRequest.of(page,limit));
+
+    }
 }
