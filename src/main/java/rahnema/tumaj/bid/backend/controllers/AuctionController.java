@@ -86,10 +86,10 @@ public class AuctionController {
             page = defaultPage(page);
             limit = defaultLimit(limit);
             return getAuctionsWithPage(page, limit, user);
-        }else if(categoryId==null && title!=null){
+        }else if(categoryId==null){
             return find(page,limit,title);
         }
-        else if(categoryId!=null && title==null){
+        else if( title==null){
             return filter(categoryId);
         }
         else {
