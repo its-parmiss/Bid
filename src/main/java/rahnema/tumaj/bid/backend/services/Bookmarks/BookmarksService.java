@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface BookmarksService {
 
-    void bookmarkAuction(Long auctionId, Long userId);
+    void bookmarkAuction(Long auctionId, String email);
     List<Auction> getAll(Long id);
 }

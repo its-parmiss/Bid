@@ -30,8 +30,8 @@ public class BookmarksServiceImpl implements BookmarksService {
     }
 
     @Override
-    public void bookmarkAuction(Long auctionId, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException(userId));
+    public void bookmarkAuction(Long auctionId, String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new UserNotFoundException(email));
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(()-> new AuctionNotFoundException(auctionId));
         saveBookmarkOnDB(user, auction);
 
