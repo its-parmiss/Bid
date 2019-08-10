@@ -1,12 +1,6 @@
 package rahnema.tumaj.bid.backend.controllers;
 
 import org.springframework.hateoas.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
@@ -47,11 +41,6 @@ public class RegisterController {
         this.tokenUtil = tokenUtil;
     }
 
-    @GetMapping(path = "/users/{id}")
-    public Resource<UserOutputDTO> getOneUser(@PathVariable Long id) {
-        User user = userService.getOne(id).orElseThrow(() -> new UserNotFoundException(id));
-        return assembler.toResource(UserOutputDTO.fromModel(user));
-    }
     @GetMapping(path="/me")
     public Resource<UserOutputDTO> getUserInfo(@RequestHeader("Authorization") String token){
         String email = tokenUtil
@@ -60,10 +49,11 @@ public class RegisterController {
         User user = userService.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
         return assembler.toResource(UserOutputDTO.fromModel(user));
     }
+
     @PostMapping(path = "/users")
     public AuthenticationResponse addUser(@RequestBody UserInputDTO user) {
         if (isUserValid(user)) {
-            UserOutputDTO savedUser = this.userService.addOne(user);
+            this.userService.addOne(user);
             AuthenticationRequest authenticationRequest = new AuthenticationRequest();
             authenticationRequest.setEmail(user.getEmail());
             authenticationRequest.setPassword(user.getPassword());
