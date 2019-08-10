@@ -45,7 +45,7 @@ public class SettingsController {
 
     }
 
-    @PostMapping("/user/settings/uploadProfPic")
+    @PostMapping("/user/settings/upload-profile-picture")
     public ResponseEntity<org.springframework.core.io.Resource> handleFileUpload(@RequestHeader("Authorization") String token,@RequestBody MultipartFile file) {
         String name = storageService.store(file, "profilePicture");
         org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name, "profilePicture");
