@@ -3,6 +3,7 @@ package rahnema.tumaj.bid.backend.utils;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Optional;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,7 +14,7 @@ public interface TokenUtil extends Serializable {
      * @param token
      * @return
      */
-    public String getUsernameFromToken(String token);
+    public Optional<String> getUsernameFromToken(String token);
 
     /**
      * retrieve expiration date from token
