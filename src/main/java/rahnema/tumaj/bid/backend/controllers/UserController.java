@@ -2,15 +2,17 @@ package rahnema.tumaj.bid.backend.controllers;
 
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.Bookmarks.BookmarksService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
+import rahnema.tumaj.bid.backend.utils.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 
 import java.util.List;
@@ -24,18 +26,27 @@ public class UserController {
     private final UserService userService;
     private final AuctionAssemler assembler;
     private final BookmarksService bookmarksService;
+    private final TokenUtil tokenUtil;
 
     public UserController(UserService userService,
                           AuctionAssemler assembler,
-                          BookmarksService bookmarksService) {
+                          BookmarksService bookmarksService,
+                          TokenUtil tokenUtil) {
         this.userService = userService;
         this.assembler = assembler;
         this.bookmarksService = bookmarksService;
+        this.tokenUtil = tokenUtil;
     }
 
-    @GetMapping("/users/{id}/my-auctions")
-    public Resources<Resource<AuctionOutputDTO>> getAllAuctions(@PathVariable Long id) {
-        User user = userService.getOne(id).orElseThrow(() -> new UserNotFoundException(id));
+    @GetMapping("/user/my-auctions")
+    public Resources<Resource<AuctionOutputDTO>> getAllAuctions(@RequestHeader("Authorization") String token) {
+        String email = tokenUtil
+                .getUsernameFromToken(token)
+                .orElseThrow(TokenNotFoundException::new);
+
+        User user = userService.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email));
+
         List<Resource<AuctionOutputDTO>> auctions = user.getMyAuctions().stream()
                 .map(assembler::assemble)
                 .collect(Collectors.toList());
@@ -45,14 +56,18 @@ public class UserController {
         );
     }
 
-    @GetMapping("/users/{id}/auctions")
-    public Resources<Resource<AuctionOutputDTO>> getAll(@PathVariable(required = false) Long id) {
-        List<Resource<AuctionOutputDTO>> auctions = collectAllBookmarks(id);
-        return new Resources<>(auctions, linkTo(methodOn(UserController.class).getAll(id)).withSelfRel());
+    @GetMapping("/user/auctions")
+    public Resources<Resource<AuctionOutputDTO>> getAll(@RequestHeader("Authorization") String token) {
+        String email = tokenUtil.getUsernameFromToken(token).orElseThrow(TokenNotFoundException::new);
+        List<Resource<AuctionOutputDTO>> auctions = collectAllBookmarks(email);
+        return new Resources<>(
+                auctions,
+                linkTo(methodOn(UserController.class).getAll(email)).withSelfRel()
+        );
     }
 
-    private List<Resource<AuctionOutputDTO>> collectAllBookmarks(Long id) {
-        return bookmarksService.getAll(id).stream()
+    private List<Resource<AuctionOutputDTO>> collectAllBookmarks(String email) {
+        return bookmarksService.getAll(email).stream()
                 .map(this.assembler::assemble)
                 .collect(Collectors.toList());
 

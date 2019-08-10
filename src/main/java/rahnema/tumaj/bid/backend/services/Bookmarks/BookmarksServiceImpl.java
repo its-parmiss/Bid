@@ -18,13 +18,17 @@ public class BookmarksServiceImpl implements BookmarksService {
 
     private final UserRepository userRepository;
     private final AuctionRepository auctionRepository;
+
     BookmarksServiceImpl(UserRepository userRepository, AuctionRepository auctionRepository){
         this.userRepository = userRepository;
         this.auctionRepository = auctionRepository;
     }
+
     @Override
-    public List<Auction> getAll(Long id) {
-        User user = userRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id));
+    public List<Auction> getAll(String email) {
+        User user = userRepository
+                .findByEmail(email)
+                .orElseThrow(()-> new UserNotFoundException(email));
         Set<Auction> auctions = user.getAuctions();
         return new ArrayList<>(auctions);
     }

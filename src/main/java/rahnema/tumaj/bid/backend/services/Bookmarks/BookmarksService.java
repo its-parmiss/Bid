@@ -7,5 +7,5 @@ import java.util.List;
 public interface BookmarksService {
 
     void bookmarkAuction(Long auctionId, String email);
-    List<Auction> getAll(Long id);
+    List<Auction> getAll(String email);
 }
