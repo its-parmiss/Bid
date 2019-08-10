@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,6 +20,7 @@ import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.assemblers.UserResourceAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalUserInputException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 import rahnema.tumaj.bid.backend.utils.validators.UserValidator;
 import rahnema.tumaj.bid.backend.utils.validators.ValidatorConstants;
@@ -50,7 +52,14 @@ public class RegisterController {
         User user = userService.getOne(id).orElseThrow(() -> new UserNotFoundException(id));
         return assembler.toResource(UserOutputDTO.fromModel(user));
     }
-
+    @GetMapping(path="/me")
+    public Resource<UserOutputDTO> getUserInfo(@RequestHeader("Authorization") String token){
+        String email = tokenUtil
+                .getUsernameFromToken(token.split(" ")[1])
+                .orElseThrow(TokenNotFoundException::new);
+        User user = userService.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+        return assembler.toResource(UserOutputDTO.fromModel(user));
+    }
     @PostMapping(path = "/users")
     public AuthenticationResponse addUser(@RequestBody UserInputDTO user) {
         if (isUserValid(user)) {

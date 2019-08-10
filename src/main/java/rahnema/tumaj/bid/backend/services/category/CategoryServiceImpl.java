@@ -32,8 +32,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category findByTitle(String title) {
-        Category category=repository.findByTitle(title);
+    public Optional<Category> findById(Long Id) {
+        Optional<Category> category=repository.findById(Id);
         return category;
     }
 

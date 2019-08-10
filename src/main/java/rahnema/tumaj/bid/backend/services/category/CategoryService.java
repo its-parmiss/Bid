@@ -12,5 +12,5 @@ public interface CategoryService {
 //    Optional<Category> getOne(Long id);
     List<Category> getAll();
     CategoryOutputDTO addOne(CategoryInputDTO category);
-    Category findByTitle(String title);
+    Optional<Category> findById(Long Id);
 }

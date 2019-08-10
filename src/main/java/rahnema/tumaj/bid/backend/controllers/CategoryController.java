@@ -56,8 +56,8 @@ public class CategoryController {
     }
 
     @GetMapping("/auctions/filter")
-    public Resources<Resource<AuctionOutputDTO>> filter(@RequestParam String title) {
-        Category category = categoryService.findByTitle(title);
+    public Resources<Resource<AuctionOutputDTO>> filter(@RequestParam Long id) {
+        Category category = categoryService.findById(id).get();
         List<Auction> auctions = new ArrayList<>(category.getAuctions());
         System.out.println("auctions.size = " + auctions.size());
         for (Auction a : auctions) {
@@ -66,7 +66,7 @@ public class CategoryController {
         List<Resource<AuctionOutputDTO>> auctionlists = auctions.stream()
                 .map(this.auctionAssemler::assemble)
                 .collect(Collectors.toList());
-        return new Resources<>(auctionlists, linkTo(methodOn(CategoryController.class).filter(title)).withSelfRel());
+        return new Resources<>(auctionlists, linkTo(methodOn(CategoryController.class).filter(id)).withSelfRel());
 
     }
 }
