@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.utils.exceptions;
+package rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions;
 
 public class IllegalAuctionInputException extends RuntimeException {
     public IllegalAuctionInputException() {

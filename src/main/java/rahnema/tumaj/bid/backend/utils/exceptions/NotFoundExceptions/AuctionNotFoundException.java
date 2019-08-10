@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.utils.exceptions;
+package rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions;
 
 
 public class AuctionNotFoundException extends RuntimeException {

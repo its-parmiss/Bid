@@ -5,8 +5,8 @@ import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.repositories.AuctionRepository;
 import rahnema.tumaj.bid.backend.repositories.UserRepository;
-import rahnema.tumaj.bid.backend.utils.exceptions.AuctionNotFoundException;
-import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 
 import java.util.ArrayList;
 

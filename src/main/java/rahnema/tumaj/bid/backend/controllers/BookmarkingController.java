@@ -4,10 +4,7 @@ package rahnema.tumaj.bid.backend.controllers;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.Bookmarks.BookmarksService;
-import rahnema.tumaj.bid.backend.utils.exceptions.IllegalUserInputException;
-import rahnema.tumaj.bid.backend.utils.exceptions.TokenNotFoundException;
 
 import java.util.Map;
 

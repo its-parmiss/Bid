@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.utils.exceptions;
+package rahnema.tumaj.bid.backend.utils.exceptions.AlreadyExistExceptions;
 
 public class EmailAlreadyExistsException extends RuntimeException {
     public EmailAlreadyExistsException(String email) {

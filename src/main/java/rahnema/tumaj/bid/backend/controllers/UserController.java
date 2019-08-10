@@ -11,9 +11,8 @@ import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.Bookmarks.BookmarksService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
-import rahnema.tumaj.bid.backend.utils.exceptions.UserNotFoundException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
