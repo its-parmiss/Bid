@@ -77,7 +77,7 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public List<Auction> findByTitleAndCategory(String title, Long categoryId, Integer page, Integer limit) {
-        Category category=categoryRepository.findById(categoryId).get();
+        Category category=categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException(categoryId));
         return repository.findByTitleContainingAndCategory(title,category,PageRequest.of(page,limit));
 
     }

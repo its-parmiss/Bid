@@ -56,7 +56,7 @@ public class UserController {
         );
     }
 
-    @GetMapping("/user/auctions")
+    @GetMapping("/user/bookmarked")
     public Resources<Resource<AuctionOutputDTO>> getAll(@RequestHeader("Authorization") String token) {
         String email = tokenUtil.getUsernameFromToken(token).orElseThrow(TokenNotFoundException::new);
         List<Resource<AuctionOutputDTO>> auctions = collectAllBookmarks(email);

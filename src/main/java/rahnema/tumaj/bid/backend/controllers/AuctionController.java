@@ -20,9 +20,9 @@ import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;
 import rahnema.tumaj.bid.backend.utils.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
-import rahnema.tumaj.bid.backend.utils.assemblers.CategoryAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalAuctionInputException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.CategoryNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 import java.util.*;
@@ -38,21 +38,25 @@ public class AuctionController {
     private final ImageService imageService;
     private final AuctionService service;
     private final AuctionAssemler assembler;
-    private final CategoryAssembler categoryAssembler;
     private final CategoryService categoryService;
     private final UserService userService;
 
 
     private final TokenUtil tokenUtil;
 
-    public AuctionController(CategoryService categoryService,CategoryAssembler categoryAssembler,StorageService storageService, ImageService imageService, AuctionService service, AuctionAssemler assembler, UserService userService, TokenUtil tokenUtil) {
+    public AuctionController(CategoryService categoryService,
+                             StorageService storageService,
+                             ImageService imageService,
+                             AuctionService service,
+                             AuctionAssemler assembler,
+                             UserService userService,
+                             TokenUtil tokenUtil) {
         this.storageService = storageService;
         this.imageService = imageService;
         this.service = service;
         this.assembler = assembler;
         this.userService = userService;
         this.tokenUtil = tokenUtil;
-        this.categoryAssembler=categoryAssembler;
         this.categoryService=categoryService;
     }
 
@@ -96,9 +100,6 @@ public class AuctionController {
            return findByFilterAndCategory(title,categoryId,page,limit);
         }
     }
-//    private Resources<Resource<AuctionOutputDTO>> findByTitleAndCategory(String title,Long categoryId){
-//        filter(categoryId);
-//    }
     private Resources<Resource<AuctionOutputDTO>> getAuctionsWithPage(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, User user) {
         List<Resource<AuctionOutputDTO>> auctions = collectAllAuctions(page, limit);
         evaluateBookmarkedAuctions(user, auctions);
@@ -173,7 +174,7 @@ public Resources<Resource<AuctionOutputDTO>> findByFilterAndCategory(String titl
         return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit,null,title,null)).withSelfRel());
     }
     public Resources<Resource<AuctionOutputDTO>> filter( Long id) {
-        Category category = categoryService.findById(id).get();
+        Category category = categoryService.findById(id).orElseThrow(() -> new CategoryNotFoundException(id));
         List<Auction> auctions = new ArrayList<>(category.getAuctions());
         List<Resource<AuctionOutputDTO>> auctionlists = auctions.stream()
                 .map(this.assembler::assemble)
@@ -206,7 +207,7 @@ public Resources<Resource<AuctionOutputDTO>> findByFilterAndCategory(String titl
                 "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
-    @PostMapping("/upload/auctionImage")
+    @PostMapping("/auctions/upload")
     public ResponseEntity<org.springframework.core.io.Resource> handleFileUpload(@RequestBody MultipartFile file) {
         String name = storageService.store(file, "auctionPicture");
         org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name, "auctionPicture");
