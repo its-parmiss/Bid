@@ -27,13 +27,16 @@ public class AuthenticationController {
 	public AuthenticationController(AuthenticationManager authenticationManager,
                                     JwtTokenUtil tokenUtil,
                                     UserDetailsServiceImpl userDetailService) {
+
 		this.authenticationManager = authenticationManager;
 		this.tokenUtil = tokenUtil;
 		this.userDetailsService = userDetailService;
 	}
 
 	@PostMapping("/authenticate")
-	public AuthenticationResponse createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+	public AuthenticationResponse createAuthenticationToken(
+			@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+
 		authenticate(authenticationRequest.getEmail(), authenticationRequest.getPassword());
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
 		final String token = tokenUtil.generateToken(userDetails);

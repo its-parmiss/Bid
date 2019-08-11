@@ -27,6 +27,7 @@ public class CategoryController {
 
     public CategoryController(CategoryService categoryService,
                               CategoryAssembler assembler) {
+
         this.categoryService = categoryService;
         this.assembler = assembler;
     }
@@ -41,7 +42,10 @@ public class CategoryController {
         );
     }
     @PostMapping(path = "/categories")
-    public Resource<CategoryOutputDTO> addCategory(@RequestParam String password, @RequestBody CategoryInputDTO categoryInputDTO) {
+    public Resource<CategoryOutputDTO> addCategory(
+            @RequestParam String password,
+            @RequestBody CategoryInputDTO categoryInputDTO) {
+
         if (password.equals("12345678")) {
             this.categoryService.addOne(categoryInputDTO);
             return assembler.toResource(CategoryInputDTO.toModel(categoryInputDTO));
