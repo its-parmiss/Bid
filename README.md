@@ -7,13 +7,13 @@ This project is the back-end service for Bid app which is created by Java and Sp
 ### Error Handling
 | Description | Code | Error |
 | ---- | ---- | ----- |
+| Token Not Found | 400 | Bad Request |
 | Auction Not Found | 404 | Not Found |
-| Token Not Found | 404 | Not Found |
 | User Not Found | 404 | Not Found |
 | Category Not Found | 404 | Not Found |
+| Email Already Exists | 409 | Conflict |
 | Illegal User Registration Input | 422 | Unprocessable Entity |
 | Illegal Auction Input | 422 | Unprocessable Entity |
-| Email Already Exists | 409 | Conflict |
 
 ### Tech Stack
 - Spring framework
