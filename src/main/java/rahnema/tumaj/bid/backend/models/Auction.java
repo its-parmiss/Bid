@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -44,7 +45,7 @@ public class Auction {
     User user;
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "auction")
     @JsonManagedReference
-    Set<Images> images;
+    Set<Images> images = new HashSet<Images>();
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "related_auction")
     Set<Bid> bids;
     @JsonBackReference
@@ -54,5 +55,9 @@ public class Auction {
     @PrePersist
     protected void onCreate() {
         this.created_at = new Date();
+    }
+
+    public void addImage(Images image) {
+        this.images.add(image);
     }
 }

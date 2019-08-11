@@ -73,14 +73,7 @@ public class AuctionController {
 
     private Resource<AuctionOutputDTO> passAuctionToService(@RequestBody AuctionInputDTO auctionInput) {
         Auction addedAuction = service.addAuction(auctionInput);
-        Set<Images> images=new HashSet<>();
-            for(String url:auctionInput.getImageUrls()){
-              ImageInputDTO imageInputDTO=new ImageInputDTO();
-              imageInputDTO.setUrl(url);
-              Images img=imageService.addOne(imageInputDTO);
-              images.add(img);
-        }
-        addedAuction.setImages(images);
+
         return assembler.assemble(addedAuction);
     }
     
