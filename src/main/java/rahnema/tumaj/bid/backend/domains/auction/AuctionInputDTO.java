@@ -16,25 +16,26 @@ public class AuctionInputDTO {
 
     private String title;
     private String description;
-    private String startDate;
-    private Long last_bid;
-    private int active_bidders_limit;
+    private Date startDate;
+    private Long lastBid;
+    private int activeBiddersLimit;
     private Long categoryId;
     private User user;
-    private Long base_price;
+    private Long basePrice;
     private String[] imageUrls;
 
-    public Auction toModel(){
+    public Auction toModel() {
 
         ModelMapper mapper = new ModelMapper();
-        Auction auction= mapper.map(this, Auction.class);
-        Set<Images> images=new HashSet<>();
-        for(String url: imageUrls){
-            Images image=new Images();
-            image.setUrl(url);
-            image.setAuction(auction);
-            images.add(image);
-        }
+        Auction auction = mapper.map(this, Auction.class);
+        Set<Images> images = new HashSet<>();
+        if (imageUrls != null)
+            for (String url : imageUrls) {
+                Images image = new Images();
+                image.setUrl(url);
+                image.setAuction(auction);
+                images.add(image);
+            }
         auction.setImages(images);
         return auction;
     }

@@ -17,23 +17,23 @@ public class User {
     @GeneratedValue(strategy= GenerationType.AUTO)
     Long id;
     @Column(nullable = false,name="first_name")
-    String first_name;
+    String firstName;
     @Column(name = "last_name")
-    String last_name;
+    String lastName;
     @Column(nullable = false,name = "email",unique = true)
     String email;
     @Column(nullable = false,name = "password")
     String password;
     @Column(name = "profile_picture")
-    String profile_picture;
+    String profilePicture;
     @Column(name = "created_at")
-    Date created_at;
+    Date createdAt;
     @Column(name = "reset_token")
     String resetToken;
 
     @PrePersist
     protected void onCreate() {
-        this.created_at = new Date();
+        this.createdAt = new Date();
     }
 
     @JsonManagedReference

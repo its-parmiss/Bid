@@ -13,17 +13,16 @@ public class Images {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     Long id;
-    @Column(nullable = false,name="url",unique = true)
+    @Column(nullable = false,name="url")
     String url;
     @Column(name = "created_at")
-    Date created_at;
-
+    Date createdAt;
     @ManyToOne (fetch=FetchType.EAGER)
     @JsonBackReference
     Auction auction;
 
     @PrePersist
     protected void onCreate() {
-        this.created_at = new Date();
+        this.createdAt = new Date();
     }
 }

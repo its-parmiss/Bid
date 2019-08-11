@@ -6,11 +6,11 @@ import rahnema.tumaj.bid.backend.models.User;
 
 @Data
 public class UserInputDTO {
-    private String first_name;
-    private String last_name;
+    private String firstName;
+    private String lastName;
     private String password;
     private String email;
-    private String profile_picture;
+    private String profilePicture;
 
     public static User toModel(UserInputDTO user) {
         ModelMapper mapper = new ModelMapper();

@@ -20,7 +20,7 @@ public class Category {
     @Column(nullable = false,name="title",unique = true)
     String title;
     @Column(name = "created_at")
-    Date created_at;
+    Date createdAt;
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "category")
     @JsonBackReference
     Set<Auction> auctions;
@@ -31,6 +31,6 @@ public class Category {
 
     @PrePersist
     protected void onCreate() {
-        this.created_at = new Date();
+        this.createdAt = new Date();
     }
 }

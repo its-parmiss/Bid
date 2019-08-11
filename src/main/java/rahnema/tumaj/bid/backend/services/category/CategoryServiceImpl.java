@@ -5,6 +5,7 @@ import rahnema.tumaj.bid.backend.domains.Category.CategoryInputDTO;
 import rahnema.tumaj.bid.backend.domains.Category.CategoryOutputDTO;
 import rahnema.tumaj.bid.backend.models.Category;
 import rahnema.tumaj.bid.backend.repositories.CategoryRepository;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.CategoryNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +33,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Optional<Category> findById(Long Id) {
+    public Category findById(Long Id) {
         Optional<Category> category=repository.findById(Id);
-        return category;
+        return category.orElseThrow(() -> new CategoryNotFoundException(Id));
     }
 
 }

@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import rahnema.tumaj.bid.backend.domains.AuthenticationRequest;
 import rahnema.tumaj.bid.backend.domains.AuthenticationResponse;
 import rahnema.tumaj.bid.backend.services.UserDetailsServiceImpl;
-import rahnema.tumaj.bid.backend.utils.JwtTokenUtil;
-import rahnema.tumaj.bid.backend.utils.TokenUtil;
+import rahnema.tumaj.bid.backend.utils.athentication.JwtTokenUtil;
+import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;
 
 @RestController
 public class AuthenticationController {

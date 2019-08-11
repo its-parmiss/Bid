@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.utils;
+package rahnema.tumaj.bid.backend.utils.athentication;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -13,7 +13,9 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 
 @Component
 public class JwtTokenUtil implements TokenUtil {
@@ -72,4 +74,6 @@ public class JwtTokenUtil implements TokenUtil {
 		final String username = getUsernameFromToken(token).orElseThrow(TokenNotFoundException::new);
 		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
 	}
+
+
 }

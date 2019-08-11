@@ -11,7 +11,7 @@ import rahnema.tumaj.bid.backend.domains.user.UserOutputDTO;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.UserDetailsServiceImpl;
 import rahnema.tumaj.bid.backend.services.user.UserService;
-import rahnema.tumaj.bid.backend.utils.TokenUtil;
+import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.assemblers.UserResourceAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalUserInputException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
@@ -43,10 +43,7 @@ public class RegisterController {
 
     @GetMapping(path="/me")
     public Resource<UserOutputDTO> getUserInfo(@RequestHeader("Authorization") String token){
-        String email = tokenUtil
-                .getUsernameFromToken(token.split(" ")[1])
-                .orElseThrow(TokenNotFoundException::new);
-        User user = userService.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+        User user = userService.getUserWithToken(token);
         return assembler.toResource(UserOutputDTO.fromModel(user));
     }
 
@@ -68,7 +65,7 @@ public class RegisterController {
     private boolean isUserValid(UserInputDTO user) {
         return
             userValidator.isUserEmailValid(user.getEmail(), ValidatorConstants.EMAIL) &&
-            userValidator.isUserNameValid(user.getFirst_name(), user.getLast_name(), ValidatorConstants.NAME) &&
+            userValidator.isUserNameValid(user.getFirstName(), user.getLastName(), ValidatorConstants.NAME) &&
             userValidator.isUserPasswordValid(user.getPassword(), ValidatorConstants.PASSWORD);
     }
 

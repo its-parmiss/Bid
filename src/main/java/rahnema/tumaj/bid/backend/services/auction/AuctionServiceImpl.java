@@ -1,5 +1,7 @@
 package rahnema.tumaj.bid.backend.services.auction;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import rahnema.tumaj.bid.backend.domains.Image.ImageInputDTO;
@@ -15,11 +17,14 @@ import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.CategoryNot
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+
+import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class AuctionServiceImpl implements AuctionService {
 
+    private final String dateFormat = "yyyy-MM-dd";
     private final AuctionRepository repository;
     private final CategoryRepository categoryRepository;
     private final ImageService imageService;
@@ -48,39 +53,19 @@ public class AuctionServiceImpl implements AuctionService {
         System.out.println(auction.getImages().size()+ "sout in service");
         System.out.println(auction.getTitle());
         setAuctionCategoryById(auctionInput, auction);
-        parseDateAndHandleException(auctionInput, auction);
         return this.repository.save(auction);
     }
 
-    private void parseDateAndHandleException(AuctionInputDTO auctionInput, Auction auction) {
-        try {
-            parseInputDate(auctionInput, auction);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void setAuctionCategoryById(AuctionInputDTO auctionInput, Auction auction) {
         Category cat = categoryRepository.findById(auctionInput.getCategoryId()).orElseThrow(()-> new CategoryNotFoundException(auctionInput.getCategoryId()));
         auction.setCategory(cat);
     }
 
-    private void parseInputDate(AuctionInputDTO auctionInput, Auction auction) throws ParseException {
-        Date startDate;
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        startDate = df.parse(auctionInput.getStartDate());
-        auction.setStart_date(startDate);
-    }
 
     @Override
-    public void deleteAuction(Long id) {
-
-    }
-
-    @Override
-    public List<Auction> getAll(Integer page, Integer limit) {
-//        return repository.findAllAuctionsHottest(PageRequest.of(page,limit));
-        return repository.findAll(PageRequest.of(page,limit)).getContent();
+    public Page<Auction> getAll(Integer page, Integer limit) {
+        return new PageImpl<>(repository.getHottestPage(PageRequest.of(page,limit)));
     }
 
     @Override
@@ -90,13 +75,19 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public List<Auction> findByTitle(String title,Integer page,Integer limit) {
-        return this.repository.findByTitleContaining(title,PageRequest.of(page,limit));
+    public Page<Auction> findByTitle(String title,Integer page,Integer limit) {
+        return this.repository.findByFinishedAndTitleContainingOrderByCreatedAtDesc(false,title,PageRequest.of(page,limit));
     }
 
     @Override
-    public List<Auction> findByTitleAndCategory(String title, Long categoryId, Integer page, Integer limit) {
+    public Page<Auction> findByTitleAndCategory(String title, Long categoryId, Integer page, Integer limit) {
         Category category=categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException(categoryId));
-        return repository.findByTitleContainingAndCategory(title,category,PageRequest.of(page,limit));
+        return repository.findByFinishedAndTitleContainingAndCategoryOrderByCreatedAtDesc(false,title,category,PageRequest.of(page,limit));
+    }
+
+    @Override
+    public Page<Auction> findByCategory(Long categoryId, Integer page, Integer limit) {
+        Category category=categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException(categoryId));
+        return repository.findByFinishedAndCategoryOrderByCreatedAtDesc(false,category,PageRequest.of(page, limit));
     }
 }

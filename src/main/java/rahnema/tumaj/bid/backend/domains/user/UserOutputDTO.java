@@ -8,8 +8,8 @@ import rahnema.tumaj.bid.backend.models.User;
 public class UserOutputDTO {
     private Long id;
     private String first_name;
-    private String last_name;
-    private String profile_picture;
+    private String lastName;
+    private String profilePicture;
 
     public static UserOutputDTO fromModel(User user){
         ModelMapper mapper = new ModelMapper();

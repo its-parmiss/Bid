@@ -16,14 +16,14 @@ public class Bid {
     @Column(nullable = false)
     String title;
     @Column(name = "created_at")
-    Date created_at;
+    Date createdAt;
     @ManyToOne(fetch=FetchType.EAGER)
-    Auction related_auction;
+    Auction relatedAuction;
     @ManyToOne(fetch=FetchType.EAGER)
     User bidder;
 
     @PrePersist
     protected void onCreate() {
-        this.created_at = new Date();
+        this.createdAt = new Date();
     }
 }

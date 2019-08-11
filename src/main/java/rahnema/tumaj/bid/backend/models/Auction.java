@@ -23,20 +23,20 @@ public class Auction {
     @Column(name = "description")
     String description;
     @Column(name = "start_date")
-    Date start_date;
+    Date startDate;
     @Column(name = "last_bid")
-    Long last_bid;
+    Long lastBid;
     @Column(name = "base_price",nullable = false)
-    Long base_price;
+    Long basePrice;
     @Column(name = "active_bidders_limit", columnDefinition = "int DEFAULT '0'")
-    int active_bidders_limit;
-    @Column(name = "is_active", columnDefinition = "boolean DEFAULT true")
-    boolean is_active;
+    int activeBiddersLimit;
+    @Column(name = "finished"/*, columnDefinition = "boolean DEFAULT false"*/)
+    boolean finished;
     @Column(name = "expire_date")
-    Date expire_date;
-    @Column(name = "created_at")
+    Date expireDate;
+    @Column(name = "createdAt")
 //    @Temporal(TemporalType.DATE)
-    Date created_at;
+    Date createdAt;
     @ManyToOne
     @JsonManagedReference
     Category category;
@@ -46,7 +46,8 @@ public class Auction {
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "auction")
     @JsonManagedReference
     Set<Images> images = new HashSet<Images>();
-    @OneToMany(fetch=FetchType.EAGER,mappedBy = "related_auction")
+    @OneToMany(fetch=FetchType.EAGER,mappedBy = "relatedAuction")
+
     Set<Bid> bids;
     @JsonBackReference
     @ManyToMany(fetch=FetchType.EAGER,mappedBy = "auctions",cascade=CascadeType.ALL) //bookmarks
@@ -54,7 +55,8 @@ public class Auction {
 
     @PrePersist
     protected void onCreate() {
-        this.created_at = new Date();
+        this.createdAt = new Date();
+//        this.done = false;
     }
 
     public void addImage(Images image) {

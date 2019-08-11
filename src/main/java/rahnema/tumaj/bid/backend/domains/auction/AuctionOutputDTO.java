@@ -19,22 +19,38 @@ public class AuctionOutputDTO {
     private Long id;
     private String title;
     private String description;
-    private String start_date;
-    private Long last_bid;
-    private Long base_price;
-    private int active_bidders_limit;
-    private boolean is_active;
-    private String expire_date;
-    private String created_at;
+    private String startDate;
+    private Long lastBid;
+    private Long basePrice;
+    private int activeBiddersLimit;
+    private Boolean done;
+    private String expireDate;
+    private String createdAt;
     private Category category;
-    private User user;
+    private UserOutputDTO user;
     private Set<Images> images;
-    private boolean is_for_user;
+    private boolean isForUser;
 
     public static AuctionOutputDTO fromModel(Auction auction){
         ModelMapper mapper = new ModelMapper();
         AuctionOutputDTO outputDTO = mapper.map(auction, AuctionOutputDTO.class);
-        outputDTO.setCreated_at(auction.getCreated_at().toString());
+        outputDTO.setCreatedAt(auction.getCreatedAt().toString());
+        outputDTO.setUser(UserOutputDTO.fromModel(auction.getUser()));
+        outputDTO.setDone(auction.isFinished());
         return outputDTO;
+    }
+
+    public void searchForBookmarked(User user) {
+        for (Auction userAuction : user.getAuctions())
+            if (this.isBookmarkedByUser(userAuction)) {
+                this.setForUser(true);
+                break;
+            }
+    }
+
+    private boolean isBookmarkedByUser(Auction userAuction){
+
+            return userAuction.getId().equals(this.getId());
+
     }
 }

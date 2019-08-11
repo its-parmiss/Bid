@@ -25,17 +25,13 @@ public class BookmarksServiceImpl implements BookmarksService {
     }
 
     @Override
-    public List<Auction> getAll(String email) {
-        User user = userRepository
-                .findByEmail(email)
-                .orElseThrow(()-> new UserNotFoundException(email));
+    public List<Auction> getAll(User user) {
         Set<Auction> auctions = user.getAuctions();
         return new ArrayList<>(auctions);
     }
 
     @Override
-    public void bookmarkAuction(Long auctionId, String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(()-> new UserNotFoundException(email));
+    public void bookmarkAuction(Long auctionId, User user) {
         Auction auction = auctionRepository.findById(auctionId).orElseThrow(()-> new AuctionNotFoundException(auctionId));
         saveBookmarkOnDB(user, auction);
 

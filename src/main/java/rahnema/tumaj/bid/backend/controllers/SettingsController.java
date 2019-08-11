@@ -9,8 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;
-import rahnema.tumaj.bid.backend.utils.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalUserInputException;
+
+import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 import rahnema.tumaj.bid.backend.utils.validators.UserValidator;
@@ -43,11 +44,7 @@ public class SettingsController {
             @RequestHeader("Authorization") String token,
             @RequestBody Map<String, String> params) {
 
-        String email = tokenUtil
-                .getUsernameFromToken(token.split(" ")[1])
-                .orElseThrow(TokenNotFoundException::new);
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
+        User user = userService.getUserWithToken(token);
 
         if (!validateUserFieldsFromParams(params)) {
             throw new IllegalUserInputException();
@@ -60,11 +57,12 @@ public class SettingsController {
 
     private boolean validateUserFieldsFromParams(Map<String, String> params) {
         return
-            userValidator.isUserEmailValid(params.get("email"),
-                    ValidatorConstants.EMAIL) &&
-            userValidator.isUserNameValid(params.get("first_name"),
-                    params.get("last_name"),
-                    ValidatorConstants.NAME);
+                userValidator.isUserEmailValid(params.get("email"),
+                        ValidatorConstants.EMAIL) &&
+                        userValidator.isUserNameValid(params.get("first_name"),
+                                params.get("last_name"),
+                                ValidatorConstants.NAME);
+
     }
 
     @PostMapping("/user/settings/upload")
@@ -74,10 +72,9 @@ public class SettingsController {
 
         String name = storageService.store(file, "profilePicture");
         org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name, "profilePicture");
-        String email = tokenUtil.getUsernameFromToken(token.split(" ")[1]).orElseThrow(TokenNotFoundException::new);
-        User user = userService.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+        User user = userService.getUserWithToken(token);
         try {
-            user.setProfile_picture(tempFile.getURL().toString());
+            user.setProfilePicture(tempFile.getURL().toString());
             userService.saveUser(user);
         } catch (IOException e) {
             e.printStackTrace();
@@ -96,9 +93,10 @@ public class SettingsController {
     }
 
     private void setUpdatedUserFields(User user, String newFirstName, String newLastName, String newEmail) {
-        user.setFirst_name(newFirstName);
-        if(newLastName != null)
-            user.setLast_name(newLastName);
+
+        user.setFirstName(newFirstName);
+        if (newLastName != null)
+            user.setLastName(newLastName);
         user.setEmail(newEmail);
     }
 
@@ -107,10 +105,7 @@ public class SettingsController {
             @RequestHeader("Authorization") String token,
             @RequestBody Map<String, String> params) {
 
-        String email = tokenUtil
-                .getUsernameFromToken(token.split(" ")[1])
-                .orElseThrow(TokenNotFoundException::new);
-        User user = userService.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+        User user = userService.getUserWithToken(token);
 
         String newPassword = params.get("password");
         user.setPassword(newPassword);

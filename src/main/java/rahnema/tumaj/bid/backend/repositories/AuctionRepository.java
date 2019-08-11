@@ -1,6 +1,7 @@
 package rahnema.tumaj.bid.backend.repositories;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -23,15 +24,22 @@ public interface AuctionRepository extends PagingAndSortingRepository<Auction, L
 
 //    value = "SELECT * FROM (SELECT auction_id, count(auction_id) as c from bookmarks group by " +
 //            "auction_id order by c) as x INNER join auctions ON (x.auction_id = auctions.id) order by c desc;",
-
+/*(SELECT auction_id, count(auction_id) as c from bookmarks GROUP by auction_id order by c) as x RIGHT OUTER join auctions ON (x.auction_id = auctions.id) order by c desc*/
     @Query(
             value = "SELECT DISTINCT * FROM (SELECT auction_id, count(auction_id) as c from bookmarks group by " +
-                    "auction_id order by c) as x RIGHT OUTER join auctions ON (x.auction_id = auctions.id) order by c desc",
-            nativeQuery = true )
-    List<Auction> findAllAuctionsHottest(Pageable pageable);
+                    "auction_id order by c) as x RIGHT OUTER join auctions ON (x.auction_id = auctions.id) WHERE NOT finished ORDER BY  c desc  ",
+    nativeQuery = true)
+    List<Auction> getHottestPage(Pageable pageable);
 
 //
     Optional<List<Auction>> findByTitle(String title);
-    List<Auction> findByTitleContaining(String title,Pageable pageable);
-    List<Auction> findByTitleContainingAndCategory(String title, Category category,Pageable pageable);
+
+
+
+
+
+    Page<Auction> findByFinishedAndTitleContainingOrderByCreatedAtDesc(Boolean finished, String title, Pageable pageable);
+    Page<Auction> findByFinishedAndTitleContainingAndCategoryOrderByCreatedAtDesc(Boolean finished,String title, Category category,Pageable pageable);
+    Page<Auction> findByFinishedAndCategoryOrderByCreatedAtDesc(Boolean finished,Category category,Pageable pageable);
 }
+

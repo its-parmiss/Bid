@@ -10,10 +10,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import rahnema.tumaj.bid.backend.services.UserDetailsServiceImpl;
-import rahnema.tumaj.bid.backend.utils.JwtTokenUtil;
-import rahnema.tumaj.bid.backend.utils.TokenUtil;
+import rahnema.tumaj.bid.backend.utils.athentication.JwtTokenUtil;
+import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
-import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

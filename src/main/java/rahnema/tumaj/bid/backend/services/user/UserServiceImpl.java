@@ -6,7 +6,10 @@ import rahnema.tumaj.bid.backend.domains.user.UserInputDTO;
 import rahnema.tumaj.bid.backend.domains.user.UserOutputDTO;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.repositories.UserRepository;
+import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.exceptions.AlreadyExistExceptions.EmailAlreadyExistsException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +19,12 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final SecurityController securityController;
+    private final TokenUtil tokenUtil;
 
-    public UserServiceImpl(UserRepository userRepository,
-                           SecurityController securityController) {
+    public UserServiceImpl(UserRepository userRepository, SecurityController securityController, TokenUtil tokenUtil) {
         this.userRepository = userRepository;
         this.securityController = securityController;
+        this.tokenUtil = tokenUtil;
     }
 
     @Override
@@ -61,5 +65,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findByResetToken(String token) {
         return userRepository.findByResetToken(token);
+    }
+
+    @Override
+    public User getUserWithToken(String token) {
+        String email = tokenUtil
+                .getUsernameFromToken(token.split(" ")[1])
+                .orElseThrow(TokenNotFoundException::new);
+        return this.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
     }
 }
