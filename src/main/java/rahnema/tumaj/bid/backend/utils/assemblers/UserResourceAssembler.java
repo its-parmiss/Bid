@@ -14,7 +14,7 @@ public class UserResourceAssembler {
     public Resource<UserOutputDTO> toResource(UserOutputDTO user){
         return new Resource<>(
             user,
-            linkTo(methodOn(RegisterController.class).getOneUser(user.getId())).withSelfRel()
+            linkTo(methodOn(RegisterController.class).getUserInfo(null)).withSelfRel()
         );
     }
 }

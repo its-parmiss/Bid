@@ -39,7 +39,9 @@ public class UserController {
     }
 
     @GetMapping("/user/my-auctions")
-    public Resources<Resource<AuctionOutputDTO>> getAllAuctions(@RequestHeader("Authorization") String token) {
+    public Resources<Resource<AuctionOutputDTO>> getAllAuctions(
+            @RequestHeader("Authorization") String token) {
+
         String email = tokenUtil
                 .getUsernameFromToken(token)
                 .orElseThrow(TokenNotFoundException::new);
@@ -57,7 +59,9 @@ public class UserController {
     }
 
     @GetMapping("/user/auctions")
-    public Resources<Resource<AuctionOutputDTO>> getAll(@RequestHeader("Authorization") String token) {
+    public Resources<Resource<AuctionOutputDTO>> getAll(
+            @RequestHeader("Authorization") String token) {
+
         String email = tokenUtil.getUsernameFromToken(token).orElseThrow(TokenNotFoundException::new);
         List<Resource<AuctionOutputDTO>> auctions = collectAllBookmarks(email);
         return new Resources<>(
@@ -70,6 +74,5 @@ public class UserController {
         return bookmarksService.getAll(email).stream()
                 .map(this.assembler::assemble)
                 .collect(Collectors.toList());
-
     }
 }

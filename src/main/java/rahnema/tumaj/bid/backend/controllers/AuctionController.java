@@ -20,9 +20,9 @@ import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;
 import rahnema.tumaj.bid.backend.utils.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
-import rahnema.tumaj.bid.backend.utils.assemblers.CategoryAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalAuctionInputException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.CategoryNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 import java.util.*;
@@ -38,21 +38,26 @@ public class AuctionController {
     private final ImageService imageService;
     private final AuctionService service;
     private final AuctionAssemler assembler;
-    private final CategoryAssembler categoryAssembler;
     private final CategoryService categoryService;
     private final UserService userService;
 
 
     private final TokenUtil tokenUtil;
 
-    public AuctionController(CategoryService categoryService,CategoryAssembler categoryAssembler,StorageService storageService, ImageService imageService, AuctionService service, AuctionAssemler assembler, UserService userService, TokenUtil tokenUtil) {
+    public AuctionController(CategoryService categoryService,
+                             StorageService storageService,
+                             ImageService imageService,
+                             AuctionService service,
+                             AuctionAssemler assembler,
+                             UserService userService,
+                             TokenUtil tokenUtil) {
+
         this.storageService = storageService;
         this.imageService = imageService;
         this.service = service;
         this.assembler = assembler;
         this.userService = userService;
         this.tokenUtil = tokenUtil;
-        this.categoryAssembler=categoryAssembler;
         this.categoryService=categoryService;
     }
 
@@ -68,20 +73,19 @@ public class AuctionController {
 
     private Resource<AuctionOutputDTO> passAuctionToService(@RequestBody AuctionInputDTO auctionInput) {
         Auction addedAuction = service.addAuction(auctionInput);
-        Set<Images> images=new HashSet<>();
-            for(String url:auctionInput.getImageUrls()){
-              ImageInputDTO imageInputDTO=new ImageInputDTO();
-              imageInputDTO.setUrl(url);
-              Images img=imageService.addOne(imageInputDTO);
-              images.add(img);
-        }
-        addedAuction.setImages(images);
+
         return assembler.assemble(addedAuction);
     }
     
     @GetMapping("/auctions")
-    public Resources<Resource<AuctionOutputDTO>> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestHeader("Authorization") String token,@RequestParam(required = false)String title,@RequestParam(required = false)Long categoryId) {
-        if(categoryId==null && title==null){
+    public Resources<Resource<AuctionOutputDTO>> getAll(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer limit,
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Long categoryId) {
+
+        if(categoryId==null && title==null) {
             User user = getUserWithToken(token);
             page = defaultPage(page);
             limit = defaultLimit(limit);
@@ -90,19 +94,27 @@ public class AuctionController {
             return find(page,limit,title);
         }
         else if( title==null){
+
             return filter(categoryId);
-        }
-        else {
+        } else {
            return findByFilterAndCategory(title,categoryId,page,limit);
         }
     }
 //    private Resources<Resource<AuctionOutputDTO>> findByTitleAndCategory(String title,Long categoryId){
 //        filter(categoryId);
 //    }
-    private Resources<Resource<AuctionOutputDTO>> getAuctionsWithPage(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, User user) {
+    private Resources<Resource<AuctionOutputDTO>> getAuctionsWithPage(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer limit,
+            User user) {
+
         List<Resource<AuctionOutputDTO>> auctions = collectAllAuctions(page, limit);
         evaluateBookmarkedAuctions(user, auctions);
-        return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit, null,null,null )).withSelfRel());
+        return new Resources<>(
+                auctions,
+                linkTo(methodOn(AuctionController.class).getAll(page, limit, null,null,null ))
+                        .withSelfRel()
+        );
     }
 
     private User getUserWithToken(String token) {
@@ -155,36 +167,40 @@ public class AuctionController {
         Auction auction = auctionOptional.orElseThrow(() -> new AuctionNotFoundException(id));
         return this.assembler.assemble(auction);
     }
-public Resources<Resource<AuctionOutputDTO>> findByFilterAndCategory(String title,Long categoryId,Integer page,Integer limit){
-    page = defaultPage(page);
-    limit = defaultLimit(limit);
-    List<Auction> auctions = service.findByTitleAndCategory(title,categoryId,page,limit);
-    List<Resource<AuctionOutputDTO>> auctionss=auctions.stream()
-            .map(this.assembler::assemble)
-            .collect(Collectors.toList());
-    return new Resources<>(auctionss, linkTo(methodOn(AuctionController.class).getAll(page, limit,null,title,null)).withSelfRel());
 
-}
-//    @GetMapping("/auctions/find")
+    public Resources<Resource<AuctionOutputDTO>> findByFilterAndCategory(String title,Long categoryId,Integer page,Integer limit){
+        page = defaultPage(page);
+        limit = defaultLimit(limit);
+        List<Auction> auctions = service.findByTitleAndCategory(title,categoryId,page,limit);
+        List<Resource<AuctionOutputDTO>> auctionss=auctions.stream()
+                .map(this.assembler::assemble)
+                .collect(Collectors.toList());
+        return new Resources<>(auctionss, linkTo(methodOn(AuctionController.class).getAll(page, limit,null,title,null)).withSelfRel());
+    }
+
+    // @GetMapping("/auctions/find")
     public Resources<Resource<AuctionOutputDTO>> find(Integer page,  Integer limit, String title) {
         page = defaultPage(page);
         limit = defaultLimit(limit);
         List<Resource<AuctionOutputDTO>> auctions = CollectFoundAuctions(title, page, limit);
         return new Resources<>(auctions, linkTo(methodOn(AuctionController.class).getAll(page, limit,null,title,null)).withSelfRel());
     }
+
     public Resources<Resource<AuctionOutputDTO>> filter( Long id) {
-        Category category = categoryService.findById(id).get();
+        Category category = categoryService.findById(id).orElseThrow(() -> new CategoryNotFoundException(id));
         List<Auction> auctions = new ArrayList<>(category.getAuctions());
         List<Resource<AuctionOutputDTO>> auctionlists = auctions.stream()
                 .map(this.assembler::assemble)
                 .collect(Collectors.toList());
         return new Resources<>(auctionlists, linkTo(methodOn(AuctionController.class).getAll(null,null,null,null,id)).withSelfRel());
     }
+
     private List<Resource<AuctionOutputDTO>> CollectFoundAuctions(String title, Integer page, Integer limit) {
         return service.findByTitle(title, page, limit).stream()
                 .map(this.assembler::assemble)
                 .collect(Collectors.toList());
     }
+
     private boolean isAuctionValid(AuctionInputDTO auction) {
 //        boolean isBaseValid = auction.getBase_price()!= null && auction.getBase_price() >= 1e3 &&  auction.getBase_price() <= 1e12;
 //        boolean isDescValid = auction.getDescription().length() < 100;
@@ -206,7 +222,7 @@ public Resources<Resource<AuctionOutputDTO>> findByFilterAndCategory(String titl
                 "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
-    @PostMapping("/upload/auctionImage")
+    @PostMapping("/auctions/upload")
     public ResponseEntity<org.springframework.core.io.Resource> handleFileUpload(@RequestBody MultipartFile file) {
         String name = storageService.store(file, "auctionPicture");
         org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name, "auctionPicture");

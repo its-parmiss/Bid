@@ -19,8 +19,10 @@ public class BookmarkingController {
     }
 
     @PostMapping("/auctions/bookmark")
-    public void bookmarkAuction(@RequestHeader("Authorization") String token,
-                                @RequestParam("auctionId") Long auctionId) {
+    public void bookmarkAuction(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("auctionId") Long auctionId) {
+
         String email = tokenUtil
                 .getUsernameFromToken(token)
                 .orElseThrow(TokenNotFoundException::new);

@@ -14,6 +14,7 @@ import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.Illegal
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalUserInputException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.CategoryNotFoundException;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 
 @ControllerAdvice
@@ -60,18 +61,24 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {EmailAlreadyExistsException.class})
     public ResponseEntity<Object> emailExists(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                gson.toJson(new ExceptionMessage(ex.getMessage(), 400)),
+                gson.toJson(new ExceptionMessage(ex.getMessage(), 409)),
                 new HttpHeaders(),
-                HttpStatus.BAD_REQUEST, request
+                HttpStatus.CONFLICT, request
         );
     }
 
     @ExceptionHandler(value = {CategoryNotFoundException.class})
     public ResponseEntity<Object> catNotFound(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                gson.toJson(new ExceptionMessage(ex.getMessage(), 400)),
+                gson.toJson(new ExceptionMessage(ex.getMessage(), 404)),
                 new HttpHeaders(),
-                HttpStatus.BAD_REQUEST, request
+                HttpStatus.NOT_FOUND, request
         );
     }
+
+    @ExceptionHandler(value = {TokenNotFoundException.class})
+    public String tokenNotFound() {
+        return "errors/tokenNotFound";
+    }
+
 }

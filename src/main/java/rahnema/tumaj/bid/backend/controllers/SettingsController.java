@@ -1,6 +1,7 @@
 package rahnema.tumaj.bid.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,8 +10,11 @@ import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;
 import rahnema.tumaj.bid.backend.utils.TokenUtil;
+import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalUserInputException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
+import rahnema.tumaj.bid.backend.utils.validators.UserValidator;
+import rahnema.tumaj.bid.backend.utils.validators.ValidatorConstants;
 
 import java.io.IOException;
 import java.util.Map;
@@ -21,32 +25,53 @@ public class SettingsController {
     private final UserService userService;
     private final TokenUtil tokenUtil;
     private final StorageService storageService;
+    private final UserValidator userValidator;
 
     @Autowired
-    public SettingsController(StorageService storageService, UserService userService,
-                              TokenUtil tokenUtil) {
+    public SettingsController(StorageService storageService,
+                              UserService userService,
+                              TokenUtil tokenUtil,
+                              UserValidator userValidator) {
         this.userService = userService;
         this.tokenUtil = tokenUtil;
-        this.storageService=storageService;
+        this.storageService = storageService;
+        this.userValidator = userValidator;
     }
 
     @PostMapping("/user/settings")
-    public void changeAccountSettings(@RequestHeader("Authorization") String token,
-                                      @RequestParam Map<String, String> params) {
+    public void changeAccountSettings(
+            @RequestHeader("Authorization") String token,
+            @RequestBody Map<String, String> params) {
 
         String email = tokenUtil
                 .getUsernameFromToken(token.split(" ")[1])
                 .orElseThrow(TokenNotFoundException::new);
-        User user = userService.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+        User user = userService.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email));
 
-        changeUserFieldsFromParams(params, user);
-
-        userService.saveUser(user);
+        if (!validateUserFieldsFromParams(params)) {
+            throw new IllegalUserInputException();
+        } else {
+            changeUserFieldsFromParams(params, user);
+            userService.saveUser(user);
+        }
 
     }
 
-    @PostMapping("/user/settings/upload-profile-picture")
-    public ResponseEntity<org.springframework.core.io.Resource> handleFileUpload(@RequestHeader("Authorization") String token,@RequestBody MultipartFile file) {
+    private boolean validateUserFieldsFromParams(Map<String, String> params) {
+        return
+            userValidator.isUserEmailValid(params.get("email"),
+                    ValidatorConstants.EMAIL) &&
+            userValidator.isUserNameValid(params.get("first_name"),
+                    params.get("last_name"),
+                    ValidatorConstants.NAME);
+    }
+
+    @PostMapping("/user/settings/upload")
+    public ResponseEntity<Resource> handleFileUpload(
+            @RequestHeader("Authorization") String token,
+            @RequestBody MultipartFile file) {
+
         String name = storageService.store(file, "profilePicture");
         org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name, "profilePicture");
         String email = tokenUtil.getUsernameFromToken(token.split(" ")[1]).orElseThrow(TokenNotFoundException::new);
@@ -62,7 +87,7 @@ public class SettingsController {
     }
 
 
-    private void changeUserFieldsFromParams(@RequestParam Map<String, String> params, User user) {
+    private void changeUserFieldsFromParams(Map<String, String> params, User user) {
         String newFirstName = params.get("first_name");
         String newLastName = params.get("last_name");
         String newEmail = params.get("email");
@@ -72,13 +97,15 @@ public class SettingsController {
 
     private void setUpdatedUserFields(User user, String newFirstName, String newLastName, String newEmail) {
         user.setFirst_name(newFirstName);
-        user.setLast_name(newLastName);
+        if(newLastName != null)
+            user.setLast_name(newLastName);
         user.setEmail(newEmail);
     }
 
     @PostMapping("/user/settings/change-password")
-    private void changeAccountPassword(@RequestHeader("Authorization") String token,
-                                       @RequestParam Map<String, String> params) {
+    private void changeAccountPassword(
+            @RequestHeader("Authorization") String token,
+            @RequestBody Map<String, String> params) {
 
         String email = tokenUtil
                 .getUsernameFromToken(token.split(" ")[1])

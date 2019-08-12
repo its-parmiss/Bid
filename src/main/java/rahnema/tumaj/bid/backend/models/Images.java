@@ -17,8 +17,9 @@ public class Images {
     String url;
     @Column(name = "created_at")
     Date created_at;
-    @JsonBackReference
+
     @ManyToOne (fetch=FetchType.EAGER)
+    @JsonBackReference
     Auction auction;
 
     @PrePersist
