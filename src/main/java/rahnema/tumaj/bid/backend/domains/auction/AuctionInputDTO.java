@@ -26,18 +26,7 @@ public class AuctionInputDTO {
     private List<String> imageUrls;
 
     public Auction toModel() {
-
         ModelMapper mapper = new ModelMapper();
-        Auction auction = mapper.map(this, Auction.class);
-        Set<Images> images = new HashSet<>();
-        if (imageUrls != null)
-            for (String url : imageUrls) {
-                Images image = new Images();
-                image.setUrl(url);
-                image.setAuction(auction);
-                images.add(image);
-            }
-        auction.setImages(images);
-        return auction;
+        return mapper.map(this, Auction.class);
     }
 }

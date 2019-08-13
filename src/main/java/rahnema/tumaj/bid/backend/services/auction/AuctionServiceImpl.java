@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -40,9 +41,12 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public Auction addAuction(AuctionInputDTO auctionInput) {
+
         Auction auction = this.repository.save(auctionInput.toModel());
+
         for(String url:auctionInput.getImageUrls())
             saveImageToRepo(auction, url);
+
         setAuctionCategoryById(auctionInput, auction);
         return this.repository.save(auction);
     }
