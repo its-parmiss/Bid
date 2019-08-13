@@ -13,8 +13,8 @@ public class StorageProperties {
     /**
      * Folder location for storing files
      */
-    private String profilePicLocation = "C:\\Users\\Asus\\Desktop\\uploads";
-    private String auctionLocation="C:\\Users\\Asus\\Desktop\\uploads\\auctions";
+    private String profilePicLocation = "/home/mohammad/rahnema/bid/src/main/resources/static/images";
+    private String auctionLocation="/home/mohammad/rahnema/bid/src/main/resources/static/images";
 
     public String getAuctionLocation() {
         return auctionLocation;

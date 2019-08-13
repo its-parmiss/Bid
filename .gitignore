@@ -9,3 +9,6 @@ build
 
 # Ignore out folder
 out/
+
+# Ignore local images
+src/main/resources/static/images

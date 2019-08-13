@@ -64,7 +64,7 @@ public class PasswordController {
         }
     }
 
-    private void changeUserPassword(String password, User user) {
+    public void changeUserPassword(String password, User user) {
         user.setPassword(
                 securityController.bCryptPasswordEncoder
                         .encode(password)

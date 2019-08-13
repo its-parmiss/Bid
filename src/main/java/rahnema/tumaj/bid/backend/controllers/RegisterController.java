@@ -28,15 +28,13 @@ public class RegisterController {
     private final UserValidator userValidator;
 
     private TokenUtil tokenUtil;
-    private UserDetailsService userDetailsService;
+
     public RegisterController(UserService userService,
                               UserResourceAssembler assembler,
                               TokenUtil tokenUtil,
-                              UserDetailsServiceImpl userDetailsService,
                               UserValidator userValidator) {
         this.userService = userService;
         this.assembler = assembler;
-        this.userDetailsService = userDetailsService;
         this.userValidator = userValidator;
         this.tokenUtil = tokenUtil;
     }
@@ -51,12 +49,7 @@ public class RegisterController {
     public AuthenticationResponse addUser(@RequestBody UserInputDTO user) {
         if (isUserValid(user)) {
             this.userService.addOne(user);
-            AuthenticationRequest authenticationRequest = new AuthenticationRequest();
-            authenticationRequest.setEmail(user.getEmail());
-            authenticationRequest.setPassword(user.getPassword());
-            final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
-            final String token = tokenUtil.generateToken(userDetails);
-            return new AuthenticationResponse(token);
+            return tokenUtil.generateNewAuthorization(UserInputDTO.toModel(user));
         } else {
             throw new IllegalUserInputException();
         }

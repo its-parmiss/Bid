@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,10 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import rahnema.tumaj.bid.backend.domains.AuthenticationRequest;
+import rahnema.tumaj.bid.backend.domains.AuthenticationResponse;
 import rahnema.tumaj.bid.backend.models.User;
+import rahnema.tumaj.bid.backend.services.UserDetailsServiceImpl;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 
@@ -25,6 +29,9 @@ public class JwtTokenUtil implements TokenUtil {
 
 	@Value("${jwt.secret}")
 	private String secret;
+
+	@Autowired
+	private UserDetailsServiceImpl userDetailsService;
 
 	@Override
 	public Optional<String> getUsernameFromToken(String token) {
@@ -75,5 +82,13 @@ public class JwtTokenUtil implements TokenUtil {
 		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
 	}
 
-
+	@Override
+	public AuthenticationResponse generateNewAuthorization(User user) {
+		AuthenticationRequest authenticationRequest = new AuthenticationRequest();
+		authenticationRequest.setEmail(user.getEmail());
+		authenticationRequest.setPassword(user.getPassword());
+		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
+		final String token = this.generateToken(userDetails);
+		return new AuthenticationResponse(token);
+	}
 }
