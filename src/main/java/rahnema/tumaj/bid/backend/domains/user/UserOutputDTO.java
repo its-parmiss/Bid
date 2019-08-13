@@ -7,7 +7,7 @@ import rahnema.tumaj.bid.backend.models.User;
 @Data
 public class UserOutputDTO {
     private Long id;
-    private String first_name;
+    private String firstName;
     private String lastName;
     private String profilePicture;
 

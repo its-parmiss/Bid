@@ -12,3 +12,4 @@ out/
 
 # Ignore local images
 src/main/resources/static/images
+src/main/resources/static

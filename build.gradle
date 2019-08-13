@@ -14,7 +14,9 @@ apply plugin: 'io.spring.dependency-management'
 repositories {
     mavenCentral()
 }
-
+bootRun {
+    sourceResources sourceSets.main
+}
 dependencies {
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile("org.springframework.boot:spring-boot-devtools")

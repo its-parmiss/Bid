@@ -49,7 +49,7 @@ public class UserController {
         );
     }
 
-    @GetMapping("/user/auctions")
+    @GetMapping("/user/bookmarked")
 
     public Resources<Resource<AuctionOutputDTO>> getAll(@RequestHeader("Authorization") String token) {
         User user = userService.getUserWithToken(token);
