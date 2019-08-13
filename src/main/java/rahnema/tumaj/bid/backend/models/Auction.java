@@ -47,7 +47,6 @@ public class Auction {
     @JsonManagedReference
     Set<Images> images = new HashSet<Images>();
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "relatedAuction")
-
     Set<Bid> bids;
     @JsonBackReference
     @ManyToMany(fetch=FetchType.EAGER,mappedBy = "auctions",cascade=CascadeType.ALL) //bookmarks

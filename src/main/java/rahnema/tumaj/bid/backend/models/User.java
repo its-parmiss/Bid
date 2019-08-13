@@ -11,7 +11,7 @@ import java.util.Set;
 @Entity
 @Table(name="Users")
 @Data
-@ToString(exclude = "auctions")
+@ToString(exclude = {"auctions", "myAuctions"})
 public class User {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

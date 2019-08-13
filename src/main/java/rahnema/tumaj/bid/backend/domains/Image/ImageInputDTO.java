@@ -10,6 +10,7 @@ public class ImageInputDTO {
     Auction auction;
     public static Images toModel(ImageInputDTO image){
         ModelMapper mapper = new ModelMapper();
-        return mapper.map(image, Images.class);
+        Images img =  mapper.map(image, Images.class);
+        return img;
     }
 }

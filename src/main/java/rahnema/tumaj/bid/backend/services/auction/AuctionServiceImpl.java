@@ -40,20 +40,19 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public Auction addAuction(AuctionInputDTO auctionInput) {
-        Auction auction = auctionInput.toModel();
-
-        for(String url:auctionInput.getImageUrls()){
-            ImageInputDTO imageInputDTO=new ImageInputDTO();
-            imageInputDTO.setUrl(url);
-            imageInputDTO.setAuction(auction);
-            Images img=imageService.addOne(imageInputDTO);
-            auction.addImage(img);
-        }
-
-        System.out.println(auction.getImages().size()+ "sout in service");
-        System.out.println(auction.getTitle());
+        Auction auction = this.repository.save(auctionInput.toModel());
+        for(String url:auctionInput.getImageUrls())
+            saveImageToRepo(auction, url);
         setAuctionCategoryById(auctionInput, auction);
         return this.repository.save(auction);
+    }
+
+    private void saveImageToRepo(Auction auction, String url) {
+        ImageInputDTO imageInputDTO=new ImageInputDTO();
+        imageInputDTO.setUrl(url);
+        imageInputDTO.setAuction(auction);
+        Images img=imageService.addOne(imageInputDTO);
+        auction.addImage(img);
     }
 
 

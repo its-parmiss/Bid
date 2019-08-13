@@ -9,6 +9,7 @@ import rahnema.tumaj.bid.backend.models.User;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -22,7 +23,7 @@ public class AuctionInputDTO {
     private Long categoryId;
     private User user;
     private Long basePrice;
-    private String[] imageUrls;
+    private List<String> imageUrls;
 
     public Auction toModel() {
 
