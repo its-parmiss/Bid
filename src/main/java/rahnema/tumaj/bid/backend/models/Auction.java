@@ -55,7 +55,7 @@ public class Auction {
     @PrePersist
     protected void onCreate() {
         this.createdAt = new Date();
-//        this.done = false;
+        this.finished = false;
     }
 
     public void addImage(Images image) {
