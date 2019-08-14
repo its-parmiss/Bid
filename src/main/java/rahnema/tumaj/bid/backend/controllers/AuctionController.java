@@ -205,12 +205,9 @@ public class AuctionController {
 
     @PostMapping("/auctions/upload")
     public String handleFileUpload(@RequestBody MultipartFile file) {
-        System.out.println("file = " + file.getName());
         String name = storageService.store(file, "auctionPicture");
         org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name, "auctionPicture");
         return name;
     }
-
-
 }
 
