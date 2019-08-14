@@ -18,6 +18,7 @@ public class UserValidatorImpl implements UserValidator {
         return firstName.matches(validator) &&
             (
                 lastName == null ||
+                lastName.equals("") ||
                 lastName.matches(validator)
             );
     }

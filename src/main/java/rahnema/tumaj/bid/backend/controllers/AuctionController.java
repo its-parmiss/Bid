@@ -84,6 +84,7 @@ public class AuctionController {
 
     @GetMapping("/auctions")
     public Resource<AuctionListDTO> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestHeader("Authorization") String token, @RequestParam(required = false) String title, @RequestParam(required = false) Long categoryId) {
+
         User user = userService.getUserWithToken(token);
         page = defaultPage(page);
         limit = defaultLimit(limit);
@@ -203,11 +204,11 @@ public class AuctionController {
     }
 
     @PostMapping("/auctions/upload")
-    public ResponseEntity<org.springframework.core.io.Resource> handleFileUpload(@RequestBody MultipartFile file) {
+    public String handleFileUpload(@RequestBody MultipartFile file) {
+        System.out.println("file = " + file.getName());
         String name = storageService.store(file, "auctionPicture");
         org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name, "auctionPicture");
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + tempFile.getFilename() + "\"").body(tempFile);
+        return name;
     }
 
 

@@ -68,7 +68,8 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public Page<Auction> getAll(Integer page, Integer limit) {
-        return new PageImpl<>(repository.getHottestPage(PageRequest.of(page,limit)));
+        Long lastPage =repository.countByFinished(false);
+        return new PageImpl<>(repository.getHottestPage(PageRequest.of(page,limit)),PageRequest.of(page,limit),lastPage);
     }
 
     @Override

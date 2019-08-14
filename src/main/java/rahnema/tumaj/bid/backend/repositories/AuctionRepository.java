@@ -35,7 +35,7 @@ public interface AuctionRepository extends PagingAndSortingRepository<Auction, L
     Optional<List<Auction>> findByTitle(String title);
 
 
-
+    Long countByFinished(Boolean finished);
 
 
     Page<Auction> findByFinishedAndTitleContainingOrderByCreatedAtDesc(Boolean finished, String title, Pageable pageable);

@@ -76,7 +76,7 @@ public class SettingsController {
     }
 
     @PostMapping("/user/settings/upload")
-    public ResponseEntity<Resource> handleFileUpload(
+    public String handleFileUpload(
             @RequestHeader("Authorization") String token,
             @RequestBody MultipartFile file) {
 
@@ -89,8 +89,7 @@ public class SettingsController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + tempFile.getFilename() + "\"").body(tempFile);
+        return name;
     }
 
 
