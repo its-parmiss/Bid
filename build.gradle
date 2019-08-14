@@ -22,12 +22,31 @@ bootRun {
 }
 dependencies {
     compile 'org.springframework.boot:spring-boot-starter-web'
-    compile("org.springframework.boot:spring-boot-devtools")
+    compile 'org.springframework.boot:spring-boot-devtools'
     compile 'org.springframework.boot:spring-boot-starter-security'
+
+    // Test
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+
     compile 'io.jsonwebtoken:jjwt:0.9.1'
 
     compile 'com.google.code.gson:gson'
-    testCompile 'junit:junit:4.12'
+
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.4.0'
+
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.4.0'
+
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.4.0'
+
+    // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher
+    testCompile group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.4.0'
+
+    // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-commons
+    testCompile group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.4.0'
+
     compile 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     compile 'org.springframework.boot:spring-boot-starter-hateoas'
