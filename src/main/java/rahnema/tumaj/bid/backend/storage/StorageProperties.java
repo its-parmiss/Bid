@@ -14,8 +14,8 @@ public class StorageProperties {
      * Folder location for storing files
      */
 
-    private String profilePicLocation = "/home/mohammad/rahnema/bid/src/main/resources/static/images";
-    private String auctionLocation="/home/mohammad/rahnema/bid/src/main/resources/static/images";
+    private String profilePicLocation = "/media/spring-images";
+    private String auctionLocation = "/media/spring-images";
     public String getAuctionLocation() {
         return auctionLocation;
     }
