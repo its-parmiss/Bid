@@ -8,6 +8,8 @@ import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 
+import java.util.Map;
+
 @RestController
 public class BookmarkingController {
 
@@ -24,9 +26,11 @@ public class BookmarkingController {
     @PostMapping("/auctions/bookmark")
 
     public void bookmarkAuction(@RequestHeader("Authorization") String token,
-                                @RequestParam("auctionId") Long auctionId) {
+                                @RequestBody Map<String, String> params) {
+
+        String auctionId = params.get("auctionId");
         User user = userService.getUserWithToken(token);
-        bookmarksService.bookmarkAuction(auctionId, user);
+        bookmarksService.bookmarkAuction(Long.valueOf(auctionId), user);
     }
 
 }
