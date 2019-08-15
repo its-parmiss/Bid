@@ -34,7 +34,8 @@ public class PasswordController {
     }
 
     @PostMapping("/forgot")
-    public void resetPasswordViaEmail(@RequestParam("email") String email) {
+    public void resetPasswordViaEmail(@RequestBody Map<String, String> params) {
+        String email = params.get("email");
         User user = userService.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
 
