@@ -23,6 +23,7 @@ import rahnema.tumaj.bid.backend.utils.validators.UserValidator;
 import rahnema.tumaj.bid.backend.utils.validators.ValidatorConstants;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -76,7 +77,7 @@ public class SettingsController {
     }
 
     @PostMapping("/user/settings/upload")
-    public String handleFileUpload(
+    public Map<String,String> handleFileUpload(
             @RequestHeader("Authorization") String token,
             @RequestBody MultipartFile file) {
 
@@ -89,7 +90,9 @@ public class SettingsController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return name;
+        Map<String,String> jsonName=new HashMap<>();
+        jsonName.put("name",name);
+        return jsonName;
     }
 
 
