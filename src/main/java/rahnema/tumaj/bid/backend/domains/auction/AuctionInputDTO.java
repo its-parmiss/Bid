@@ -36,6 +36,9 @@ public class AuctionInputDTO {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+        System.out.println("\n\n\n" + auction.getStartDate() + "\n\n\n");
+
       /*  try {
             auction.setStartDate((new SimpleDateFormat()).parse(this.getAaa()));
         } catch (ParseException e) {
