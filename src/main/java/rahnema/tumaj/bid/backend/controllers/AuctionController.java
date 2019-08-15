@@ -66,6 +66,7 @@ public class AuctionController {
     }
 
     private Resource<AuctionOutputDTO> passAuctionToService(@RequestBody AuctionInputDTO auctionInput, User user) {
+        System.out.println("auctionInput = " + auctionInput.getStringstrt());
         auctionInput.setUser(user);
         Auction addedAuction = service.addAuction(auctionInput);
 
