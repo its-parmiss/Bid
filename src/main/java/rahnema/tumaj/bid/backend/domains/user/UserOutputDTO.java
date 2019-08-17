@@ -12,6 +12,7 @@ public class UserOutputDTO {
     private String firstName;
     private String lastName;
     private String profilePicture;
+    private String email;
 
     public static UserOutputDTO fromModel(User user){
         ModelMapper mapper = new ModelMapper();
