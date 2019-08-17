@@ -43,7 +43,7 @@ public class PasswordController {
         userService.saveUser(user);
 
         String message = "Click this link below to reset your password:\n" +
-                "http://localhost:8080/forgot?token=" +
+                "http://192.168.11.191/forgot?token=" +
                 user.getResetToken();
 
         sendEmail(user, message);
