@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface UserService {
     Optional<User> getOne(Long id);
     List<User> getAll();
-    UserOutputDTO addOne(UserInputDTO user);
+    User addOne(UserInputDTO user);
     Optional<User> findByEmail(String email);
     User saveUser(User user);
     Optional<User> findByResetToken(String token);

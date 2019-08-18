@@ -30,6 +30,13 @@ public class User {
     Date createdAt;
     @Column(name = "reset_token")
     String resetToken;
+    @Column(name = "enabled")
+    boolean enabled;
+
+    public User() {
+        super();
+        this.enabled = false;
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -50,4 +57,7 @@ public class User {
 
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "bidder")
     Set<Bid> bids;
+
+    @OneToOne(mappedBy = "user")
+    ConfirmationToken confirmationToken;
 }

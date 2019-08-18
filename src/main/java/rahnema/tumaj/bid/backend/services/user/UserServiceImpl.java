@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserOutputDTO addOne(UserInputDTO user) {
+    public User addOne(UserInputDTO user) {
         if (this.userRepository.existsByEmail(user.getEmail()))
             throw new EmailAlreadyExistsException(user.getEmail());
         User userModel = UserInputDTO.toModel(user);
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
             this.securityController.bCryptPasswordEncoder
                     .encode(userModel.getPassword())
         );
-        return UserOutputDTO.fromModel(userRepository.save(userModel));
+        return userRepository.save(userModel);
     }
 
     @Override

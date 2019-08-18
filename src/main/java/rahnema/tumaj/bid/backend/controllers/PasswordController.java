@@ -1,5 +1,6 @@
 package rahnema.tumaj.bid.backend.controllers;
 
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.email.EmailService;
@@ -35,22 +36,33 @@ public class PasswordController {
 
     @PostMapping("/forgot")
     public void resetPasswordViaEmail(@RequestBody Map<String, String> params) {
-        String email = params.get("email");
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
+        String userEmail = params.get("email");
+        User user = userService.findByEmail(userEmail)
+                .orElseThrow(() -> new UserNotFoundException(userEmail));
 
         user.setResetToken(UUID.randomUUID().toString());
         userService.saveUser(user);
 
-        String message = "Click this link below to reset your password:\n" +
-                "http://192.168.11.191/forgot?token=" +
-                user.getResetToken();
-
-        sendEmail(user, message);
+        sendPasswordRecoveryEmailToUser(user);
     }
 
-    private void sendEmail(User user, String message) {
-        emailService.sendSimpleEmail(user.getEmail(), "Tumaj Password Recovery", message);
+    private void sendPasswordRecoveryEmailToUser(User user) {
+        String to = user.getEmail();
+        String subject = "Tumaj Password Recovery";
+        String message = "Click this link below to reset your password:\n" +
+                "http://localhost:8080/forgot?token=" +
+                user.getResetToken();
+
+        SimpleMailMessage mail = createMail(to, subject, message);
+        emailService.sendSimpleEmail(mail);
+    }
+
+    private SimpleMailMessage createMail(String to, String subject, String message) {
+        SimpleMailMessage email = new SimpleMailMessage();
+        email.setTo(to);
+        email.setSubject(subject);
+        email.setText(message);
+        return email;
     }
 
     @PostMapping("/reset")

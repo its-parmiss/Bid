@@ -2,7 +2,7 @@ package rahnema.tumaj.bid.backend.services;
 
 import java.util.ArrayList;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,18 +17,22 @@ import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoun
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-	@Autowired
-	UserRepository userRepository;
+	private final UserRepository userRepository;
 
 	@Getter
 	private User user;
+
+	public UserDetailsServiceImpl(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
 		User user = userRepository.findByEmail(email).orElseThrow(()-> new UserNotFoundException(email));
-		if (user == null)
-			throw new UsernameNotFoundException("User not found with username: " + email);
+		if (!user.isEnabled()) {
+			throw new DisabledException("This user is not activated");
+		}
 
 		this.user = user;
 		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
