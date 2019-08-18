@@ -85,10 +85,7 @@ public class AuctionController {
 
     @GetMapping("/auctions")
     public Resource<AuctionListDTO> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestHeader("Authorization") String token, @RequestParam(required = false) String title, @RequestParam(required = false) Long categoryId) {
-
         User user = userService.getUserWithToken(token);
-        System.out.println("title = " + title);
-        System.out.println("categoryId = " + categoryId);
         page = defaultPage(page);
         limit = defaultLimit(limit);
         return evaluateAuctionsRequest(page, limit, title, categoryId, user);
