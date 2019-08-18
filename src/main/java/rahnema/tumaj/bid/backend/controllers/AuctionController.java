@@ -87,21 +87,34 @@ public class AuctionController {
     public Resource<AuctionListDTO> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestHeader("Authorization") String token, @RequestParam(required = false) String title, @RequestParam(required = false) Long categoryId) {
 
         User user = userService.getUserWithToken(token);
-
+        System.out.println("title = " + title);
+        System.out.println("categoryId = " + categoryId);
         page = defaultPage(page);
         limit = defaultLimit(limit);
         return evaluateAuctionsRequest(page, limit, title, categoryId, user);
     }
 
     private Resource<AuctionListDTO> evaluateAuctionsRequest(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestParam(required = false) String title, @RequestParam(required = false) Long categoryId, User user) {
-        if (categoryId == null && title == null)
+        if (isBothEmpty(title, categoryId))
             return getHottest(page, limit, user);
-        else if (categoryId == null)
+        else if (isCatEmpty(categoryId))
             return find(page, limit, title, user);
-        else if (title == null)
+        else if (isTitleEmpty(title))
             return filter(page, limit,categoryId, user);
         else
             return findByFilterAndCategory(title, categoryId, page, limit, user);
+    }
+
+    private boolean isBothEmpty(@RequestParam(required = false) String title, @RequestParam(required = false) Long categoryId) {
+        return isCatEmpty(categoryId) && (isTitleEmpty(title));
+    }
+
+    private boolean isCatEmpty(@RequestParam(required = false) Long categoryId) {
+        return categoryId == null;
+    }
+
+    private boolean isTitleEmpty(@RequestParam(required = false) String title) {
+        return title == null || title.equals("");
     }
 
     private Resource<AuctionListDTO> getHottest(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, User user) {
