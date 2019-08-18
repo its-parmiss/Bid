@@ -13,3 +13,6 @@ out/
 # Ignore local images
 src/main/resources/static/images
 src/main/resources/static
+
+# application properties
+src/main/resources/application.properties
