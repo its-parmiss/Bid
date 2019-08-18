@@ -58,8 +58,9 @@ public class PasswordController {
         User user = userService.findByResetToken(params.get("token"))
                 .orElseThrow(TokenNotFoundException::new);
 
-        if (userValidator.isUserPasswordValid(user.getPassword(), ValidatorConstants.PASSWORD)) {
-            changeUserPassword(params.get("password"), user);
+        String newPassword = params.get("password");
+        if (userValidator.isUserPasswordValid(newPassword, ValidatorConstants.PASSWORD)) {
+            changeUserPassword(newPassword, user);
         } else {
             throw new IllegalUserInputException();
         }
