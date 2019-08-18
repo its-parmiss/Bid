@@ -73,16 +73,6 @@ public class AuctionController {
         return assembler.assemble(addedAuction);
     }
 
-    private void getImagesAsSet(@RequestBody AuctionInputDTO auctionInput, Set<Images> images) {
-        if (auctionInput.getImageUrls() != null)
-            for (String url : auctionInput.getImageUrls()) {
-                ImageInputDTO imageInputDTO = new ImageInputDTO();
-                imageInputDTO.setUrl(url);
-                Images img = imageService.addOne(imageInputDTO);
-                images.add(img);
-            }
-    }
-
     @GetMapping("/auctions")
     public Resource<AuctionListDTO> getAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestHeader("Authorization") String token, @RequestParam(required = false) String title, @RequestParam(required = false) Long categoryId) {
         User user = userService.getUserWithToken(token);
