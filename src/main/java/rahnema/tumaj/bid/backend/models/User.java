@@ -1,7 +1,9 @@
 package rahnema.tumaj.bid.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
@@ -11,7 +13,9 @@ import java.util.Set;
 @Entity
 @Table(name="Users")
 @Data
-@ToString(exclude = {"auctions", "myAuctions"})
+@ToString(exclude = {"auctions", "myAuctions","confirmationToken"})
+@EqualsAndHashCode(exclude={"confirmationToken"})
+
 public class User {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -31,7 +35,7 @@ public class User {
     @Column(name = "reset_token")
     String resetToken;
     @Column(name = "enabled")
-    boolean enabled;
+        boolean enabled;
 
     public User() {
         super();
@@ -58,6 +62,7 @@ public class User {
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "bidder")
     Set<Bid> bids;
 
+    @JsonBackReference
     @OneToOne(mappedBy = "user")
     ConfirmationToken confirmationToken;
 }

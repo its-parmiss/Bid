@@ -37,9 +37,22 @@ public class BookmarksServiceImpl implements BookmarksService {
 
     }
 
+    @Override
+    public void unbookmarkAuction(Long auctionId, User user) {
+        Auction auction = auctionRepository.findById(auctionId).orElseThrow(()-> new AuctionNotFoundException(auctionId));
+        deleteFromBookmarksOnDB(user,auction);
+
+    }
+
     private void saveBookmarkOnDB(User user, Auction auction) {
         user.getAuctions().add(auction);
         auction.getUsers().add(user);
+        userRepository.save(user);
+        auctionRepository.save(auction);
+    }
+    private void deleteFromBookmarksOnDB(User user, Auction auction) {
+        user.getAuctions().remove(auction);
+        auction.getUsers().remove(user);
         userRepository.save(user);
         auctionRepository.save(auction);
     }
