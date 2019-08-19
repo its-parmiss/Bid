@@ -68,12 +68,9 @@ public class SettingsController {
 
     private boolean validateUserFieldsFromParams(Map<String, String> params) {
         return
-                userValidator.isUserEmailValid(params.get("email"),
-                        ValidatorConstants.EMAIL) &&
                         userValidator.isUserNameValid(params.get("firstName"),
                                 params.get("lastName"),
                                 ValidatorConstants.NAME);
-
     }
 
     @PostMapping("/user/settings/upload")
@@ -99,17 +96,15 @@ public class SettingsController {
     private void changeUserFieldsFromParams(Map<String, String> params, User user) {
         String newFirstName = params.get("firstName");
         String newLastName = params.get("lastName");
-        String newEmail = params.get("email");
 
-        setUpdatedUserFields(user, newFirstName, newLastName, newEmail);
+        setUpdatedUserFields(user, newFirstName, newLastName);
     }
 
-    private void setUpdatedUserFields(User user, String newFirstName, String newLastName, String newEmail) {
+    private void setUpdatedUserFields(User user, String newFirstName, String newLastName) {
 
         user.setFirstName(newFirstName);
         if (newLastName != null)
             user.setLastName(newLastName);
-        user.setEmail(newEmail);
     }
 
     @PostMapping("/user/settings/change-password")

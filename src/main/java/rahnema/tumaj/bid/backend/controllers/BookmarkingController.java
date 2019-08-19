@@ -24,13 +24,21 @@ public class BookmarkingController {
     }
 
     @PostMapping("/auctions/bookmark")
-
     public void bookmarkAuction(@RequestHeader("Authorization") String token,
                                 @RequestBody Map<String, String> params) {
 
         String auctionId = params.get("auctionId");
         User user = userService.getUserWithToken(token);
         bookmarksService.bookmarkAuction(Long.valueOf(auctionId), user);
+    }
+    @PostMapping("/auctions/unbookmark")
+
+    public void unbookmarkAuction(@RequestHeader("Authorization") String token,
+                                @RequestBody Map<String, String> params) {
+
+        String auctionId = params.get("auctionId");
+        User user = userService.getUserWithToken(token);
+        bookmarksService.unbookmarkAuction(Long.valueOf(auctionId), user);
     }
 
 }
