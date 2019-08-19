@@ -77,7 +77,7 @@ public class RegisterController {
         String to = user.getEmail();
         String subject = "Tumaj Account Verification";
         String message = "Click this link below to confirm your account:\n" +
-                "http://localhost:8080/confirmAccount?token=" +
+                "http://192.168.11.191/confirmAccount?token=" +
                 confirmationToken.getConfirmationToken();
 
         SimpleMailMessage mail = createMail(to, subject, message);
