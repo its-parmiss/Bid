@@ -16,3 +16,6 @@ src/main/resources/static
 
 # application properties
 src/main/resources/application.properties
+
+# Local scrpit file
+deploy.sh
