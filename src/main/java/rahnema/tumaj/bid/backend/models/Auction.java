@@ -1,6 +1,7 @@
 package rahnema.tumaj.bid.backend.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +14,7 @@ import java.util.Set;
 @Entity
 @Table(name="Auctions")
 @Data
-@EqualsAndHashCode(exclude={"users", "user","category","images"})
+@EqualsAndHashCode(exclude={"users", "user", "category", "images", "bids"})
 public class Auction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -45,8 +46,9 @@ public class Auction {
     User user;
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "auction")
     @JsonManagedReference
-    Set<Images> images = new HashSet<Images>();
-    @OneToMany(fetch=FetchType.EAGER,mappedBy = "relatedAuction")
+    Set<Images> images = new HashSet<>();
+    @JsonBackReference
+    @OneToMany(fetch=FetchType.EAGER,mappedBy = "auction")
     Set<Bid> bids;
     @JsonBackReference
     @ManyToMany(fetch=FetchType.EAGER,mappedBy = "auctions",cascade=CascadeType.ALL) //bookmarks
