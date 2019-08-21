@@ -1,7 +1,7 @@
 package rahnema.tumaj.bid.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -17,9 +17,11 @@ public class Bid {
     String title;
     @Column(name = "created_at")
     Date createdAt;
-    @ManyToOne(fetch=FetchType.EAGER)
-    Auction relatedAuction;
-    @ManyToOne(fetch=FetchType.EAGER)
+    @JsonManagedReference
+    @ManyToOne
+    Auction auction;
+    @JsonManagedReference
+    @ManyToOne
     User bidder;
 
     @PrePersist

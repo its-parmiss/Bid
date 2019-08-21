@@ -59,6 +59,7 @@ public class User {
     @JsonManagedReference
     Set<Auction> myAuctions;
 
+    @JsonBackReference
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "bidder")
     Set<Bid> bids;
 
