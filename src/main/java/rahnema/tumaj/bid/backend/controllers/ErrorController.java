@@ -22,12 +22,10 @@ import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoun
 @ControllerAdvice
 public class ErrorController extends ResponseEntityExceptionHandler {
 
-    private Gson gson = new Gson();
-
     @ExceptionHandler(value = {AuctionNotFoundException.class})
     public ResponseEntity<Object> entityNotFound(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                gson.toJson(new ExceptionMessage(ex.getMessage(), 404)),
+                new ExceptionMessage(ex.getMessage(), 404),
                 new HttpHeaders(),
                 HttpStatus.NOT_FOUND, request
         );
@@ -36,7 +34,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {IllegalAuctionInputException.class})
     public ResponseEntity<Object> actionNotFound(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                gson.toJson(new ExceptionMessage(ex.getMessage(), 400)),
+                new ExceptionMessage(ex.getMessage(), 400),
                 new HttpHeaders(),
                 HttpStatus.BAD_REQUEST, request
         );
@@ -45,7 +43,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {UserNotFoundException.class})
     public ResponseEntity<Object> userNotFound(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                gson.toJson(new ExceptionMessage(ex.getMessage(), 404)),
+                new ExceptionMessage(ex.getMessage(), 404),
                 new HttpHeaders(),
                 HttpStatus.NOT_FOUND, request
         );
@@ -54,7 +52,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {IllegalUserInputException.class})
     public ResponseEntity<Object> illegalInput(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                gson.toJson(new ExceptionMessage(ex.getMessage(), 400)),
+                new ExceptionMessage(ex.getMessage(), 400),
                 new HttpHeaders(),
                 HttpStatus.BAD_REQUEST, request
         );
@@ -63,7 +61,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {EmailAlreadyExistsException.class})
     public ResponseEntity<Object> emailExists(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                gson.toJson(new ExceptionMessage(ex.getMessage(), 4003)),
+                new ExceptionMessage(ex.getMessage(), 4003),
                 new HttpHeaders(),
                 HttpStatus.CONFLICT, request
         );
@@ -72,7 +70,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {CategoryNotFoundException.class})
     public ResponseEntity<Object> catNotFound(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                gson.toJson(new ExceptionMessage(ex.getMessage(), 404)),
+                new ExceptionMessage(ex.getMessage(), 404),
                 new HttpHeaders(),
                 HttpStatus.NOT_FOUND, request
         );
@@ -81,7 +79,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {BadCredentialsException.class})
     public ResponseEntity<Object> badCredentialsException(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                gson.toJson(new ExceptionMessage(ex.getMessage(), 4001)),
+                new ExceptionMessage(ex.getMessage(), 4001),
                 new HttpHeaders(),
                 HttpStatus.FORBIDDEN, request
         );
@@ -90,7 +88,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {InternalAuthenticationServiceException.class})
     public ResponseEntity<Object> tokenNotConfirmed(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                gson.toJson(new ExceptionMessage(ex.getMessage(), 4002)),
+                new ExceptionMessage(ex.getMessage(), 4002),
                 new HttpHeaders(),
                 HttpStatus.FORBIDDEN, request
         );
