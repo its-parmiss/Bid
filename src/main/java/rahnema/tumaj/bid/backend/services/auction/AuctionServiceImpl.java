@@ -96,4 +96,8 @@ public class AuctionServiceImpl implements AuctionService {
         Category category=categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException(categoryId));
         return repository.findByFinishedAndCategoryOrderByCreatedAtDesc(false,category,PageRequest.of(page, limit));
     }
+    public Auction saveAuction(Auction auction) {
+        return repository.save(auction);
+    }
+
 }

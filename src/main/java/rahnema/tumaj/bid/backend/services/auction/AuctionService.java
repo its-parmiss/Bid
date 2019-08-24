@@ -21,5 +21,6 @@ public interface AuctionService {
     Page<Auction> findByTitle(String title,Integer page,Integer limit);
     Page<Auction> findByTitleAndCategory(String title, Long categoryId,Integer page,Integer limit);
     Page<Auction> findByCategory(Long categoryId, Integer page,Integer limit);
+    Auction saveAuction(Auction auction);
 
 }
