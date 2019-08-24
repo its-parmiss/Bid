@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -61,7 +63,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {EmailAlreadyExistsException.class})
     public ResponseEntity<Object> emailExists(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                gson.toJson(new ExceptionMessage(ex.getMessage(), 409)),
+                gson.toJson(new ExceptionMessage(ex.getMessage(), 4003)),
                 new HttpHeaders(),
                 HttpStatus.CONFLICT, request
         );
@@ -73,6 +75,24 @@ public class ErrorController extends ResponseEntityExceptionHandler {
                 gson.toJson(new ExceptionMessage(ex.getMessage(), 404)),
                 new HttpHeaders(),
                 HttpStatus.NOT_FOUND, request
+        );
+    }
+
+    @ExceptionHandler(value = {BadCredentialsException.class})
+    public ResponseEntity<Object> badCredentialsException(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex,
+                gson.toJson(new ExceptionMessage(ex.getMessage(), 4001)),
+                new HttpHeaders(),
+                HttpStatus.FORBIDDEN, request
+        );
+    }
+
+    @ExceptionHandler(value = {InternalAuthenticationServiceException.class})
+    public ResponseEntity<Object> tokenNotConfirmed(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex,
+                gson.toJson(new ExceptionMessage(ex.getMessage(), 4002)),
+                new HttpHeaders(),
+                HttpStatus.FORBIDDEN, request
         );
     }
 
