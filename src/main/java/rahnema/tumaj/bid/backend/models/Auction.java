@@ -31,6 +31,8 @@ public class Auction {
     Long basePrice;
     @Column(name = "active_bidders_limit", columnDefinition = "int DEFAULT '0'")
     int activeBiddersLimit;
+    @Column(name = "currently_active_bidders", columnDefinition = "int DEFAULT '0'")
+    int currentlyActiveBidders;
     @Column(name = "finished"/*, columnDefinition = "boolean DEFAULT false"*/)
     boolean finished;
     @Column(name = "expire_date")
