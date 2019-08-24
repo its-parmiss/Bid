@@ -1,19 +1,10 @@
 package rahnema.tumaj.bid.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import rahnema.tumaj.bid.backend.domains.AuthenticationRequest;
 import rahnema.tumaj.bid.backend.domains.AuthenticationResponse;
-import rahnema.tumaj.bid.backend.domains.user.UserInputDTO;
 import rahnema.tumaj.bid.backend.models.User;
-import rahnema.tumaj.bid.backend.services.UserDetailsServiceImpl;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalUserInputException;
@@ -34,19 +25,22 @@ public class SettingsController {
     private final StorageService storageService;
     private final UserValidator userValidator;
     private final PasswordController passwordController;
+    private final SecurityController securityController;
 
     @Autowired
     public SettingsController(StorageService storageService,
                               UserService userService,
                               TokenUtil tokenUtil,
                               UserValidator userValidator,
-                              PasswordController passwordController) {
+                              PasswordController passwordController,
+                              SecurityController securityController) {
 
         this.userService = userService;
         this.tokenUtil = tokenUtil;
         this.storageService = storageService;
         this.userValidator = userValidator;
         this.passwordController = passwordController;
+        this.securityController = securityController;
     }
 
     @PostMapping("/user/settings")
@@ -114,9 +108,12 @@ public class SettingsController {
 
         User user = userService.getUserWithToken(token);
 
-        String newPassword = params.get("password");
+        String currentPassword = params.get("currentPassword");
+        String newPassword = params.get("newPassword");
 
-        if (userValidator.isUserPasswordValid(newPassword, ValidatorConstants.PASSWORD)) {
+        if (securityController.bCryptPasswordEncoder
+                .matches(currentPassword, user.getPassword()) &&
+                userValidator.isUserPasswordValid(newPassword, ValidatorConstants.PASSWORD)) {
             passwordController.changeUserPassword(newPassword, user);
             return tokenUtil.generateNewAuthorization(user);
         } else {
