@@ -23,8 +23,12 @@ public class EnterAuctionController {
 
     @MessageMapping("/enter")
     public void sendMessage(EnterAuctionInputMessage inputMessage){
-        Auction auction=service.getOne(inputMessage.getAuctionId()).orElseThrow(()-> new AuctionNotFoundException(inputMessage.getAuctionId()));
+        System.out.println("inputMessage = " + inputMessage.getAuctionId());
+
+        Long longId = Long.valueOf(inputMessage.getAuctionId());
+        Auction auction=service.getOne(longId).orElseThrow(()-> new AuctionNotFoundException(longId));
         Integer currentlyActiveBidders=auction.getCurrentlyActiveBidders();
+        System.out.println("currentlyActiveBidders = " + currentlyActiveBidders);
         if(auction.getActiveBiddersLimit()>currentlyActiveBidders){
             auction.setCurrentlyActiveBidders(currentlyActiveBidders+1);
             service.saveAuction(auction);
