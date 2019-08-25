@@ -1,24 +1,36 @@
 package rahnema.tumaj.bid.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.user.SimpUser;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
+
 import rahnema.tumaj.bid.backend.models.Auction;
+import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
+import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.exceptions.FullAuctionException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
+
+import java.util.Map;
 
 @Controller
 public class EnterAuctionController {
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
     private final AuctionService service;
+    private final UserService userService;
 
-    public EnterAuctionController(AuctionService service) {
+    public EnterAuctionController(AuctionService service, UserService userService) {
         this.service = service;
+        this.userService = userService;
     }
 
     @MessageMapping("/enter")
