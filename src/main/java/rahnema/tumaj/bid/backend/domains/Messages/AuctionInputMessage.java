@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EnterAuctionInputMessage {
+public class AuctionInputMessage {
     String auctionId;
 }

@@ -8,7 +8,7 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EnterAuctionMessage {
+public class AuctionOutputMessage {
     Integer currentlyActiveBiddersNumber;
 
 }
