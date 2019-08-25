@@ -1,3 +1,5 @@
+
+
 package rahnema.tumaj.bid.backend.client;
 
 import java.io.BufferedReader;
@@ -95,3 +97,4 @@ public class ClientMain {
         return stompClient;
     }
 }
+
