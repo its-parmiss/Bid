@@ -12,6 +12,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import java.lang.reflect.Type;
 
+import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.WebSocketConnectionManager;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
@@ -41,25 +42,21 @@ import rahnema.tumaj.bid.backend.domains.Messages.EnterAuctionMessage;
  *
  * @Author Jay Sridhar
  */
-public class ClientMain
-{
+public class ClientMain {
     static public class MyStompSessionHandler
-            extends StompSessionHandlerAdapter
-    {
+            extends StompSessionHandlerAdapter {
         private String auctionId;
 
-        public MyStompSessionHandler(String auctionId)
-        {
+        public MyStompSessionHandler(String auctionId) {
             this.auctionId = auctionId;
         }
 
-        private void showHeaders(StompHeaders headers)
-        {
-            for (Map.Entry<String,List<String>> e:headers.entrySet()) {
+        private void showHeaders(StompHeaders headers) {
+            for (Map.Entry<String, List<String>> e : headers.entrySet()) {
                 System.err.print("  " + e.getKey() + ": ");
                 boolean first = true;
                 for (String v : e.getValue()) {
-                    if ( ! first ) System.err.print(", ");
+                    if (!first) System.err.print(", ");
                     System.err.print(v);
                     first = false;
                 }
@@ -68,19 +65,16 @@ public class ClientMain
         }
 
 
-
         @Override
         public void afterConnected(StompSession session,
-                                   StompHeaders connectedHeaders)
-        {
+                                   StompHeaders connectedHeaders) {
             System.err.println("Connected! Headers:");
             showHeaders(connectedHeaders);
 
         }
     }
 
-    public static void main(String args[]) throws Exception
-    {
+    public static void main(String args[]) throws Exception {
         WebSocketClient simpleWebSocketClient =
                 new StandardWebSocketClient();
         List<Transport> transports = new ArrayList<>(1);
@@ -93,33 +87,34 @@ public class ClientMain
         SockJsClient sockJsClient = new SockJsClient(transports);
         WebSocketStompClient stompClient =
                 new WebSocketStompClient(sockJsClient);
+
+
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
         String auctionId = in.readLine();
         String url = "ws://localhost:8080/test-websocket";
         StompSessionHandler sessionHandler = new MyStompSessionHandler(auctionId);
-        StompSession session = stompClient.connect(url, sessionHandler)
+        WebSocketHttpHeaders connectHeaders = new WebSocketHttpHeaders();
+        connectHeaders.add("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbWlyYWxpLm1uakBnbWFpbC5jb20iLCJleHAiOjE1NjY3MjA3NzcsImlhdCI6MTU2NjcwMjc3N30.1IY4V4insxuYDwg9tlzwM2WxZToORiD_mHMrQHx9-L3AZUXbPg4s3yo3tO1FpFNbGGdE03blRgOWlsXVeswPFA");
+        StompSession session = stompClient.connect(url, connectHeaders, sessionHandler)
                 .get();
 
-        Thread thread = new Thread(() -> {
-            synchronized (session) {
-                session.subscribe("/auction/" + auctionId, new StompFrameHandler() {
 
-                    @Override
-                    public Type getPayloadType(StompHeaders headers) {
-                        return EnterAuctionMessage.class;
-                    }
+        synchronized (session) {
+            session.subscribe("/auction/" + auctionId, new StompFrameHandler() {
 
-                    @Override
-                    public void handleFrame(StompHeaders headers,
-                                            Object payload) {
-                        System.err.println(payload.toString());
-                    }
-                });
-            }
+                @Override
+                public Type getPayloadType(StompHeaders headers) {
+                    return EnterAuctionMessage.class;
+                }
 
-        });
-        thread.start();
+                @Override
+                public void handleFrame(StompHeaders headers,
+                                        Object payload) {
+                    System.err.println(payload.toString());
+                }
+            });
+        }
 
         session.send("/app/enter", new EnterAuctionInputMessage(auctionId));
         Thread.sleep(500000);
