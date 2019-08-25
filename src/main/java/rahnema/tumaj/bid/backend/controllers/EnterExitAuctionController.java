@@ -44,8 +44,7 @@ public class EnterExitAuctionController {
             UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) headers.get("simpUser");
             System.out.println("user.getName() = " + user.getName());
             Long longId = Long.valueOf(inputMessage.getAuctionId());
-            Auction auction = service.getOne(longId).orElseThrow(() -> new AuctionNotFoundException(longId));
-//        Integer currentlyActiveBidders = auction.getCurrentlyActiveBidders();
+
             Auction currentAuction;
             if (auctionsData.get(longId) != null) {
                 currentAuction = auctionsData.get(longId);
@@ -54,9 +53,7 @@ public class EnterExitAuctionController {
                 auctionsData.put(longId, currentAuction);
             }
             System.out.println("currentlyActiveBidders = " + currentAuction.getCurrentlyActiveBidders());
-            if (auction.getActiveBiddersLimit() > auctionsData.get(longId).getCurrentlyActiveBidders()) {
-//            auction.setCurrentlyActiveBidders(currentlyActiveBidders + 1);
-//            service.saveAuction(auction);
+            if (currentAuction.getActiveBiddersLimit() > auctionsData.get(longId).getCurrentlyActiveBidders()) {
                 currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() + 1);
                 auctionsData.put(longId, currentAuction);
                 AuctionOutputMessage message = new AuctionOutputMessage();
