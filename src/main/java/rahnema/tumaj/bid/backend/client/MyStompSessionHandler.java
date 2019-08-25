@@ -36,8 +36,5 @@ public class MyStompSessionHandler
         showHeaders(connectedHeaders);
 
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> dasti merge
+
