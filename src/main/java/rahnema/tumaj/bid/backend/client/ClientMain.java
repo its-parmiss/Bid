@@ -6,15 +6,21 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 import java.lang.reflect.Type;
 
 import org.springframework.web.socket.WebSocketHttpHeaders;
+import org.springframework.web.socket.client.WebSocketConnectionManager;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 import org.springframework.web.socket.sockjs.client.Transport;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
+import org.springframework.web.socket.sockjs.frame.Jackson2SockJsMessageCodec;
+import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
@@ -24,6 +30,9 @@ import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import rahnema.tumaj.bid.backend.client.ClientMessage;
+import rahnema.tumaj.bid.backend.client.ServerMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
 
@@ -74,7 +83,6 @@ public class ClientMain {
         connectHeaders.add("Authorization", "Bearer " + token);
         return stompClient.connect(url, connectHeaders, sessionHandler)
                 .get();
-
     }
 
     private static WebSocketStompClient configClient() {
