@@ -90,7 +90,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex,
                 new ExceptionMessage(ex.getMessage(), 4002),
                 new HttpHeaders(),
-                HttpStatus.FORBIDDEN, request
+                HttpStatus.NOT_FOUND, request
         );
     }
 
