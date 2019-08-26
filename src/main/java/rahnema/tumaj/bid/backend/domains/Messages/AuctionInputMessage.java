@@ -8,5 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuctionInputMessage {
+
+    public AuctionInputMessage(String auctionId){
+        this.auctionId = auctionId;
+    }
     String auctionId;
+    String bidPrice;
 }
