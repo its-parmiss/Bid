@@ -32,11 +32,13 @@ public class BidController {
     private final BidService bidService;
     private final UserService userService;
     private final AuctionService auctionService;
+    private final AuctionsBidStorage bidStorage;
 
-    public BidController(BidService bidService, UserService userService, AuctionService auctionService) {
+    public BidController(BidService bidService, UserService userService, AuctionService auctionService, AuctionsBidStorage bidStorage) {
         this.bidService = bidService;
         this.userService = userService;
         this.auctionService = auctionService;
+        this.bidStorage = bidStorage;
     }
 
     @PostMapping("/auctions/{auctionId}/bids")
@@ -53,7 +55,7 @@ public class BidController {
 
     @MessageMapping("/bid")
     public synchronized void sendMessage(BidInputMessage inputMessage, @Headers Map headers) {
-        ConcurrentMap<Long, Auction> auctionsData = AuctionsBidStorage.getInstance().getAuctionsData();
+        ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
         String userName = ((UsernamePasswordAuthenticationToken) headers.get("simpUser")).getName();
         Auction auction = getAuction(inputMessage, auctionsData);
         if (this.isBidMessageValid(inputMessage) && !auction.isFinished())

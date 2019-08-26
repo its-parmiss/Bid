@@ -31,17 +31,18 @@ public class EnterExitAuctionController {
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
     private final AuctionService service;
-    private final UserService userService;
+    private final AuctionsBidStorage bidStorage;
 
-    public EnterExitAuctionController(AuctionService service, UserService userService) {
+
+    public EnterExitAuctionController(AuctionService service, AuctionsBidStorage bidStorage) {
         this.service = service;
-        this.userService = userService;
+        this.bidStorage = bidStorage;
     }
 
     @MessageMapping("/enter")
     public synchronized void sendMessage(AuctionInputMessage inputMessage, /*("Authorization")*/ @Headers Map headers) {
 
-            ConcurrentMap <Long, Auction> auctionsData = AuctionsBidStorage.getInstance().getAuctionsData();
+            ConcurrentMap <Long, Auction> auctionsData = bidStorage.getAuctionsData();
             UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) headers.get("simpUser");
             System.out.println("user.getName() = " + user.getName());
             Long longId = Long.valueOf(inputMessage.getAuctionId());
@@ -70,7 +71,7 @@ public class EnterExitAuctionController {
 
     @MessageMapping("/exit")
     public synchronized void exit(AuctionInputMessage auctionInputMessage, @Headers Map headers) {
-        ConcurrentMap <Long, Auction> auctionsData = AuctionsBidStorage.getInstance().getAuctionsData();
+        ConcurrentMap <Long, Auction> auctionsData = bidStorage.getAuctionsData();
 
         UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) headers.get("simpUser");
         System.out.println("user.getName() = " + user.getName());
@@ -93,7 +94,7 @@ public class EnterExitAuctionController {
 
     @MessageMapping("/endOfAuction")
     public synchronized void end(AuctionInputMessage auctionInputMessage) {
-        ConcurrentMap <Long, Auction> auctionsData = AuctionsBidStorage.getInstance().getAuctionsData();
+        ConcurrentMap <Long, Auction> auctionsData = bidStorage.getAuctionsData();
         Long auctionId = Long.valueOf(auctionInputMessage.getAuctionId());
         Auction currentAuction = getAuction(auctionId);
         currentAuction.setFinished(true);
@@ -105,7 +106,7 @@ public class EnterExitAuctionController {
         this.simpMessagingTemplate.convertAndSend("/auction/" + auctionInputMessage.getAuctionId(), message);
     }
     private synchronized Auction getAuction(Long auctionId) {
-        ConcurrentMap <Long, Auction> auctionsData = AuctionsBidStorage.getInstance().getAuctionsData();
+        ConcurrentMap <Long, Auction> auctionsData = bidStorage.getAuctionsData();
         Auction currentAuction;
         if (auctionsData.get(auctionId) != null) {
             currentAuction = auctionsData.get(auctionId);

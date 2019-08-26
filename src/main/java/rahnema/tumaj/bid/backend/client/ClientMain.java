@@ -42,7 +42,7 @@ import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
 public class ClientMain {
 
 
-    final static String url = "localhost:8080/test-websocket";
+    final static String url = "ws://localhost:8080/test-websocket";
 
 
     public static void main(String []args) throws Exception {
