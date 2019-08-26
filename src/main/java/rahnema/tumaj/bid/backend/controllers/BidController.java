@@ -52,7 +52,7 @@ public class BidController {
     }
 
     @MessageMapping("/bid")
-    public synchronized void sendMessage(BidInputMessage inputMessage, /*("Authorization")*/ @Headers Map headers) {
+    public synchronized void sendMessage(BidInputMessage inputMessage, @Headers Map headers) {
         ConcurrentMap<Long, Auction> auctionsData = AuctionsBidStorage.getInstance().getAuctionsData();
         String userName = ((UsernamePasswordAuthenticationToken) headers.get("simpUser")).getName();
         Auction auction = getAuction(inputMessage, auctionsData);

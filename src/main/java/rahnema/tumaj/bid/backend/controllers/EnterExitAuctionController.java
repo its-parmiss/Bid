@@ -59,6 +59,7 @@ public class EnterExitAuctionController {
                 auctionsData.put(longId, currentAuction);
                 AuctionOutputMessage message = new AuctionOutputMessage();
                 message.setCurrentlyActiveBiddersNumber(auctionsData.get(longId).getCurrentlyActiveBidders());
+                message.setBidPrice(String.valueOf(auctionsData.get(longId).getLastBid()));
                 this.simpMessagingTemplate.convertAndSend("/auction/" + inputMessage.getAuctionId(), message);
             } else {
                 throw new FullAuctionException();

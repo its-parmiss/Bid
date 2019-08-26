@@ -3,6 +3,7 @@
 package rahnema.tumaj.bid.backend.client;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import java.util.List;
@@ -38,31 +39,37 @@ import rahnema.tumaj.bid.backend.client.ServerMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
 
-/*
- * WebSocket client application. Performs client side setup and sends
- * messages.
- *
- * @Author Jay Sridhar
- */
 public class ClientMain {
 
 
-    final static String url = "ws://localhost:8080/test-websocket";
+    final static String url = "localhost:8080/test-websocket";
 
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String []args) throws Exception {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         WebSocketStompClient stompClient = configClient();
         String auctionId = in.readLine();
         String token = in.readLine();
+        StompSession session = connectAndEnterAuction(stompClient, auctionId, token);
+        waitForInput(in, auctionId, session);
+    }
+
+    private static StompSession connectAndEnterAuction(WebSocketStompClient stompClient, String auctionId, String token) throws InterruptedException, java.util.concurrent.ExecutionException {
         StompSession session = connectClient(stompClient, auctionId, token);
         subscribe(auctionId, session);
         session.send("/app/enter", new AuctionInputMessage(auctionId));
+        return session;
+    }
+
+    private static void waitForInput(BufferedReader in, String auctionId, StompSession session) throws IOException {
         String input="";
         while (!input.equals("exit")) {
             input = in.readLine();
             if(input.equals("exitAuction")){
                 session.send("/app/exit", new AuctionInputMessage(auctionId));
+            }
+            else if (input.equals("bid")){
+                session.send("/app/bid", new AuctionInputMessage(auctionId, in.readLine()));
             }
         }
     }
