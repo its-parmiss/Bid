@@ -88,7 +88,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {InternalAuthenticationServiceException.class})
     public ResponseEntity<Object> tokenNotConfirmed(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
-                new ExceptionMessage(ex.getMessage(), 404),
+                new ExceptionMessage(ex.getMessage(), 4001),
                 new HttpHeaders(),
                 HttpStatus.NOT_FOUND, request
         );
