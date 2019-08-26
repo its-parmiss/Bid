@@ -70,6 +70,21 @@ public class ClientMain {
                 session.send("/app/exit", new AuctionInputMessage(auctionId));
             } else if (input.equals("bid")) {
                 session.send("/app/bid", new AuctionInputMessage(auctionId, in.readLine()));
+            } else if (input.equals("bookmark")) {
+                Long dishdish = Long.valueOf(in.readLine());
+                session.subscribe("/auctions/"+dishdish+"/bookmark", new StompFrameHandler() {
+                    @Override
+                    public Type getPayloadType(StompHeaders headers) {
+                        return String.class;
+                    }
+
+                    @Override
+                    public void handleFrame(StompHeaders headers,
+                                            Object payload) {
+//                        System.out.println(payload.toString());
+                        System.out.println("Hi");
+                    }
+                });
             }
         }
     }

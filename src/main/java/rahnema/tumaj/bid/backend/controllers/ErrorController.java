@@ -1,6 +1,7 @@
 package rahnema.tumaj.bid.backend.controllers;
 
 import com.google.gson.Gson;
+import org.quartz.SchedulerException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -99,6 +100,15 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> tokenNotConfirmed(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,
                 new ExceptionMessage(ex.getMessage(), 4001),
+                new HttpHeaders(),
+                HttpStatus.NOT_FOUND, request
+        );
+    }
+
+    @ExceptionHandler(value = {SchedulerException.class})
+    public ResponseEntity<Object> schedulerException(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex,
+                new ExceptionMessage(ex.getMessage(), 4004),
                 new HttpHeaders(),
                 HttpStatus.NOT_FOUND, request
         );

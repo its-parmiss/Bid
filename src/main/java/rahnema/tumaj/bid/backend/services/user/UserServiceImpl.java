@@ -69,6 +69,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserWithToken(String token) {
+        System.out.println(token);
         String email = tokenUtil
                 .getUsernameFromToken(token.split(" ")[1])
                 .orElseThrow(TokenNotFoundException::new);
