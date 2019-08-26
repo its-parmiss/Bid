@@ -27,6 +27,8 @@ public class Auction {
     Date startDate;
     @Column(name = "last_bid")
     Long lastBid;
+    @Column(name = "last_bidder")
+    String lastBidder;
     @Column(name = "base_price",nullable = false)
     Long basePrice;
     @Column(name = "active_bidders_limit", columnDefinition = "int DEFAULT '0'")
@@ -60,6 +62,7 @@ public class Auction {
     protected void onCreate() {
         this.createdAt = new Date();
         this.finished = false;
+        this.lastBidder="";
     }
 
     public void addImage(Images image) {

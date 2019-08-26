@@ -58,9 +58,12 @@ public class ClientMain {
         StompSession session = connectClient(stompClient, auctionId, token);
         subscribe(auctionId, session);
         session.send("/app/enter", new AuctionInputMessage(auctionId));
-
-        while (!auctionId.equals("exit")) {
-            auctionId = in.readLine();
+        String input="";
+        while (!input.equals("exit")) {
+            input = in.readLine();
+            if(input.equals("exitAuction")){
+                session.send("/app/exit", new AuctionInputMessage(auctionId));
+            }
         }
     }
 
