@@ -1,0 +1,9 @@
+package rahnema.tumaj.bid.backend.domains.Messages;
+
+import lombok.Data;
+
+@Data
+public class AuctionEndedMessage {
+    String winner;
+    Long winningPrice;
+}
