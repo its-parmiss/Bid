@@ -1,5 +1,6 @@
 package rahnema.tumaj.bid.backend.controllers;
 
+import com.sun.javafx.scene.EnteredExitedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Headers;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionEndedMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
+import rahnema.tumaj.bid.backend.jobs.NewBidJob;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
@@ -20,13 +22,23 @@ import rahnema.tumaj.bid.backend.utils.exceptions.FullAuctionException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotAllowedToLeaveAuctionException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.quartz.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 public class EnterExitAuctionController {
+    private static final Logger logger = LoggerFactory.getLogger(EnterExitAuctionController.class);
+
+    @Autowired
+    private Scheduler scheduler;
+
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
     private final AuctionService service;
@@ -105,4 +117,26 @@ public class EnterExitAuctionController {
         }
         return currentAuction;
     }
+//    private JobDetail buildJobDetail() {
+//        JobDataMap jobDataMap = new JobDataMap();
+//
+//
+//        return JobBuilder.newJob(NewBidJob.class)
+//                .withIdentity(UUID.randomUUID().toString(), "email-jobs")
+//                .withDescription("Send Email Job")
+//                .usingJobData(jobDataMap)
+//                .storeDurably()
+//                .build();
+//    }
+//    private Trigger buildJobTrigger(JobDetail jobDetail, ZonedDateTime startAt) {
+//        return TriggerBuilder.newTrigger()
+//                .forJob(jobDetail)
+//                .withIdentity(jobDetail.getKey().getName(), "email-triggers")
+//                .withDescription("Send Email Trigger")
+//                .startAt(Date.from(startAt.toInstant()))
+//                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
+//                .build();
+//    }
+//}
+
 }
