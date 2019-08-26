@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionInputDTO;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.models.Category;
+import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
 
 import java.util.Calendar;
 import java.util.List;
@@ -22,5 +23,6 @@ public interface AuctionService {
     Page<Auction> findByTitleAndCategory(String title, Long categoryId,Integer page,Integer limit);
     Page<Auction> findByCategory(Long categoryId, Integer page,Integer limit);
     Auction saveAuction(Auction auction);
+    Auction getAuction(Long auctionId, AuctionsBidStorage bidStorage);
 
 }

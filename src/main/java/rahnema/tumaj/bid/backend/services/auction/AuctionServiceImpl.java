@@ -13,6 +13,8 @@ import rahnema.tumaj.bid.backend.models.Images;
 import rahnema.tumaj.bid.backend.repositories.AuctionRepository;
 import rahnema.tumaj.bid.backend.repositories.CategoryRepository;
 import rahnema.tumaj.bid.backend.services.Images.ImageService;
+import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
+import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.CategoryNotFoundException;
 
 import java.text.DateFormat;
@@ -23,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentMap;
 
 @Service
 public class AuctionServiceImpl implements AuctionService {
@@ -100,4 +103,15 @@ public class AuctionServiceImpl implements AuctionService {
         return repository.save(auction);
     }
 
+    public synchronized Auction getAuction(Long auctionId, AuctionsBidStorage bidStorage) {
+        ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
+        Auction currentAuction;
+        if (auctionsData.get(auctionId) != null) {
+            currentAuction = auctionsData.get(auctionId);
+        } else {
+            currentAuction = this.getOne(auctionId).orElseThrow(() -> new AuctionNotFoundException(auctionId));
+            auctionsData.put(auctionId, currentAuction);
+        }
+        return currentAuction;
+    }
 }
