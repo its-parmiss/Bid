@@ -11,4 +11,6 @@ import lombok.ToString;
 public class AuctionOutputMessage {
     Integer currentlyActiveBiddersNumber;
 
+    String bidPrice;
+    String auctionId;
 }

@@ -1,7 +1,9 @@
 package rahnema.tumaj.bid.backend.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
@@ -23,6 +25,9 @@ import java.util.concurrent.ConcurrentMap;
 
 @RestController
 public class BidController {
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     private final BidService bidService;
     private final UserService userService;
@@ -49,7 +54,6 @@ public class BidController {
     @MessageMapping("/bid")
     public synchronized void sendMessage(BidInputMessage inputMessage, /*("Authorization")*/ @Headers Map headers) {
         ConcurrentMap<Long, Auction> auctionsData = AuctionsBidStorage.getInstance().getAuctionsData();
-        ConcurrentMap<Long, String> topBidders = AuctionsBidStorage.getInstance().getAuctionsTopBidders();
         String userName = ((UsernamePasswordAuthenticationToken) headers.get("simpUser")).getName();
         Auction auction = getAuction(inputMessage, auctionsData);
         if (this.isBidMessageValid(inputMessage) && !auction.isFinished())
