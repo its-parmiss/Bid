@@ -20,11 +20,11 @@ import rahnema.tumaj.bid.backend.services.bid.BidService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalAuctionInputException;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @RestController
@@ -35,7 +35,7 @@ public class BidController {
 
     @Autowired
     private Scheduler scheduler;
-    private final ArrayList<JobKey> jobKeys=new ArrayList<>();
+    private final ConcurrentMap<Long,ArrayList<JobDetail>> jobDetails = new ConcurrentHashMap<>();
     private final BidService bidService;
     private final UserService userService;
     private final AuctionService auctionService;
@@ -47,6 +47,7 @@ public class BidController {
         this.auctionService = auctionService;
         this.bidStorage = bidStorage;
     }
+
     @PostMapping("/auctions/{auctionId}/bids")
     public BidOutputDTO addBid(@RequestBody BidInputDTO bidInput,
                                @RequestHeader("Authorization") String token,
@@ -60,35 +61,40 @@ public class BidController {
     }
 
     @MessageMapping("/bid")
-    public synchronized void sendMessage(BidInputMessage inputMessage, @Headers Map headers, @Header("simpSessionId") String sId, SimpMessageHeaderAccessor headerAccessor) {
+    public synchronized void sendMessage(BidInputMessage inputMessage,
+                                         @Headers Map headers, @Header("simpSessionId") String sId,
+                                         SimpMessageHeaderAccessor headerAccessor) {
         ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
         String userName = ((UsernamePasswordAuthenticationToken) headers.get("simpUser")).getName();
 //        String sessionId =  (String)headers.get("simpSessionId");
-        Long auctionId=Long.valueOf(inputMessage.getAuctionId());
+        Long auctionId = Long.valueOf(inputMessage.getAuctionId());
         Auction auction = auctionService.getAuction(auctionId, bidStorage);
         if (this.isBidMessageValid(inputMessage) && !auction.isFinished()) {
             saveNewAuction(inputMessage, auctionsData, userName, auction);
             try {
                 JobDetail jobDetail = buildJobDetail(auctionId);
-                JobKey jk=jobDetail.getKey();
-                for(JobKey j:jobKeys){
-                    scheduler.deleteJob(j);
+                for (JobDetail j : jobDetails.get(auctionId)) {
+                     scheduler.deleteJob(j.getKey());
                 }
-                jobKeys.add(jk);
+                if(!jobDetails.containsKey(auctionId)){
+                    jobDetails.put(auctionId,new ArrayList<>());
+            }
+                ArrayList<JobDetail> jobs=jobDetails.get(auctionId);
+                jobs.add(jobDetail);
+                jobDetails.put(auctionId,jobs);
                 Trigger trigger = buildJobTrigger(jobDetail, new Date(new Date().getTime() + 30000));
                 scheduler.scheduleJob(jobDetail, trigger);
             } catch (SchedulerException e) {
                 e.printStackTrace();
             }
             this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, extractOutputMessage(auction));
-        }
-        else if(auction.isFinished()) {
-            AuctionOutputMessage message=new AuctionOutputMessage();
+        } else if (auction.isFinished()) {
+            AuctionOutputMessage message = new AuctionOutputMessage();
             message.setFinished(auction.isFinished());
             message.setLastBid(auction.getLastBid());
             message.setDescription("you can not bid , auction is closed");
             message.setMessageType("BidForbidden");
-            this.simpMessagingTemplate.convertAndSendToUser(sId,"/auction/"+auctionId,message, headerAccessor.getMessageHeaders());
+            this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
         }
     }
 
@@ -109,7 +115,6 @@ public class BidController {
         message.setMessageType("newBid");
         return message;
     }
-
     //TODO
     private boolean isBidMessageValid(BidInputMessage inputMessage) {
         return Long.valueOf(inputMessage.getBidPrice()) > 0;
@@ -118,8 +123,8 @@ public class BidController {
     private JobDetail buildJobDetail(Long auctionId) {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("auctionId", auctionId);
-        String jobName=UUID.randomUUID().toString();
-        String jobGroup="auction-jobs";
+        String jobName = UUID.randomUUID().toString();
+        String jobGroup = "auction-jobs";
         return JobBuilder.newJob(NewBidJob.class)
                 .withIdentity(jobName, jobGroup)
                 .withDescription("Send auction job")
@@ -129,7 +134,7 @@ public class BidController {
     }
 
     private Trigger buildJobTrigger(JobDetail jobDetail, Date startAt) {
-        Trigger trigger= TriggerBuilder.newTrigger()
+        Trigger trigger = TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
                 .withIdentity(jobDetail.getKey().getName(), "auction-triggers")
                 .withDescription("Send auction Trigger")

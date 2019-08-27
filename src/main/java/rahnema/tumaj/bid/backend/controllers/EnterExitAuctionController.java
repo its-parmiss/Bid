@@ -10,12 +10,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Controller;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
+import rahnema.tumaj.bid.backend.domains.Messages.HomeOutputMessage;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.exceptions.FullAuctionException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotAllowedToLeaveAuctionException;
-import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -45,8 +45,8 @@ public class EnterExitAuctionController {
     public synchronized void sendMessage(AuctionInputMessage inputMessage, /*("Authorization")*/ @Headers Map headers, @Header("simpSessionId") String sId, SimpMessageHeaderAccessor headerAccessor) {
             ConcurrentMap <Long, Auction> auctionsData = bidStorage.getAuctionsData();
             UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) headers.get("simpUser");
-            Long longId = Long.valueOf(inputMessage.getAuctionId());
-            Auction currentAuction=service.getAuction(longId,bidStorage);
+            Long auctionId = Long.valueOf(inputMessage.getAuctionId());
+            Auction currentAuction=service.getAuction(auctionId,bidStorage);
             if(currentAuction.isFinished()){
                 AuctionOutputMessage message=new AuctionOutputMessage();
                 message.setFinished(currentAuction.isFinished());
@@ -57,14 +57,15 @@ public class EnterExitAuctionController {
                 return;
             }
             System.out.println("currentlyActiveBidders = " + currentAuction.getCurrentlyActiveBidders());
-            if (currentAuction.getActiveBiddersLimit() > auctionsData.get(longId).getCurrentlyActiveBidders()) {
+            if (currentAuction.getActiveBiddersLimit() > auctionsData.get(auctionId).getCurrentlyActiveBidders()) {
                 currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() + 1);
-                auctionsData.put(longId, currentAuction);
+                auctionsData.put(auctionId, currentAuction);
                 AuctionOutputMessage message = new AuctionOutputMessage();
-                message.setCurrentlyActiveBiddersNumber(auctionsData.get(longId).getCurrentlyActiveBidders());
+                message.setCurrentlyActiveBiddersNumber(currentAuction.getCurrentlyActiveBidders());
                 message.setMessageType("UpdateActiveBiddersNumber");
-                this.simpMessagingTemplate.convertAndSend("/auction/" + inputMessage.getAuctionId(), message);
-              } else {
+                this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
+                sendMessageToHome(auctionId, currentAuction);
+            } else {
                 AuctionOutputMessage message=new AuctionOutputMessage();
                 message.setDescription("you can't ente the auction,auction is full");
                 message.setMessageType("AuctionIsFull");
@@ -94,6 +95,7 @@ public class EnterExitAuctionController {
             message.setCurrentlyActiveBiddersNumber(auctionsData.get(auctionId).getCurrentlyActiveBidders());
             message.setMessageType("UpdateActiveBiddersNumber");
             this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
+            sendMessageToHome(auctionId, currentAuction);
         } else {
             AuctionOutputMessage message = new AuctionOutputMessage();
             message.setDescription("You can not exit the auction now, you are the last bidder");
@@ -101,6 +103,13 @@ public class EnterExitAuctionController {
             this.simpMessagingTemplate.convertAndSendToUser(sId,"/auction/"+auctionId,message,headerAccessor.getMessageHeaders());
             throw new NotAllowedToLeaveAuctionException();
         }
+    }
+
+    private void sendMessageToHome(Long auctionId, Auction currentAuction) {
+        HomeOutputMessage homeOutputMessage = new HomeOutputMessage();
+        homeOutputMessage.setActiveBidders(currentAuction.getCurrentlyActiveBidders());
+        homeOutputMessage.setIsFinished(currentAuction.isFinished());
+        this.simpMessagingTemplate.convertAndSend("/home/auction" + auctionId, homeOutputMessage);
     }
 
 
