@@ -1,6 +1,7 @@
 package rahnema.tumaj.bid.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Headers;
@@ -14,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.socket.WebSocketHttpHeaders;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
 import rahnema.tumaj.bid.backend.models.Auction;
@@ -48,6 +50,11 @@ public class EnterExitAuctionController {
         this.bidStorage = bidStorage;
     }
 
+
+    @EventListener
+    public void onDisconnectEvent(SessionDisconnectEvent event) {
+        System.out.println("user " + event.getUser().getName()+ " disconnected ");
+    }
     @MessageMapping("/enter")
 //    public synchronized void sendMessage(AuctionInputMessage inputMessage, /*("Authorization")*/ Message<?> message) {
 

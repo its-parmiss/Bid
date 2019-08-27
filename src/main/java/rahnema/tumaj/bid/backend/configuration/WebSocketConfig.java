@@ -9,7 +9,6 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,12 +16,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import rahnema.tumaj.bid.backend.services.UserDetailsServiceImpl;
 import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 
-import java.security.Principal;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Configuration
@@ -30,10 +28,12 @@ import java.util.Objects;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final TokenUtil tokenUtil;
+    private final UserDetailsService userDetailsService;
 
 
-    public WebSocketConfig(TokenUtil tokenUtil) {
+    public WebSocketConfig(TokenUtil tokenUtil, UserDetailsServiceImpl userDetailsService) {
         this.tokenUtil = tokenUtil;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -60,11 +60,27 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         });
     }
 
+
     private void extractUserFromToken(StompHeaderAccessor headerAccessor) {
         if (StompCommand.CONNECT.equals(headerAccessor.getCommand())) {
             String jwtToken = Objects.requireNonNull(headerAccessor.getFirstNativeHeader("Authorization")).substring(7);
-            Authentication u = new UsernamePasswordAuthenticationToken(tokenUtil.getUsernameFromToken(jwtToken).orElseThrow(TokenNotFoundException::new), new ArrayList<>());
+            String userName = tokenUtil.getUsernameFromToken(jwtToken).orElseThrow(TokenNotFoundException::new);
+            evaluateToken(headerAccessor, jwtToken, userName);
+        }
+    }
+
+    private void evaluateToken(StompHeaderAccessor headerAccessor, String jwtToken, String userName) {
+        if (isTokenValid(jwtToken, userName)) {
+            Authentication u = new UsernamePasswordAuthenticationToken(userName, new ArrayList<>());
             headerAccessor.setUser(u);
         }
+        else {
+            System.out.println("token is not valid for user: " + userName);
+            throw new TokenNotFoundException();
+        }
+    }
+
+    private Boolean isTokenValid(String jwtToken, String userName) {
+        return tokenUtil.validateToken(jwtToken, userDetailsService.loadUserByUsername(userName));
     }
 }
