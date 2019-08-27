@@ -85,6 +85,16 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         );
     }
 
+    @ExceptionHandler(value = {FullAuctionException.class})
+    public ResponseEntity<Object> fullAuctionEcxeption(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex,
+                new ExceptionMessage(ex.getMessage(), 4077),
+                new HttpHeaders(),
+                HttpStatus.FORBIDDEN, request
+        );
+    }
+
+
     @ExceptionHandler(value = {InternalAuthenticationServiceException.class})
     public ResponseEntity<Object> tokenNotConfirmed(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex,

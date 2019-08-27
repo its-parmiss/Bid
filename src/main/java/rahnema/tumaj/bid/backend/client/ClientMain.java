@@ -42,7 +42,7 @@ import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
 public class ClientMain {
 
 
-    final static String url = "ws://localhost:8080/test-websocket";
+    final static String url = "http://localhost:8080/ws";
 
 
     public static void main(String []args) throws Exception {
@@ -91,9 +91,10 @@ public class ClientMain {
 
     private static StompSession connectClient(WebSocketStompClient stompClient, String auctionId, String token) throws InterruptedException, java.util.concurrent.ExecutionException {
         StompSessionHandler sessionHandler = new MyStompSessionHandler(auctionId);
-        WebSocketHttpHeaders connectHeaders = new WebSocketHttpHeaders();
+        StompHeaders connectHeaders = new StompHeaders();
         connectHeaders.add("Authorization", "Bearer " + token);
-        return stompClient.connect(url, connectHeaders, sessionHandler)
+        stompClient.connect(url, new WebSocketHttpHeaders() ,connectHeaders, sessionHandler);
+        return stompClient.connect(url, new WebSocketHttpHeaders() ,connectHeaders, sessionHandler)
                 .get();
     }
 
