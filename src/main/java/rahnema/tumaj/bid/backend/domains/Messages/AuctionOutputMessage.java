@@ -9,7 +9,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuctionOutputMessage {
-    Integer currentlyActiveBiddersNumber;
+    Integer activeBidders;
     Long lastBid;
     String lastBidder;
     String bidPrice;

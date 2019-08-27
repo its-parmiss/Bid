@@ -2,19 +2,13 @@ package rahnema.tumaj.bid.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.messaging.simp.user.SimpUser;
-import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
@@ -23,9 +17,7 @@ import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.exceptions.FullAuctionException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotAllowedToLeaveAuctionException;
-import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 
-import java.security.Principal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import org.quartz.*;
@@ -82,7 +74,7 @@ public class EnterExitAuctionController {
                 currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() + 1);
                 auctionsData.put(longId, currentAuction);
                 AuctionOutputMessage message = new AuctionOutputMessage();
-                message.setCurrentlyActiveBiddersNumber(auctionsData.get(longId).getCurrentlyActiveBidders());
+                message.setActiveBidders(auctionsData.get(longId).getCurrentlyActiveBidders());
                 message.setMessageType("UpdateActiveBiddersNumber");
                 this.simpMessagingTemplate.convertAndSend("/auction/" + inputMessage.getAuctionId(), message);
               } else {
@@ -113,7 +105,7 @@ public class EnterExitAuctionController {
             currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() - 1);
             auctionsData.put(auctionId, currentAuction);
             AuctionOutputMessage message = new AuctionOutputMessage();
-            message.setCurrentlyActiveBiddersNumber(auctionsData.get(auctionId).getCurrentlyActiveBidders());
+            message.setActiveBidders(auctionsData.get(auctionId).getCurrentlyActiveBidders());
             message.setMessageType("UpdateActiveBiddersNumber");
             this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
         } else {
