@@ -38,14 +38,15 @@ import rahnema.tumaj.bid.backend.client.ClientMessage;
 import rahnema.tumaj.bid.backend.client.ServerMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
+import rahnema.tumaj.bid.backend.domains.Messages.HomeOutputMessage;
 
 public class ClientMain {
 
 
-    final static String url = "http://localhost:8080/ws";
+    final static String url = "http://192.168.11.223:8080/ws";
 
 
-    public static void main(String []args) throws Exception {
+    public static void main(String[] args) throws Exception {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         WebSocketStompClient stompClient = configClient();
         String auctionId = in.readLine();
@@ -62,13 +63,12 @@ public class ClientMain {
     }
 
     private static void waitForInput(BufferedReader in, String auctionId, StompSession session) throws IOException {
-        String input="";
+        String input = "";
         while (!input.equals("exit")) {
             input = in.readLine();
-            if(input.equals("exitAuction")){
+            if (input.equals("exitAuction")) {
                 session.send("/app/exit", new AuctionInputMessage(auctionId));
-            }
-            else if (input.equals("bid")){
+            } else if (input.equals("bid")) {
                 session.send("/app/bid", new AuctionInputMessage(auctionId, in.readLine()));
             }
         }
@@ -84,13 +84,15 @@ public class ClientMain {
             @Override
             public void handleFrame(StompHeaders headers,
                                     Object payload) {
-                System.err.println(payload.toString());
+                AuctionOutputMessage auctionOutputMessage = (AuctionOutputMessage) payload;
+                if (!auctionOutputMessage.getMessageType().equals("newBid"))
+                    System.out.println(payload.toString());
             }
         });
-        session.subscribe("/user/auction/" + auctionId, new StompFrameHandler() {
+        session.subscribe("/home/auction/" + auctionId, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return AuctionOutputMessage.class;
+                return HomeOutputMessage.class;
             }
 
             @Override
@@ -105,8 +107,8 @@ public class ClientMain {
         StompSessionHandler sessionHandler = new MyStompSessionHandler(auctionId);
         StompHeaders connectHeaders = new StompHeaders();
         connectHeaders.add("Authorization", "Bearer " + token);
-        stompClient.connect(url, new WebSocketHttpHeaders() ,connectHeaders, sessionHandler);
-        return stompClient.connect(url, new WebSocketHttpHeaders() ,connectHeaders, sessionHandler)
+        stompClient.connect(url, new WebSocketHttpHeaders(), connectHeaders, sessionHandler);
+        return stompClient.connect(url, new WebSocketHttpHeaders(), connectHeaders, sessionHandler)
                 .get();
     }
 
