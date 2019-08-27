@@ -112,7 +112,7 @@ public class BidController {
     private AuctionOutputMessage extractOutputMessage(Auction auction) {
         AuctionOutputMessage message = new AuctionOutputMessage();
         message.setBidPrice(String.valueOf(auction.getLastBid()));
-        message.setCurrentlyActiveBiddersNumber(auction.getCurrentlyActiveBidders());
+        message.setActiveBidders(auction.getCurrentlyActiveBidders());
         message.setMessageType("newBid");
         return message;
     }
