@@ -10,7 +10,11 @@ import lombok.ToString;
 @NoArgsConstructor
 public class AuctionOutputMessage {
     Integer currentlyActiveBiddersNumber;
-
+    Long lastBid;
+    String lastBidder;
     String bidPrice;
     String auctionId;
+    boolean finished;
+    String description;
+    String messageType;
 }

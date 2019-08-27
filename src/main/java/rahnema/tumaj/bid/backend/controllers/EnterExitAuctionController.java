@@ -5,12 +5,12 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.socket.WebSocketHttpHeaders;
@@ -18,9 +18,7 @@ import rahnema.tumaj.bid.backend.domains.Messages.AuctionEndedMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
 import rahnema.tumaj.bid.backend.models.Auction;
-import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
-import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.exceptions.FullAuctionException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotAllowedToLeaveAuctionException;
@@ -28,12 +26,18 @@ import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotF
 
 import java.security.Principal;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.quartz.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 public class EnterExitAuctionController {
+    private static final Logger logger = LoggerFactory.getLogger(EnterExitAuctionController.class);
+
+    @Autowired
+    private Scheduler scheduler;
+
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
     private final AuctionService service;
@@ -46,56 +50,71 @@ public class EnterExitAuctionController {
     }
 
     @MessageMapping("/enter")
-    public synchronized void sendMessage(AuctionInputMessage inputMessage, /*("Authorization")*/ Message<?> message) {
+//    public synchronized void sendMessage(AuctionInputMessage inputMessage, /*("Authorization")*/ Message<?> message) {
 
-        StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        System.out.println("message = " + headerAccessor);
-        System.out.println("headerAccessor.getUser().getName() = " + headerAccessor.getUser().getName());
+//        StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+//        System.out.println("message = " + headerAccessor);
+//        System.out.println("headerAccessor.getUser().getName() = " + headerAccessor.getUser().getName());
 
-        ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
-        Long longId = Long.valueOf(inputMessage.getAuctionId());
 
-        Auction currentAuction;
-        if (auctionsData.get(longId) != null) {
-            currentAuction = auctionsData.get(longId);
-        } else {
-            currentAuction = service.getOne(longId).orElseThrow(() -> new AuctionNotFoundException(longId));
-            auctionsData.put(longId, currentAuction);
-        }
-        System.out.println("currentlyActiveBidders = " + currentAuction.getCurrentlyActiveBidders());
-        if (currentAuction.getActiveBiddersLimit() > auctionsData.get(longId).getCurrentlyActiveBidders()) {
-            currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() + 1);
-            auctionsData.put(longId, currentAuction);
-            AuctionOutputMessage outMessage = new AuctionOutputMessage();
-            outMessage.setCurrentlyActiveBiddersNumber(auctionsData.get(longId).getCurrentlyActiveBidders());
-            outMessage.setBidPrice(String.valueOf(auctionsData.get(longId).getLastBid()));
-            this.simpMessagingTemplate.convertAndSend("/auction/" + inputMessage.getAuctionId(), outMessage);
-        } else {
-            throw new FullAuctionException();
-        }
-
+    public synchronized void sendMessage(AuctionInputMessage inputMessage, /*("Authorization")*/ @Headers Map headers, @Header("simpSessionId") String sId, SimpMessageHeaderAccessor headerAccessor) {
+            ConcurrentMap <Long, Auction> auctionsData = bidStorage.getAuctionsData();
+            UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) headers.get("simpUser");
+            Long longId = Long.valueOf(inputMessage.getAuctionId());
+            Auction currentAuction=service.getAuction(longId,bidStorage);
+            if(currentAuction.isFinished()){
+                AuctionOutputMessage message=new AuctionOutputMessage();
+                message.setFinished(currentAuction.isFinished());
+                message.setLastBid(currentAuction.getLastBid());
+                message.setDescription("you can not enter the auction,auction is closed");
+                message.setMessageType("EnterAuctionForbidden");
+               this.simpMessagingTemplate.convertAndSendToUser(sId,"/auction/"+inputMessage.getAuctionId(),message,headerAccessor.getMessageHeaders());
+                return;
+            }
+            System.out.println("currentlyActiveBidders = " + currentAuction.getCurrentlyActiveBidders());
+            if (currentAuction.getActiveBiddersLimit() > auctionsData.get(longId).getCurrentlyActiveBidders()) {
+                currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() + 1);
+                auctionsData.put(longId, currentAuction);
+                AuctionOutputMessage message = new AuctionOutputMessage();
+                message.setCurrentlyActiveBiddersNumber(auctionsData.get(longId).getCurrentlyActiveBidders());
+                message.setMessageType("UpdateActiveBiddersNumber");
+                this.simpMessagingTemplate.convertAndSend("/auction/" + inputMessage.getAuctionId(), message);
+              } else {
+                AuctionOutputMessage message=new AuctionOutputMessage();
+                message.setDescription("you can't ente the auction,auction is full");
+                message.setMessageType("AuctionIsFull");
+                throw new FullAuctionException();
+            }
     }
 
-
     @MessageMapping("/exit")
-    public synchronized void exit(AuctionInputMessage auctionInputMessage, @Headers Map headers) {
-        ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
 
+    public synchronized void exit(AuctionInputMessage auctionInputMessage, @Headers Map headers,@Header("simpSessionId") String sId, SimpMessageHeaderAccessor headerAccessor) {
+        ConcurrentMap <Long, Auction> auctionsData = bidStorage.getAuctionsData();
         UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) headers.get("simpUser");
-        System.out.println("user.getName() = " + user.getName());
         Long auctionId = Long.valueOf(auctionInputMessage.getAuctionId());
-        Auction currentAuction = getAuction(auctionId);
-        if (currentAuction.isFinished()) {
-            return;
-        }
-        System.out.println("currentlyActiveBidders = " + currentAuction.getCurrentlyActiveBidders());
+        Auction currentAuction = service.getAuction(auctionId,bidStorage);
+//        if (currentAuction.isFinished()) {
+//            AuctionOutputMessage message=new AuctionOutputMessage();
+//            message.setFinished(currentAuction.isFinished());
+//            message.setLastBidder(currentAuction.getLastBidder());
+//            message.setLastBid(currentAuction.getLastBid());
+//            message.setMessageType("");
+//            this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
+//            return;
+//        }
         if (!currentAuction.getLastBidder().equals(user.getName())) {
             currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() - 1);
             auctionsData.put(auctionId, currentAuction);
             AuctionOutputMessage message = new AuctionOutputMessage();
             message.setCurrentlyActiveBiddersNumber(auctionsData.get(auctionId).getCurrentlyActiveBidders());
-            this.simpMessagingTemplate.convertAndSend("/auction/" + auctionInputMessage.getAuctionId(), message);
+            message.setMessageType("UpdateActiveBiddersNumber");
+            this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
         } else {
+            AuctionOutputMessage message = new AuctionOutputMessage();
+            message.setDescription("You can not exit the auction now, you are the last bidder");
+            message.setMessageType("ExitAuctionForbidden");
+            this.simpMessagingTemplate.convertAndSendToUser(sId,"/auction/"+auctionId,message,headerAccessor.getMessageHeaders());
             throw new NotAllowedToLeaveAuctionException();
         }
     }

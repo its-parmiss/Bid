@@ -87,6 +87,18 @@ public class ClientMain {
                 System.err.println(payload.toString());
             }
         });
+        session.subscribe("/user/auction/" + auctionId, new StompFrameHandler() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return AuctionOutputMessage.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers,
+                                    Object payload) {
+                System.err.println(payload.toString());
+            }
+        });
     }
 
     private static StompSession connectClient(WebSocketStompClient stompClient, String auctionId, String token) throws InterruptedException, java.util.concurrent.ExecutionException {
