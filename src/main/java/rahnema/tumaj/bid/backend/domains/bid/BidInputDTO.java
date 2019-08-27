@@ -8,7 +8,6 @@ import rahnema.tumaj.bid.backend.models.User;
 
 @Data
 public class BidInputDTO {
-    String title;
     Auction auction;
     Long auctionId;
     User bidder;

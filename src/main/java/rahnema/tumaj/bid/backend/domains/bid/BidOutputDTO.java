@@ -11,7 +11,6 @@ import java.util.Date;
 @Data
 public class BidOutputDTO {
     Long id;
-    String title;
     Date createdAt;
     AuctionOutputDTO auction;
     UserOutputDTO bidder;

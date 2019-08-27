@@ -13,8 +13,6 @@ public class Bid {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     Long id;
-    @Column(nullable = false)
-    String title;
     @Column(name = "created_at")
     Date createdAt;
     @JsonManagedReference
