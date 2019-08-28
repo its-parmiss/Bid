@@ -43,7 +43,7 @@ import rahnema.tumaj.bid.backend.domains.Messages.HomeOutputMessage;
 public class ClientMain {
 
 
-    final static String url = "http://192.168.11.223:8080/ws";
+    final static String url = "http://localhost:8080/ws";
 
 
     public static void main(String[] args) throws Exception {
@@ -98,6 +98,7 @@ public class ClientMain {
             @Override
             public void handleFrame(StompHeaders headers,
                                     Object payload) {
+                System.out.println("hi");
                 System.err.println(payload.toString());
             }
         });
