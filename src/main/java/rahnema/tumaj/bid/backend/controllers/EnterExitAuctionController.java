@@ -104,7 +104,6 @@ public class EnterExitAuctionController {
     public synchronized void exit(AuctionInputMessage auctionInputMessage, @Headers Map headers, @Header("simpSessionId") String sId, SimpMessageHeaderAccessor headerAccessor) {
         ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
         ConcurrentMap<String, Long> usersData = bidStorage.getUsersData();
-
         UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) headers.get("simpUser");
         Long auctionId = Long.valueOf(auctionInputMessage.getAuctionId());
         Auction currentAuction = service.getAuction(auctionId, bidStorage);
