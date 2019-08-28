@@ -1,5 +1,7 @@
 package rahnema.tumaj.bid.backend.controllers;
 
+import org.quartz.Scheduler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Headers;
@@ -19,6 +21,7 @@ import rahnema.tumaj.bid.backend.utils.DisconnectHandler;
 import rahnema.tumaj.bid.backend.utils.SubscribeHandler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotAllowedToLeaveAuctionException;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -30,6 +33,9 @@ import org.slf4j.LoggerFactory;
 public class EnterExitAuctionController {
     private static final Logger logger = LoggerFactory.getLogger(EnterExitAuctionController.class);
 
+
+    @Autowired
+    private Scheduler scheduler;
 
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final AuctionService service;
@@ -51,7 +57,7 @@ public class EnterExitAuctionController {
     }
 
     @EventListener
-    public void onSubscribeEvent(SessionSubscribeEvent event){
+    public void onSubscribeEvent(SessionSubscribeEvent event) {
         subscribeHandler.invoke(event);
 
     }
@@ -91,10 +97,11 @@ public class EnterExitAuctionController {
         if (currentAuction.getActiveBiddersLimit() > auctionsData.get(auctionId).getCurrentlyActiveBidders()) {
             currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() + 1);
             auctionsData.put(auctionId, currentAuction);
-            usersData.put(user.getName(),auctionId);
+            usersData.put(user.getName(), auctionId);
             AuctionOutputMessage message = new AuctionOutputMessage();
             message.setActiveBidders(auctionsData.get(auctionId).getCurrentlyActiveBidders());
             message.setMessageType("UpdateActiveBiddersNumber");
+            message.setRemainingTime(calculateRemainingTime(auctionId));
             this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
             sendMessageToHome(auctionId, currentAuction);
         } else {
@@ -103,6 +110,13 @@ public class EnterExitAuctionController {
             message.setMessageType("AuctionIsFull");
 //                throw new FullAuctionException();
         }
+    }
+
+    private long calculateRemainingTime(Long auctionId) {
+        if (bidStorage.getTriggers().get(auctionId) != null) {
+            return (  bidStorage.getTriggers().get(auctionId).getStartTime().getTime() - new Date().getTime() ) / 1000 ;
+        }
+        else return -1;
     }
 
     @MessageMapping("/exit")
@@ -141,7 +155,7 @@ public class EnterExitAuctionController {
             message.setMessageType("UpdateActiveBiddersNumber");
             this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
             sendMessageToHome(auctionId, currentAuction);
-        } else if(currentAuction.getLastBidder().equals(user.getName())) {
+        } else if (currentAuction.getLastBidder().equals(user.getName())) {
             AuctionOutputMessage message = new AuctionOutputMessage();
             message.setDescription("You can not exit the auction now, you are the last bidder");
             message.setMessageType("ExitAuctionForbidden");
@@ -149,16 +163,13 @@ public class EnterExitAuctionController {
             throw new NotAllowedToLeaveAuctionException();
         }
     }
+
     private void sendMessageToHome(Long auctionId, Auction currentAuction) {
         HomeOutputMessage homeOutputMessage = new HomeOutputMessage();
         homeOutputMessage.setActiveBidders(currentAuction.getCurrentlyActiveBidders());
         homeOutputMessage.setIsFinished(currentAuction.isFinished());
         this.simpMessagingTemplate.convertAndSend("/home/auctions/" + auctionId, homeOutputMessage);
     }
-
-
-
-
 
 
 }

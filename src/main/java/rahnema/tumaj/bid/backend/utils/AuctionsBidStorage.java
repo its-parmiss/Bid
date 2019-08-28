@@ -1,5 +1,7 @@
 package rahnema.tumaj.bid.backend.utils;
 
+import org.quartz.JobDetail;
+import org.quartz.Trigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import rahnema.tumaj.bid.backend.models.Auction;
@@ -16,11 +18,14 @@ public class AuctionsBidStorage {
 
     private ConcurrentMap<Long, Auction> auctionsData;
     private ConcurrentMap<String, Long> usersData;
+    private ConcurrentMap<Long, Trigger> triggers = new ConcurrentHashMap<>();
+
 
     public AuctionsBidStorage(AuctionRepository auctionRepository) {
         this.auctionRepository = auctionRepository;
         this.auctionsData =  new ConcurrentHashMap<>();
         this.usersData=new ConcurrentHashMap<>();
+        this.triggers = new ConcurrentHashMap<>();
     }
 
     public ConcurrentMap<Long, Auction> getAuctionsData() {
@@ -28,7 +33,11 @@ public class AuctionsBidStorage {
     }
     public ConcurrentMap<String ,Long > getUsersData(){return usersData; }
 
-//    //TODO
+    public ConcurrentMap<Long, Trigger> getTriggers() {
+        return triggers;
+    }
+
+    //    //TODO
 //    public void saveCacheToDB(){
 //
 //

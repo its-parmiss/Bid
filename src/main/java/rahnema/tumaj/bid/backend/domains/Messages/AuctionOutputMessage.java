@@ -17,4 +17,5 @@ public class AuctionOutputMessage {
     boolean finished;
     String description;
     String messageType;
+    Long remainingTime;
 }
