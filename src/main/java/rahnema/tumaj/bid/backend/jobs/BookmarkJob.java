@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
+import rahnema.tumaj.bid.backend.domains.Messages.BookmarkOutputMessage;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.models.User;
@@ -32,7 +33,10 @@ public class BookmarkJob extends QuartzJobBean {
         long auctionId = jobDataMap.getLong("auctionId");
         Auction auction = (Auction) jobDataMap.get("auction");
 
-        String payload = "Your bookmarked auction \"" + auction.getTitle() + "\" is going to start in 10 minutes.";
+        String description = "Your bookmarked auction \"" + auction.getTitle() + "\" is going to start in 10 minutes.";
+        BookmarkOutputMessage payload = new BookmarkOutputMessage();
+        payload.setDescription(description);
+        payload.setMessageType("bookmarkNotification");
 //        AuctionOutputMessage msg = new AuctionOutputMessage();
 //        msg.setMessageType("dish 1");
 //        msg.setDescription("dishdish 2");

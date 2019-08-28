@@ -38,6 +38,7 @@ import rahnema.tumaj.bid.backend.client.ClientMessage;
 import rahnema.tumaj.bid.backend.client.ServerMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
+import rahnema.tumaj.bid.backend.domains.Messages.BookmarkOutputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.HomeOutputMessage;
 
 public class ClientMain {
@@ -97,18 +98,18 @@ public class ClientMain {
                 session.send("/app/enter", new AuctionInputMessage(id));
                 subscribe(id,session);
             } else if (input.equals("bookmark")) {
-                Long dishdish = Long.valueOf(in.readLine());
-                session.subscribe("/auctions/"+dishdish+"/bookmark", new StompFrameHandler() {
+                String auctionId = in.readLine();
+                session.subscribe("/auctions/"+auctionId+"/bookmark", new StompFrameHandler() {
                     @Override
                     public Type getPayloadType(StompHeaders headers) {
-                        return String.class;
+                        return BookmarkOutputMessage.class;
                     }
 
                     @Override
                     public void handleFrame(StompHeaders headers,
                                             Object payload) {
-//                        System.out.println(payload.toString());
-                        System.out.println("Hi");
+
+                        System.out.println(payload.toString());
                     }
                 });
             }
