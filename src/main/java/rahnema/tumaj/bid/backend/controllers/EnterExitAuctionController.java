@@ -86,6 +86,7 @@ public class EnterExitAuctionController {
         if (currentAuction.getActiveBiddersLimit() > auctionsData.get(auctionId).getCurrentlyActiveBidders()) {
             currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() + 1);
             auctionsData.put(auctionId, currentAuction);
+            usersData.put(user.getName(),auctionId);
             AuctionOutputMessage message = new AuctionOutputMessage();
             message.setActiveBidders(auctionsData.get(auctionId).getCurrentlyActiveBidders());
             message.setMessageType("UpdateActiveBiddersNumber");
@@ -104,7 +105,6 @@ public class EnterExitAuctionController {
     public synchronized void exit(AuctionInputMessage auctionInputMessage, @Headers Map headers, @Header("simpSessionId") String sId, SimpMessageHeaderAccessor headerAccessor) {
         ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
         ConcurrentMap<String, Long> usersData = bidStorage.getUsersData();
-
         UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) headers.get("simpUser");
         Long auctionId = Long.valueOf(auctionInputMessage.getAuctionId());
         Auction currentAuction = service.getAuction(auctionId, bidStorage);
@@ -130,12 +130,13 @@ public class EnterExitAuctionController {
         if (!currentAuction.getLastBidder().equals(user.getName()) || currentAuction.isFinished()) {
             currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() - 1);
             auctionsData.put(auctionId, currentAuction);
+            usersData.remove(user.getName());
             AuctionOutputMessage message = new AuctionOutputMessage();
             message.setActiveBidders(auctionsData.get(auctionId).getCurrentlyActiveBidders());
             message.setMessageType("UpdateActiveBiddersNumber");
             this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
             sendMessageToHome(auctionId, currentAuction);
-        } else {
+        } else if(currentAuction.getLastBidder().equals(user.getName())) {
             AuctionOutputMessage message = new AuctionOutputMessage();
             message.setDescription("You can not exit the auction now, you are the last bidder");
             message.setMessageType("ExitAuctionForbidden");
