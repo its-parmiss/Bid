@@ -77,7 +77,7 @@ public class ClientMain {
                 String id = in.readLine();
                 System.out.println("id = " +  id);
                 System.out.println("session.isConnected() = " + session.isConnected());
-                session.subscribe("/home/auction/" + id , new StompFrameHandler() {
+                session.subscribe("/home/auctions/" + id , new StompFrameHandler() {
                     @Override
                     public Type getPayloadType(StompHeaders headers) {
                         return HomeOutputMessage.class;
