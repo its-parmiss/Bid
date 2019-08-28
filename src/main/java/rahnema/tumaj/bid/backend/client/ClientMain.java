@@ -69,7 +69,6 @@ public class ClientMain {
                 System.out.println("id = " +  id);
                 session.send("/app/exit", new AuctionInputMessage(id));
             } else if (input.equals("bid")) {
-
                 String id = in.readLine();
                 System.out.println("id = " +  id);
                 session.send("/app/bid", new AuctionInputMessage(id, in.readLine()));
@@ -88,15 +87,15 @@ public class ClientMain {
                     public void handleFrame(StompHeaders headers, Object payload) {
                         System.out.println("payload = " + payload.toString());
                     }
-                    
-                    
+
+
                 });
             }
             else if (input.equals("enter")){
                 String id = in.readLine();
                 System.out.println("id = " +  id);
-                session.send("/app/enter", new AuctionInputMessage(id));
                 subscribe(id,session);
+                session.send("/app/enter", new AuctionInputMessage(id));
             } else if (input.equals("bookmark")) {
                 String auctionId = in.readLine();
                 session.subscribe("/auctions/"+auctionId+"/bookmark", new StompFrameHandler() {
@@ -126,8 +125,7 @@ public class ClientMain {
             @Override
             public void handleFrame(StompHeaders headers,
                                     Object payload) {
-                if (!((AuctionOutputMessage) payload).getMessageType().equals("newBid"))
-                    System.err.println(payload.toString());
+                System.err.println(payload.toString());
             }
         });
 

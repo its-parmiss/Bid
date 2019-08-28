@@ -75,9 +75,10 @@ public class EnterExitAuctionController {
             return;
         }
         if (usersData.containsKey(user.getName())) {
-            if (usersData.get(user.getName()) == auctionId) {
+            if (usersData.get(user.getName()).equals(auctionId)) {
+                System.out.println("fuck fuck");
                 AuctionOutputMessage message = new AuctionOutputMessage();
-                message.setDescription("you can't ente the same auction with two devices");
+                message.setDescription("you can't enter the same auction with two devices");
                 message.setMessageType("AlreadyInTheAuction");
                 this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
                 return;
@@ -94,7 +95,7 @@ public class EnterExitAuctionController {
             sendMessageToHome(auctionId, currentAuction);
         } else {
             AuctionOutputMessage message = new AuctionOutputMessage();
-            message.setDescription("you can't ente the auction,auction is full");
+            message.setDescription("you can't enter the auction,auction is full");
             message.setMessageType("AuctionIsFull");
 //                throw new FullAuctionException();
         }
@@ -148,7 +149,7 @@ public class EnterExitAuctionController {
         HomeOutputMessage homeOutputMessage = new HomeOutputMessage();
         homeOutputMessage.setActiveBidders(currentAuction.getCurrentlyActiveBidders());
         homeOutputMessage.setIsFinished(currentAuction.isFinished());
-        this.simpMessagingTemplate.convertAndSend("/home/auction/" + auctionId, homeOutputMessage);
+        this.simpMessagingTemplate.convertAndSend("/home/auctions/" + auctionId, homeOutputMessage);
     }
 
 }

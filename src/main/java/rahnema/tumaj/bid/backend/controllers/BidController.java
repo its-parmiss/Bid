@@ -49,17 +49,6 @@ public class BidController {
         this.bidStorage = bidStorage;
     }
 
-    @PostMapping("/auctions/{auctionId}/bids")
-    public BidOutputDTO addBid(@RequestBody BidInputDTO bidInput,
-                               @RequestHeader("Authorization") String token,
-                               @PathVariable Long auctionId) {
-        bidInput.setBidder(this.userService.getUserWithToken(token));
-        Auction relatedAuction = this.auctionService
-                .getOne(auctionId)
-                .orElseThrow(IllegalAuctionInputException::new);
-        bidInput.setAuction(relatedAuction);
-        return BidOutputDTO.fromModel(bidService.addBid(bidInput));
-    }
 
     @MessageMapping("/bid")
     public synchronized void sendMessage(BidInputMessage inputMessage,
@@ -71,23 +60,28 @@ public class BidController {
         Long auctionId = Long.valueOf(inputMessage.getAuctionId());
         AuctionOutputMessage message = new AuctionOutputMessage();
         Auction auction = auctionService.getAuction(auctionId, bidStorage);
+        System.out.println("hello");
         if (!usersData.containsKey(userName) || !usersData.get(userName).equals(auctionId)) {
+            System.out.println("1");
             message.setDescription("you can't bid ,please enter auction first");
             message.setMessageType("NotInTheAuction");
             this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
             return;
         }
         if (this.isBidMessageValid(inputMessage) && !auction.isFinished()) {
+            System.out.println("2");
             saveNewAuction(inputMessage, auctionsData, userName, auction);
             scheduleBid(auctionId);
             this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, extractOutputMessage(auction));
         } else if (auction.isFinished()) {
+            System.out.println("3");
             message.setFinished(auction.isFinished());
             message.setLastBid(auction.getLastBid());
             message.setDescription("you can not bid , auction is closed");
             message.setMessageType("BidForbidden");
             this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
         } else {
+            System.out.println("4");
             message.setDescription("you can not bid , auction is closed");
             message.setMessageType("BidNotValid");
             this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
