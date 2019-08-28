@@ -1,29 +1,28 @@
 package rahnema.tumaj.bid.backend.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.HomeOutputMessage;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
-import rahnema.tumaj.bid.backend.utils.exceptions.FullAuctionException;
+import rahnema.tumaj.bid.backend.utils.DisconnectHandler;
+import rahnema.tumaj.bid.backend.utils.SubscribeHandler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotAllowedToLeaveAuctionException;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,24 +30,30 @@ import org.slf4j.LoggerFactory;
 public class EnterExitAuctionController {
     private static final Logger logger = LoggerFactory.getLogger(EnterExitAuctionController.class);
 
-    @Autowired
-    private Scheduler scheduler;
 
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpMessagingTemplate simpMessagingTemplate;
     private final AuctionService service;
     private final AuctionsBidStorage bidStorage;
+    private final DisconnectHandler disconnectHandler;
+    private final SubscribeHandler subscribeHandler;
 
-
-    public EnterExitAuctionController(AuctionService service, AuctionsBidStorage bidStorage) {
+    public EnterExitAuctionController(SimpMessagingTemplate simpMessagingTemplate, AuctionService service, AuctionsBidStorage bidStorage, DisconnectHandler disconnectHandler, SubscribeHandler subscribeHandler) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
         this.service = service;
         this.bidStorage = bidStorage;
+        this.disconnectHandler = disconnectHandler;
+        this.subscribeHandler = subscribeHandler;
     }
-
 
     @EventListener
     public void onDisconnectEvent(SessionDisconnectEvent event) {
-        System.out.println("user " + event.getUser().getName() + " disconnected ");
+        disconnectHandler.invoke(event);
+    }
+
+    @EventListener
+    public void onSubscribeEvent(SessionSubscribeEvent event){
+        subscribeHandler.invoke(event);
+
     }
 
     @MessageMapping("/enter")
@@ -76,7 +81,6 @@ public class EnterExitAuctionController {
         }
         if (usersData.containsKey(user.getName())) {
             if (usersData.get(user.getName()).equals(auctionId)) {
-                System.out.println("fuck fuck");
                 AuctionOutputMessage message = new AuctionOutputMessage();
                 message.setDescription("you can't enter the same auction with two devices");
                 message.setMessageType("AlreadyInTheAuction");
@@ -151,5 +155,10 @@ public class EnterExitAuctionController {
         homeOutputMessage.setIsFinished(currentAuction.isFinished());
         this.simpMessagingTemplate.convertAndSend("/home/auctions/" + auctionId, homeOutputMessage);
     }
+
+
+
+
+
 
 }

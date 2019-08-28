@@ -24,6 +24,8 @@ import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Configuration
@@ -61,6 +63,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     extractUserFromToken(headerAccessor);
                 return message;
             }
+
         });
     }
 

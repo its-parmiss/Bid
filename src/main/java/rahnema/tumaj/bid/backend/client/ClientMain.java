@@ -148,7 +148,6 @@ public class ClientMain {
         StompSessionHandler sessionHandler = new MyStompSessionHandler();
         StompHeaders connectHeaders = new StompHeaders();
         connectHeaders.add("Authorization", "Bearer " + token);
-        stompClient.connect(url, new WebSocketHttpHeaders(), connectHeaders, sessionHandler);
         return stompClient.connect(url, new WebSocketHttpHeaders(), connectHeaders, sessionHandler)
                 .get();
     }
