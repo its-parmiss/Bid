@@ -96,6 +96,21 @@ public class ClientMain {
                 System.out.println("id = " +  id);
                 session.send("/app/enter", new AuctionInputMessage(id));
                 subscribe(id,session);
+            } else if (input.equals("bookmark")) {
+                Long dishdish = Long.valueOf(in.readLine());
+                session.subscribe("/auctions/"+dishdish+"/bookmark", new StompFrameHandler() {
+                    @Override
+                    public Type getPayloadType(StompHeaders headers) {
+                        return String.class;
+                    }
+
+                    @Override
+                    public void handleFrame(StompHeaders headers,
+                                            Object payload) {
+//                        System.out.println(payload.toString());
+                        System.out.println("Hi");
+                    }
+                });
             }
         }
     }
@@ -114,6 +129,7 @@ public class ClientMain {
                     System.err.println(payload.toString());
             }
         });
+
 
     }
 

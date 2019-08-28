@@ -20,6 +20,7 @@ import rahnema.tumaj.bid.backend.services.bid.BidService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalAuctionInputException;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class BidController {
 
     @Autowired
     private Scheduler scheduler;
-    private final ConcurrentMap<Long,ArrayList<JobDetail>> jobDetails = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, ArrayList<JobDetail>> jobDetails = new ConcurrentHashMap<>();
     private final BidService bidService;
     private final UserService userService;
     private final AuctionService auctionService;
@@ -73,15 +74,15 @@ public class BidController {
             saveNewAuction(inputMessage, auctionsData, userName, auction);
             try {
                 JobDetail jobDetail = buildJobDetail(auctionId);
-                if(!jobDetails.containsKey(auctionId)){
-                    jobDetails.put(auctionId,new ArrayList<>());
-                for (JobDetail j : jobDetails.get(auctionId)) {
-                     scheduler.deleteJob(j.getKey());
+                if (!jobDetails.containsKey(auctionId)) {
+                    jobDetails.put(auctionId, new ArrayList<>());
+                    for (JobDetail j : jobDetails.get(auctionId)) {
+                        scheduler.deleteJob(j.getKey());
+                    }
                 }
-            }
-                ArrayList<JobDetail> jobs=jobDetails.get(auctionId);
+                ArrayList<JobDetail> jobs = jobDetails.get(auctionId);
                 jobs.add(jobDetail);
-                jobDetails.put(auctionId,jobs);
+                jobDetails.put(auctionId, jobs);
                 Trigger trigger = buildJobTrigger(jobDetail, new Date(new Date().getTime() + 30000));
                 scheduler.scheduleJob(jobDetail, trigger);
             } catch (SchedulerException e) {
@@ -115,6 +116,7 @@ public class BidController {
         message.setMessageType("newBid");
         return message;
     }
+
     //TODO
     private boolean isBidMessageValid(BidInputMessage inputMessage) {
         return Long.valueOf(inputMessage.getBidPrice()) > 0;
