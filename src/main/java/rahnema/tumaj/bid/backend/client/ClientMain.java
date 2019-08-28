@@ -38,6 +38,7 @@ import rahnema.tumaj.bid.backend.client.ClientMessage;
 import rahnema.tumaj.bid.backend.client.ServerMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionInputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
+import rahnema.tumaj.bid.backend.domains.Messages.HomeOutputMessage;
 
 public class ClientMain {
 
@@ -45,31 +46,56 @@ public class ClientMain {
     final static String url = "http://localhost:8080/ws";
 
 
-    public static void main(String []args) throws Exception {
+    public static void main(String[] args) throws Exception {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         WebSocketStompClient stompClient = configClient();
-        String auctionId = in.readLine();
         String token = in.readLine();
-        StompSession session = connectAndEnterAuction(stompClient, auctionId, token);
-        waitForInput(in, auctionId, session);
+        StompSession session = connect(stompClient, token);
+        waitForInput(in, session);
     }
 
-    private static StompSession connectAndEnterAuction(WebSocketStompClient stompClient, String auctionId, String token) throws InterruptedException, java.util.concurrent.ExecutionException {
-        StompSession session = connectClient(stompClient, auctionId, token);
-        subscribe(auctionId, session);
-        session.send("/app/enter", new AuctionInputMessage(auctionId));
+    private static StompSession connect(WebSocketStompClient stompClient, String token) throws InterruptedException, java.util.concurrent.ExecutionException {
+        StompSession session = connectClient(stompClient, token);
         return session;
     }
 
-    private static void waitForInput(BufferedReader in, String auctionId, StompSession session) throws IOException {
-        String input="";
+    private static void waitForInput(BufferedReader in, StompSession session) throws IOException {
+        String input = "";
         while (!input.equals("exit")) {
             input = in.readLine();
-            if(input.equals("exitAuction")){
-                session.send("/app/exit", new AuctionInputMessage(auctionId));
+            if (input.equals("exitAuction")) {
+                String id = in.readLine();
+                System.out.println("id = " +  id);
+                session.send("/app/exit", new AuctionInputMessage(id));
+            } else if (input.equals("bid")) {
+
+                String id = in.readLine();
+                System.out.println("id = " +  id);
+                session.send("/app/bid", new AuctionInputMessage(id, in.readLine()));
             }
-            else if (input.equals("bid")){
-                session.send("/app/bid", new AuctionInputMessage(auctionId, in.readLine()));
+            else if (input.equals("home")){
+                String id = in.readLine();
+                System.out.println("id = " +  id);
+                System.out.println("session.isConnected() = " + session.isConnected());
+                session.subscribe("/home/auction/" + id , new StompFrameHandler() {
+                    @Override
+                    public Type getPayloadType(StompHeaders headers) {
+                        return HomeOutputMessage.class;
+                    }
+
+                    @Override
+                    public void handleFrame(StompHeaders headers, Object payload) {
+                        System.out.println("payload = " + payload.toString());
+                    }
+                    
+                    
+                });
+            }
+            else if (input.equals("enter")){
+                String id = in.readLine();
+                System.out.println("id = " +  id);
+                session.send("/app/enter", new AuctionInputMessage(id));
+                subscribe(id,session);
             }
         }
     }
@@ -84,29 +110,19 @@ public class ClientMain {
             @Override
             public void handleFrame(StompHeaders headers,
                                     Object payload) {
-                System.err.println(payload.toString());
+                if (!((AuctionOutputMessage) payload).getMessageType().equals("newBid"))
+                    System.err.println(payload.toString());
             }
         });
-        session.subscribe("/user/auction/" + auctionId, new StompFrameHandler() {
-            @Override
-            public Type getPayloadType(StompHeaders headers) {
-                return AuctionOutputMessage.class;
-            }
 
-            @Override
-            public void handleFrame(StompHeaders headers,
-                                    Object payload) {
-                System.err.println(payload.toString());
-            }
-        });
     }
 
-    private static StompSession connectClient(WebSocketStompClient stompClient, String auctionId, String token) throws InterruptedException, java.util.concurrent.ExecutionException {
-        StompSessionHandler sessionHandler = new MyStompSessionHandler(auctionId);
+    private static StompSession connectClient(WebSocketStompClient stompClient, String token) throws InterruptedException, java.util.concurrent.ExecutionException {
+        StompSessionHandler sessionHandler = new MyStompSessionHandler();
         StompHeaders connectHeaders = new StompHeaders();
         connectHeaders.add("Authorization", "Bearer " + token);
-        stompClient.connect(url, new WebSocketHttpHeaders() ,connectHeaders, sessionHandler);
-        return stompClient.connect(url, new WebSocketHttpHeaders() ,connectHeaders, sessionHandler)
+        stompClient.connect(url, new WebSocketHttpHeaders(), connectHeaders, sessionHandler);
+        return stompClient.connect(url, new WebSocketHttpHeaders(), connectHeaders, sessionHandler)
                 .get();
     }
 

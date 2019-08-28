@@ -73,11 +73,11 @@ public class BidController {
             saveNewAuction(inputMessage, auctionsData, userName, auction);
             try {
                 JobDetail jobDetail = buildJobDetail(auctionId);
+                if(!jobDetails.containsKey(auctionId)){
+                    jobDetails.put(auctionId,new ArrayList<>());
                 for (JobDetail j : jobDetails.get(auctionId)) {
                      scheduler.deleteJob(j.getKey());
                 }
-                if(!jobDetails.containsKey(auctionId)){
-                    jobDetails.put(auctionId,new ArrayList<>());
             }
                 ArrayList<JobDetail> jobs=jobDetails.get(auctionId);
                 jobs.add(jobDetail);

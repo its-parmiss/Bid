@@ -9,11 +9,7 @@ import java.util.Map;
 
 public class MyStompSessionHandler
         extends StompSessionHandlerAdapter {
-    private String auctionId;
 
-    public MyStompSessionHandler(String auctionId) {
-        this.auctionId = auctionId;
-    }
 
     private void showHeaders(StompHeaders headers) {
         for (Map.Entry<String, List<String>> e : headers.entrySet()) {
