@@ -52,8 +52,7 @@ public class BidController {
 
     @MessageMapping("/bid")
     public synchronized void sendMessage(BidInputMessage inputMessage,
-                                         @Headers Map headers, @Header("simpSessionId") String sId,
-                                         SimpMessageHeaderAccessor headerAccessor) {
+                                         @Headers Map headers) {
         ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
         ConcurrentMap<String, Long> usersData = bidStorage.getUsersData();
         String userName = ((UsernamePasswordAuthenticationToken) headers.get("simpUser")).getName();
@@ -65,7 +64,7 @@ public class BidController {
             System.out.println("1");
             message.setDescription("you can't bid ,please enter auction first");
             message.setMessageType("NotInTheAuction");
-            this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
+            this.simpMessagingTemplate.convertAndSendToUser(userName, "/auction/" + auctionId, message);
             return;
         }
         if (this.isBidMessageValid(inputMessage) && !auction.isFinished()) {
@@ -79,12 +78,12 @@ public class BidController {
             message.setLastBid(auction.getLastBid());
             message.setDescription("you can not bid , auction is closed");
             message.setMessageType("BidForbidden");
-            this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
+            this.simpMessagingTemplate.convertAndSendToUser(userName, "/auction/" + auctionId, message);
         } else {
             System.out.println("4");
             message.setDescription("you can not bid , auction is closed");
             message.setMessageType("BidNotValid");
-            this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
+            this.simpMessagingTemplate.convertAndSendToUser(userName, "/auction/" + auctionId, message);
         }
     }
     private synchronized void scheduleBid(Long auctionId) {
