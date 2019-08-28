@@ -66,36 +66,49 @@ public class BidController {
                                          @Headers Map headers, @Header("simpSessionId") String sId,
                                          SimpMessageHeaderAccessor headerAccessor) {
         ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
+        ConcurrentMap<String, Long> usersData = bidStorage.getUsersData();
         String userName = ((UsernamePasswordAuthenticationToken) headers.get("simpUser")).getName();
-//        String sessionId =  (String)headers.get("simpSessionId");
         Long auctionId = Long.valueOf(inputMessage.getAuctionId());
+        AuctionOutputMessage message = new AuctionOutputMessage();
         Auction auction = auctionService.getAuction(auctionId, bidStorage);
+        if (!usersData.containsKey(userName) || !usersData.get(userName).equals(auctionId)) {
+            message.setDescription("you can't bid ,please enter auction first");
+            message.setMessageType("NotInTheAuction");
+            this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
+            return;
+        }
         if (this.isBidMessageValid(inputMessage) && !auction.isFinished()) {
             saveNewAuction(inputMessage, auctionsData, userName, auction);
-            try {
-                JobDetail jobDetail = buildJobDetail(auctionId);
-                if (!jobDetails.containsKey(auctionId)) {
-                    jobDetails.put(auctionId, new ArrayList<>());
-                    for (JobDetail j : jobDetails.get(auctionId)) {
-                        scheduler.deleteJob(j.getKey());
-                    }
-                }
-                ArrayList<JobDetail> jobs = jobDetails.get(auctionId);
-                jobs.add(jobDetail);
-                jobDetails.put(auctionId, jobs);
-                Trigger trigger = buildJobTrigger(jobDetail, new Date(new Date().getTime() + 30000));
-                scheduler.scheduleJob(jobDetail, trigger);
-            } catch (SchedulerException e) {
-                e.printStackTrace();
-            }
+            scheduleBid(auctionId);
             this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, extractOutputMessage(auction));
         } else if (auction.isFinished()) {
-            AuctionOutputMessage message = new AuctionOutputMessage();
             message.setFinished(auction.isFinished());
             message.setLastBid(auction.getLastBid());
             message.setDescription("you can not bid , auction is closed");
             message.setMessageType("BidForbidden");
             this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
+        } else {
+            message.setDescription("you can not bid , auction is closed");
+            message.setMessageType("BidNotValid");
+            this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
+        }
+    }
+    private synchronized void scheduleBid(Long auctionId) {
+        try {
+            JobDetail jobDetail = buildJobDetail(auctionId);
+            if (!jobDetails.containsKey(auctionId)) {
+                jobDetails.put(auctionId, new ArrayList<>());
+            }
+            for (JobDetail j : jobDetails.get(auctionId)) {
+                scheduler.deleteJob(j.getKey());
+            }
+            ArrayList<JobDetail> jobs = jobDetails.get(auctionId);
+            jobs.add(jobDetail);
+            jobDetails.put(auctionId, jobs);
+            Trigger trigger = buildJobTrigger(jobDetail, new Date(new Date().getTime() + 30000));
+            scheduler.scheduleJob(jobDetail, trigger);
+        } catch (SchedulerException e) {
+            e.printStackTrace();
         }
     }
 
