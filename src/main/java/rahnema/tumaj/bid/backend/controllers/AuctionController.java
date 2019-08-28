@@ -1,33 +1,29 @@
 package rahnema.tumaj.bid.backend.controllers;
 
+import org.quartz.*;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import rahnema.tumaj.bid.backend.domains.Image.ImageInputDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionInputDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionListDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
+import rahnema.tumaj.bid.backend.domains.bookmark.ScheduleBookmarkResponse;
+import rahnema.tumaj.bid.backend.jobs.BookmarkJob;
 import rahnema.tumaj.bid.backend.models.Auction;
-import rahnema.tumaj.bid.backend.models.Category;
-import rahnema.tumaj.bid.backend.models.Images;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.Images.ImageService;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
-import rahnema.tumaj.bid.backend.services.category.CategoryService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;
-import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
 import rahnema.tumaj.bid.backend.utils.assemblers.CategoryAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalAuctionInputException;
-import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.CategoryNotFoundException;
-import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
-import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,37 +36,80 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 public class AuctionController {
     private final StorageService storageService;
     private final ImageService imageService;
-    private final AuctionService service;
+    private final AuctionService auctionService;
     private final AuctionAssemler assembler;
+    private final Scheduler scheduler;
 
     private final UserService userService;
     private final CategoryAssembler categoryAssembler;
 
-    public AuctionController(CategoryAssembler categoryAssembler, StorageService storageService, ImageService imageService, AuctionService service, AuctionAssemler assembler, UserService userService) {
+    private final SimpMessagingTemplate template;
+
+    public AuctionController(CategoryAssembler categoryAssembler, StorageService storageService, ImageService imageService, AuctionService auctionService, AuctionAssemler assembler, Scheduler scheduler, UserService userService, SimpMessagingTemplate template) {
         this.categoryAssembler = categoryAssembler;
         this.storageService = storageService;
         this.imageService = imageService;
-        this.service = service;
+        this.auctionService = auctionService;
         this.assembler = assembler;
+        this.scheduler = scheduler;
         this.userService = userService;
+        this.template = template;
     }
 
     @PostMapping("/auctions")
     public Resource<AuctionOutputDTO> addAuction(@RequestBody AuctionInputDTO auctionInput, @RequestHeader("Authorization") String token) {
         if (isAuctionValid(auctionInput)) {
             User user = this.userService.getUserWithToken(token);
-            return passAuctionToService(auctionInput, user);
+            Auction auction = passAuctionToService(auctionInput, user);
+
+            long notificationTime = auction.getStartDate().getTime() - (1000 * 60 * 10);
+
+            JobDetail jobDetail = buildJobDetail(auction);
+            Trigger trigger = buildJobTrigger(jobDetail, new Date(notificationTime));
+
+            try {
+                scheduler.scheduleJob(jobDetail, trigger);
+            } catch (SchedulerException ex) {
+                ex.printStackTrace();
+            }
+
+            return assembler.assemble(auction);
         } else
             throw new IllegalAuctionInputException();
-
     }
 
-    private Resource<AuctionOutputDTO> passAuctionToService(@RequestBody AuctionInputDTO auctionInput, User user) {
+
+    private JobDetail buildJobDetail(Auction auction) {
+        JobDataMap jobDataMap = new JobDataMap();
+
+        Long auctionId = auction.getId();
+        jobDataMap.put("auctionId", auctionId);
+        jobDataMap.put("auction", auction);
+
+        return JobBuilder.newJob(BookmarkJob.class)
+                .withIdentity(UUID.randomUUID().toString(), "bookmark-jobs")
+                .withDescription("Bookmark Notification Builder")
+                .usingJobData(jobDataMap)
+                .storeDurably()
+                .build();
+    }
+
+    private Trigger buildJobTrigger(JobDetail jobDetail, Date startAt) {
+        return TriggerBuilder.newTrigger()
+                .forJob(jobDetail)
+                .withIdentity(jobDetail.getKey().getName(), "bookmark-triggers")
+                .withDescription("Bookmark Notification Trigger")
+                .startAt(startAt)
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
+                .build();
+    }
+
+    private Auction passAuctionToService(@RequestBody AuctionInputDTO auctionInput, User user) {
         System.out.println("auctionInput = " + auctionInput.getStringstrt());
         auctionInput.setUser(user);
-        Auction addedAuction = service.addAuction(auctionInput);
+        Auction addedAuction = auctionService.addAuction(auctionInput);
 
-        return assembler.assemble(addedAuction);
+        return addedAuction;
     }
 
     @GetMapping("/auctions")
@@ -111,7 +150,7 @@ public class AuctionController {
 
     private Resource<AuctionListDTO> getAuctionsWithPage(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, User user) {
 
-        Page<Auction> auctionPage = service.getAll(page, limit);
+        Page<Auction> auctionPage = auctionService.getAll(page, limit);
         return getAuctionListDTOResource(user, auctionPage, page, limit);
     }
 
@@ -147,14 +186,14 @@ public class AuctionController {
 
     @GetMapping("/auctions/{id}")
     public Resource<AuctionOutputDTO> getOne(@PathVariable Long id) {
-        Optional<Auction> auctionOptional = service.getOne(id);
+        Optional<Auction> auctionOptional = auctionService.getOne(id);
         Auction auction = auctionOptional.orElseThrow(() -> new AuctionNotFoundException(id));
         return this.assembler.assemble(auction);
     }
 
 
     private Resource<AuctionListDTO> findByFilterAndCategory(String title, Long categoryId, Integer page, Integer limit, User user) {
-        Page<Auction> auctionPage = service.findByTitleAndCategory(title, categoryId, page,limit);
+        Page<Auction> auctionPage = auctionService.findByTitleAndCategory(title, categoryId, page,limit);
         return getAuctionListDTOResource(user, auctionPage, null, null);
     }
 
@@ -166,12 +205,12 @@ public class AuctionController {
 
 
     private Resource<AuctionListDTO> filter(Integer page, Integer limit,Long id, User user) {
-        Page<Auction> auctionPage = service.findByCategory(id, page,limit);
+        Page<Auction> auctionPage = auctionService.findByCategory(id, page,limit);
         return getAuctionListDTOResource(user, auctionPage, null, null);
     }
 
     private Resource<AuctionListDTO> CollectFoundAuctions(String title, Integer page, Integer limit, User user) {
-        Page<Auction> auctionPage = service.findByTitle(title,page, limit);
+        Page<Auction> auctionPage = auctionService.findByTitle(title,page, limit);
         return getAuctionListDTOResource(user, auctionPage, null, null);
 
     }

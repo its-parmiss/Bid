@@ -1,12 +1,13 @@
 package rahnema.tumaj.bid.backend.controllers;
 
 
+import org.quartz.*;
 import org.springframework.web.bind.annotation.*;
+
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.Bookmarks.BookmarksService;
+import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
-import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;
-import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
 
 import java.util.Map;
 
@@ -14,13 +15,20 @@ import java.util.Map;
 public class BookmarkingController {
 
     private final BookmarksService bookmarksService;
-    private final TokenUtil tokenUtil;
     private final UserService userService;
+    private final AuctionService auctionService;
+    private final Scheduler scheduler;
 
-    public BookmarkingController(BookmarksService bookmarksService, TokenUtil tokenUtil, UserService userService) {
+    public BookmarkingController(
+            BookmarksService bookmarksService,
+            UserService userService,
+            AuctionService auctionService,
+            Scheduler scheduler) {
+
         this.bookmarksService = bookmarksService;
-        this.tokenUtil = tokenUtil;
         this.userService = userService;
+        this.auctionService = auctionService;
+        this.scheduler = scheduler;
     }
 
     @PostMapping("/auctions/bookmark")
@@ -31,8 +39,8 @@ public class BookmarkingController {
         User user = userService.getUserWithToken(token);
         bookmarksService.bookmarkAuction(Long.valueOf(auctionId), user);
     }
-    @PostMapping("/auctions/unbookmark")
 
+    @PostMapping("/auctions/unbookmark")
     public void unbookmarkAuction(@RequestHeader("Authorization") String token,
                                 @RequestBody Map<String, String> params) {
 
