@@ -59,7 +59,7 @@ public class EnterExitAuctionController {
 //        System.out.println("headerAccessor.getUser().getName() = " + headerAccessor.getUser().getName());
 
 
-    public synchronized void sendMessage(AuctionInputMessage inputMessage, /*("Authorization")*/ @Headers Map headers, @Header("simpSessionId") String sId, SimpMessageHeaderAccessor headerAccessor) {
+    public synchronized void sendMessage(AuctionInputMessage inputMessage, /*("Authorization")*/ @Headers Map headers) {
         ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
         ConcurrentMap<String, Long> usersData = bidStorage.getUsersData();
         UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) headers.get("simpUser");
@@ -71,21 +71,23 @@ public class EnterExitAuctionController {
             message.setLastBid(currentAuction.getLastBid());
             message.setDescription("you can not enter the auction,auction is closed");
             message.setMessageType("EnterAuctionForbidden");
-            this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
+            this.simpMessagingTemplate.convertAndSendToUser(user.getName(), "/auction/" + auctionId, message);
             return;
         }
         if (usersData.containsKey(user.getName())) {
-            if (usersData.get(user.getName()) == auctionId) {
+            if (usersData.get(user.getName()).equals(auctionId)) {
+                System.out.println("fuck fuck");
                 AuctionOutputMessage message = new AuctionOutputMessage();
-                message.setDescription("you can't ente the same auction with two devices");
+                message.setDescription("you can't enter the same auction with two devices");
                 message.setMessageType("AlreadyInTheAuction");
-                this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
+                this.simpMessagingTemplate.convertAndSendToUser(user.getName(), "/auction/" + auctionId, message);
                 return;
             }
         }
         if (currentAuction.getActiveBiddersLimit() > auctionsData.get(auctionId).getCurrentlyActiveBidders()) {
             currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() + 1);
             auctionsData.put(auctionId, currentAuction);
+            usersData.put(user.getName(),auctionId);
             AuctionOutputMessage message = new AuctionOutputMessage();
             message.setActiveBidders(auctionsData.get(auctionId).getCurrentlyActiveBidders());
             message.setMessageType("UpdateActiveBiddersNumber");
@@ -93,7 +95,7 @@ public class EnterExitAuctionController {
             sendMessageToHome(auctionId, currentAuction);
         } else {
             AuctionOutputMessage message = new AuctionOutputMessage();
-            message.setDescription("you can't ente the auction,auction is full");
+            message.setDescription("you can't enter the auction,auction is full");
             message.setMessageType("AuctionIsFull");
 //                throw new FullAuctionException();
         }
@@ -101,7 +103,7 @@ public class EnterExitAuctionController {
 
     @MessageMapping("/exit")
 
-    public synchronized void exit(AuctionInputMessage auctionInputMessage, @Headers Map headers, @Header("simpSessionId") String sId, SimpMessageHeaderAccessor headerAccessor) {
+    public synchronized void exit(AuctionInputMessage auctionInputMessage, @Headers Map headers) {
         ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
         ConcurrentMap<String, Long> usersData = bidStorage.getUsersData();
         UsernamePasswordAuthenticationToken user = (UsernamePasswordAuthenticationToken) headers.get("simpUser");
@@ -122,23 +124,24 @@ public class EnterExitAuctionController {
                 AuctionOutputMessage message = new AuctionOutputMessage();
                 message.setDescription("you can't exit the auction that you aren't in");
                 message.setMessageType("CantEnterAuction");
-                this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
+                this.simpMessagingTemplate.convertAndSendToUser(user.getName(), "/auction/" + auctionId, message);
                 return;
             }
         }
         if (!currentAuction.getLastBidder().equals(user.getName()) || currentAuction.isFinished()) {
             currentAuction.setCurrentlyActiveBidders(currentAuction.getCurrentlyActiveBidders() - 1);
             auctionsData.put(auctionId, currentAuction);
+            usersData.remove(user.getName());
             AuctionOutputMessage message = new AuctionOutputMessage();
             message.setActiveBidders(auctionsData.get(auctionId).getCurrentlyActiveBidders());
             message.setMessageType("UpdateActiveBiddersNumber");
             this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
             sendMessageToHome(auctionId, currentAuction);
-        } else {
+        } else if(currentAuction.getLastBidder().equals(user.getName())) {
             AuctionOutputMessage message = new AuctionOutputMessage();
             message.setDescription("You can not exit the auction now, you are the last bidder");
             message.setMessageType("ExitAuctionForbidden");
-            this.simpMessagingTemplate.convertAndSendToUser(sId, "/auction/" + auctionId, message, headerAccessor.getMessageHeaders());
+            this.simpMessagingTemplate.convertAndSendToUser(user.getName(), "/auction/" + auctionId, message);
             throw new NotAllowedToLeaveAuctionException();
         }
     }
@@ -146,7 +149,7 @@ public class EnterExitAuctionController {
         HomeOutputMessage homeOutputMessage = new HomeOutputMessage();
         homeOutputMessage.setActiveBidders(currentAuction.getCurrentlyActiveBidders());
         homeOutputMessage.setIsFinished(currentAuction.isFinished());
-        this.simpMessagingTemplate.convertAndSend("/home/auction/" + auctionId, homeOutputMessage);
+        this.simpMessagingTemplate.convertAndSend("/home/auctions/" + auctionId, homeOutputMessage);
     }
 
 }
