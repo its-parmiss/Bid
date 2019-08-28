@@ -147,7 +147,7 @@ public class EnterExitAuctionController {
         HomeOutputMessage homeOutputMessage = new HomeOutputMessage();
         homeOutputMessage.setActiveBidders(currentAuction.getCurrentlyActiveBidders());
         homeOutputMessage.setIsFinished(currentAuction.isFinished());
-        this.simpMessagingTemplate.convertAndSend("/home/auction" + auctionId, homeOutputMessage);
+        this.simpMessagingTemplate.convertAndSend("/home/auction/" + auctionId, homeOutputMessage);
     }
 
 }
