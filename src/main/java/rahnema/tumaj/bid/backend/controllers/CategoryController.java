@@ -5,14 +5,9 @@ import org.springframework.hateoas.Resources;
 import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.Category.CategoryInputDTO;
 import rahnema.tumaj.bid.backend.domains.Category.CategoryOutputDTO;
-import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
-import rahnema.tumaj.bid.backend.models.Auction;
-import rahnema.tumaj.bid.backend.models.Category;
 import rahnema.tumaj.bid.backend.services.category.CategoryService;
-import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
 import rahnema.tumaj.bid.backend.utils.assemblers.CategoryAssembler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import java.util.stream.Collectors;

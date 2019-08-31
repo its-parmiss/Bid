@@ -18,7 +18,7 @@ public class AuctionsBidStorage {
 
     private ConcurrentMap<Long, Auction> auctionsData;
     private ConcurrentMap<String, Long> usersData;
-    private ConcurrentMap<Long, Trigger> triggers = new ConcurrentHashMap<>();
+    private ConcurrentMap<Long, Trigger> triggers;
 
 
     public AuctionsBidStorage(AuctionRepository auctionRepository) {
