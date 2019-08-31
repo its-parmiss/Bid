@@ -12,6 +12,7 @@ import rahnema.tumaj.bid.backend.domains.auction.AuctionInputDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionListDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
 import rahnema.tumaj.bid.backend.jobs.BookmarkJob;
+import rahnema.tumaj.bid.backend.jobs.NewBidJob;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.Images.ImageService;
@@ -70,7 +71,7 @@ public class AuctionController {
             } catch (SchedulerException ex) {
                 ex.printStackTrace();
             }
-
+            ScheduleFirstBidJob(auction);
             return assembler.assemble(auction);
         } else
             throw new IllegalAuctionInputException();
@@ -124,7 +125,7 @@ public class AuctionController {
         else if (isCatEmpty(categoryId))
             return find(page, limit, title, user);
         else if (isTitleEmpty(title))
-            return filter(page, limit,categoryId, user);
+            return filter(page, limit, categoryId, user);
         else
             return findByFilterAndCategory(title, categoryId, page, limit, user);
     }
@@ -181,7 +182,6 @@ public class AuctionController {
     }
 
 
-
     @GetMapping("/auctions/{id}")
     public Resource<AuctionOutputDTO> getOne(@PathVariable Long id) {
         Optional<Auction> auctionOptional = auctionService.getOne(id);
@@ -191,24 +191,24 @@ public class AuctionController {
 
 
     private Resource<AuctionListDTO> findByFilterAndCategory(String title, Long categoryId, Integer page, Integer limit, User user) {
-        Page<Auction> auctionPage = auctionService.findByTitleAndCategory(title, categoryId, page,limit);
+        Page<Auction> auctionPage = auctionService.findByTitleAndCategory(title, categoryId, page, limit);
         return getAuctionListDTOResource(user, auctionPage, null, null);
     }
 
     private Resource<AuctionListDTO> find(Integer page, Integer limit, String title, User user) {
         page = defaultPage(page);
         limit = defaultLimit(limit);
-        return CollectFoundAuctions(title, page, limit,user);
+        return CollectFoundAuctions(title, page, limit, user);
     }
 
 
-    private Resource<AuctionListDTO> filter(Integer page, Integer limit,Long id, User user) {
-        Page<Auction> auctionPage = auctionService.findByCategory(id, page,limit);
+    private Resource<AuctionListDTO> filter(Integer page, Integer limit, Long id, User user) {
+        Page<Auction> auctionPage = auctionService.findByCategory(id, page, limit);
         return getAuctionListDTOResource(user, auctionPage, null, null);
     }
 
     private Resource<AuctionListDTO> CollectFoundAuctions(String title, Integer page, Integer limit, User user) {
-        Page<Auction> auctionPage = auctionService.findByTitle(title,page, limit);
+        Page<Auction> auctionPage = auctionService.findByTitle(title, page, limit);
         return getAuctionListDTOResource(user, auctionPage, null, null);
 
     }
@@ -243,12 +243,49 @@ public class AuctionController {
     }
 
     @PostMapping("/auctions/upload")
-    public Map<String,String> handleFileUpload(@RequestBody MultipartFile file) {
+    public Map<String, String> handleFileUpload(@RequestBody MultipartFile file) {
         String name = storageService.store(file, "auctionPicture");
         org.springframework.core.io.Resource tempFile = storageService.loadAsResource(name, "auctionPicture");
-        Map<String,String> jsonName=new HashMap<>();
-        jsonName.put("name",name);
+        Map<String, String> jsonName = new HashMap<>();
+        jsonName.put("name", name);
         return jsonName;
     }
+
+
+    private JobDetail buildFirstBidJobDetails(Long auctionId) {
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("auctionId", auctionId);
+        String jobName = UUID.randomUUID().toString();
+        String jobGroup = "auction-jobs";
+        return JobBuilder.newJob(NewBidJob.class)
+                .withIdentity(jobName, jobGroup)
+                .withDescription("Send auction job")
+                .usingJobData(jobDataMap)
+                .storeDurably()
+                .build();
+    }
+
+    private Trigger buildFirstBidJobTrigger(JobDetail jobDetail, Date startAt) {
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .forJob(jobDetail)
+                .withIdentity(jobDetail.getKey().getName(), "auction-triggers")
+                .withDescription("Send auction Trigger")
+                .startAt(startAt)
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
+                .build();
+        return trigger;
+    }
+
+
+    public synchronized void ScheduleFirstBidJob(Auction auction) {
+        try {
+            JobDetail jobDetail = buildFirstBidJobDetails(auction.getId());
+            Trigger trigger = buildFirstBidJobTrigger(jobDetail, new Date(auction.getStartDate().getTime() + 30000));
+            scheduler.scheduleJob(jobDetail, trigger);
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
 

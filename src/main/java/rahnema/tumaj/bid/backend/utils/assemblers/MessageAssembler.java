@@ -23,7 +23,12 @@ public class MessageAssembler {
     }
 
 
-
+public AuctionOutputMessage getNotStartedMessage(){
+    AuctionOutputMessage message = new AuctionOutputMessage();
+    message.setDescription(MessageContents.FORBIDDEN_ENTER_NOT_STARTED);
+    message.setMessageType(MessageTypes.NOT_STARTED);
+    return message;
+}
     public AuctionOutputMessage getAlreadyInMessage() {
         AuctionOutputMessage message = new AuctionOutputMessage();
         message.setDescription(MessageContents.FORBIDDEN_ENTER_DUPLICATE);

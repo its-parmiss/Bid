@@ -18,6 +18,7 @@ import rahnema.tumaj.bid.backend.utils.DisconnectHandler;
 import rahnema.tumaj.bid.backend.utils.SubscribeHandler;
 import rahnema.tumaj.bid.backend.utils.assemblers.MessageAssembler;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
@@ -83,7 +84,12 @@ public class EnterExitAuctionController {
     }
 
     private void handleEnterRequestMessage(ConcurrentMap<Long, Auction> auctionsData, ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId, Auction currentAuction) {
-        if (currentAuction.isFinished()) {
+        if(currentAuction.getStartDate().before(new Date()))
+        {
+            AuctionOutputMessage message = messageAssembler.getNotStartedMessage();
+            this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), message);
+        }
+        else if (currentAuction.isFinished()) {
             AuctionOutputMessage message = messageAssembler.getFinishedMessage(currentAuction);
             this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), message);
         } else if (usersData.containsKey(user.getName()) && usersData.get(user.getName()).equals(currentAuction.getId())) {

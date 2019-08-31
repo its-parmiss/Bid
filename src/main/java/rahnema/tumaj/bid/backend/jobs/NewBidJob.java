@@ -43,6 +43,7 @@ public class NewBidJob extends QuartzJobBean {
         message.setLastBid(auctionsData.get(auctionId).getLastBid());
         message.setFinished(true);
         message.setMessageType("AuctionEnded");
+        System.out.println("heree");
         this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
     }
     private synchronized Auction getAuction(Long auctionId) {
