@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.security.core.userdetails.UserDetails;
-import rahnema.tumaj.bid.backend.domains.AuthenticationResponse;
+import rahnema.tumaj.bid.backend.domains.authentication.AuthenticationResponse;
 import rahnema.tumaj.bid.backend.models.User;
 
 public interface TokenUtil extends Serializable {

@@ -14,7 +14,7 @@ public class AuctionOutputMessage {
     String lastBidder;
     String bidPrice;
     String auctionId;
-    boolean finished;
+    Boolean isFinished;
     String description;
     String messageType;
     Long remainingTime;

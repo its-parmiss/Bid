@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.domains;
+package rahnema.tumaj.bid.backend.domains.authentication;
 
 import lombok.Data;
 

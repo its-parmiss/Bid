@@ -2,24 +2,20 @@ package rahnema.tumaj.bid.backend.controllers;
 
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
-import rahnema.tumaj.bid.backend.domains.bid.BidInputDTO;
 import rahnema.tumaj.bid.backend.domains.bid.BidInputMessage;
-import rahnema.tumaj.bid.backend.domains.bid.BidOutputDTO;
 import rahnema.tumaj.bid.backend.jobs.NewBidJob;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.services.bid.BidService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
-import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
-import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalAuctionInputException;
+import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
+import rahnema.tumaj.bid.backend.utils.assemblers.MessageAssembler;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,14 +37,15 @@ public class BidController {
     private final UserService userService;
     private final AuctionService auctionService;
     private final AuctionsBidStorage bidStorage;
+    private final MessageAssembler messageAssembler;
 
-    public BidController(BidService bidService, UserService userService, AuctionService auctionService, AuctionsBidStorage bidStorage) {
+    public BidController(BidService bidService, UserService userService, AuctionService auctionService, AuctionsBidStorage bidStorage, MessageAssembler messageAssembler) {
         this.bidService = bidService;
         this.userService = userService;
         this.auctionService = auctionService;
         this.bidStorage = bidStorage;
+        this.messageAssembler = messageAssembler;
     }
-
 
     @MessageMapping("/bid")
     public synchronized void sendMessage(BidInputMessage inputMessage,
@@ -75,7 +72,7 @@ public class BidController {
             this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, extractOutputMessage(auction));
         } else if (auction.isFinished()) {
             System.out.println("3");
-            message.setFinished(auction.isFinished());
+            message.setIsFinished(auction.isFinished());
             message.setLastBid(auction.getLastBid());
             message.setDescription("you can not bid , auction is closed");
             message.setMessageType("BidForbidden");
@@ -114,13 +111,14 @@ public class BidController {
         if (bid != null)
             auction.setLastBid(bid + Long.valueOf(inputMessage.getBidPrice()));
         else
-            auction.setLastBid(Long.valueOf(inputMessage.getBidPrice()));
+            auction.setLastBid(auction.getBasePrice() + Long.valueOf(inputMessage.getBidPrice()) );
         auction.setLastBidder(userName);
         auctionsData.put(auction.getId(), auction);
     }
 
     private AuctionOutputMessage extractOutputMessage(Auction auction) {
         AuctionOutputMessage message = new AuctionOutputMessage();
+        message.setRemainingTime(messageAssembler.calculateRemainingTime(auction.getId(), bidStorage.getTriggers()));
         message.setBidPrice(String.valueOf(auction.getLastBid()));
         message.setActiveBidders(auction.getCurrentlyActiveBidders());
         message.setMessageType("newBid");

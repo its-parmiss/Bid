@@ -1,14 +1,10 @@
 package rahnema.tumaj.bid.backend.services.auction;
 
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionInputDTO;
 import rahnema.tumaj.bid.backend.models.Auction;
-import rahnema.tumaj.bid.backend.models.Category;
-import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
+import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
 
-import java.util.Calendar;
-import java.util.List;
 import java.util.Optional;
 
 public interface AuctionService {

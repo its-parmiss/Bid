@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.utils;
+package rahnema.tumaj.bid.backend.storage;
 
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
