@@ -13,9 +13,7 @@ import rahnema.tumaj.bid.backend.services.Bookmarks.BookmarksService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.utils.assemblers.UserResourceAssembler;
 import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;
-import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
-import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.TokenNotFoundException;
-import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoundException;
+import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssembler;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,17 +24,17 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RestController
 public class UserController {
     private final UserService userService;
-    private final AuctionAssemler auctionAssemler;
+    private final AuctionAssembler auctionAssembler;
     private final UserResourceAssembler userAssembler;
     private final BookmarksService bookmarksService;
 
     public UserController(UserService userService,
-                          AuctionAssemler auctionAssemler,
+                          AuctionAssembler auctionAssembler,
                           BookmarksService bookmarksService,
                           TokenUtil tokenUtil,
                           UserResourceAssembler userAssembler) {
         this.userService = userService;
-        this.auctionAssemler = auctionAssemler;
+        this.auctionAssembler = auctionAssembler;
         this.bookmarksService = bookmarksService;
         this.userAssembler = userAssembler;
     }
@@ -72,7 +70,7 @@ public class UserController {
 
     private List<Resource<AuctionOutputDTO>> collectMyAuctions(User user) {
         return user.getMyAuctions().stream()
-                .map(this.auctionAssemler::assemble)
+                .map(this.auctionAssembler::assemble)
                 .collect(Collectors.toList());
     }
 
@@ -89,7 +87,7 @@ public class UserController {
 
     private List<Resource<AuctionOutputDTO>> collectAllBookmarks(User user) {
         return bookmarksService.getAll(user).stream()
-                .map(this.auctionAssemler::assemble)
+                .map(this.auctionAssembler::assemble)
                 .collect(Collectors.toList());
     }
 }

@@ -31,10 +31,12 @@ public class SubscribeHandler {
         String command = message.getHeaders().get("stompCommand").toString();
         if (command.equals("SUBSCRIBE")) {
             String dist = getDestinationFromMessage(message);
-            Long auctionId = Long.valueOf(dist.substring(15));
-            System.out.println("dist : " + auctionId);
-            Auction auction = service.getAuction(auctionId, bidStorage);
-            sendMessageToHome(auctionId,auction);
+            if (dist.startsWith("/home/auctions/")) {
+                Long auctionId = Long.valueOf(dist.substring(15));
+                System.out.println("dist : " + auctionId);
+                Auction auction = service.getAuction(auctionId, bidStorage);
+                sendMessageToHome(auctionId, auction);
+            }
         }
     }
 

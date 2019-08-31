@@ -53,6 +53,7 @@ public class BidController {
     @MessageMapping("/bid")
     public synchronized void sendMessage(BidInputMessage inputMessage,
                                          @Headers Map headers) {
+
         ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
         ConcurrentMap<String, Long> usersData = bidStorage.getUsersData();
         String userName = ((UsernamePasswordAuthenticationToken) headers.get("simpUser")).getName();
@@ -99,6 +100,9 @@ public class BidController {
             jobs.add(jobDetail);
             jobDetails.put(auctionId, jobs);
             Trigger trigger = buildJobTrigger(jobDetail, new Date(new Date().getTime() + 30000));
+            System.out.println("trigger.getEndTime() = " + trigger.getEndTime());
+            System.out.println("trigger.getStartTime() = " + trigger.getStartTime());
+            bidStorage.getTriggers().put(auctionId, trigger);
             scheduler.scheduleJob(jobDetail, trigger);
         } catch (SchedulerException e) {
             e.printStackTrace();

@@ -4,7 +4,6 @@ import org.quartz.*;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -12,17 +11,14 @@ import org.springframework.web.multipart.MultipartFile;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionInputDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionListDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
-import rahnema.tumaj.bid.backend.domains.bookmark.ScheduleBookmarkResponse;
 import rahnema.tumaj.bid.backend.jobs.BookmarkJob;
-import rahnema.tumaj.bid.backend.jobs.NewBidJob;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.Images.ImageService;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;
-import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
-import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
+import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssembler;
 import rahnema.tumaj.bid.backend.utils.assemblers.CategoryAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.IllegalInputExceptions.IllegalAuctionInputException;
@@ -39,16 +35,15 @@ public class AuctionController {
     private final StorageService storageService;
     private final ImageService imageService;
     private final AuctionService auctionService;
-    private final AuctionAssemler assembler;
+    private final AuctionAssembler assembler;
     private final Scheduler scheduler;
 
     private final UserService userService;
     private final CategoryAssembler categoryAssembler;
 
     private final SimpMessagingTemplate template;
-    private final AuctionsBidStorage bidStorage;
 
-    public AuctionController(AuctionsBidStorage auctionsBidStorage,CategoryAssembler categoryAssembler, StorageService storageService, ImageService imageService, AuctionService auctionService, AuctionAssemler assembler, Scheduler scheduler, UserService userService, SimpMessagingTemplate template) {
+    public AuctionController(CategoryAssembler categoryAssembler, StorageService storageService, ImageService imageService, AuctionService auctionService, AuctionAssembler assembler, Scheduler scheduler, UserService userService, SimpMessagingTemplate template) {
         this.categoryAssembler = categoryAssembler;
         this.storageService = storageService;
         this.imageService = imageService;
@@ -57,7 +52,6 @@ public class AuctionController {
         this.scheduler = scheduler;
         this.userService = userService;
         this.template = template;
-        this.bidStorage=auctionsBidStorage;
     }
 
     @PostMapping("/auctions")
@@ -81,10 +75,6 @@ public class AuctionController {
         } else
             throw new IllegalAuctionInputException();
     }
-
-
-
-
 
 
     private JobDetail buildJobDetail(Auction auction) {

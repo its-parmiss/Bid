@@ -25,7 +25,7 @@ import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.UserNotFoun
 public class JwtTokenUtil implements TokenUtil {
 
 	private static final long serialVersionUID = -2550185165626007488L;
-	private static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
+	private static final long JWT_TOKEN_VALIDITY =  30 * 24 * 60 * 60;
 
 	@Value("${jwt.secret}")
 	private String secret;

@@ -13,7 +13,7 @@ import java.util.HashMap;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @Component
-public class AuctionAssemler {
+public class AuctionAssembler {
     private static final Integer defaultPage = 0;
     private static final Integer defaultPageLimit = 20;
 
