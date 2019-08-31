@@ -56,7 +56,7 @@ public class MessageServiceImp implements MessageService {
 
     private void exitUserFromAuction(ConcurrentMap<Long, Auction> auctionsData, ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId, Auction currentAuction) {
         updateAuctionOnExit(auctionsData, usersData, user, auctionId, currentAuction);
-        AuctionOutputMessage message = messageAssembler.getUpdateOnExitMessage(auctionsData, auctionId);
+        AuctionOutputMessage message = messageAssembler.getUpdateOnExitMessage(auctionsData, auctionId, bidStorage.getTriggers());
         this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
         sendMessageToHome(auctionId, currentAuction);
     }

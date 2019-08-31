@@ -65,10 +65,11 @@ public class MessageAssembler {
         return message;
     }
 
-    public AuctionOutputMessage getUpdateOnExitMessage(ConcurrentMap<Long, Auction> auctionsData, Long auctionId) {
+    public AuctionOutputMessage getUpdateOnExitMessage(ConcurrentMap<Long, Auction> auctionsData, Long auctionId, ConcurrentMap<Long, Trigger> triggers) {
         AuctionOutputMessage message = new AuctionOutputMessage();
         message.setActiveBidders(auctionsData.get(auctionId).getCurrentlyActiveBidders());
         message.setMessageType(MessageTypes.UPDATE_BIDDERS);
+        message.setRemainingTime(calculateRemainingTime(auctionId, triggers));
         return message;
     }
 
