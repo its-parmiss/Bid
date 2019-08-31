@@ -5,14 +5,15 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
+import rahnema.tumaj.bid.backend.domains.Messages.HomeOutputMessage;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
+import rahnema.tumaj.bid.backend.utils.assemblers.MessageAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 
 import java.util.concurrent.ConcurrentMap;
@@ -20,16 +21,17 @@ import java.util.concurrent.ConcurrentMap;
 @Component
 public class NewBidJob extends QuartzJobBean {
     private static final Logger logger = LoggerFactory.getLogger(NewBidJob.class);
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
-    @Autowired
+    private final SimpMessagingTemplate simpMessagingTemplate;
     private final AuctionService service;
-    @Autowired
     private final AuctionsBidStorage bidStorage;
+    private final MessageAssembler messageAssembler;
 
-    public NewBidJob(AuctionService service, AuctionsBidStorage bidStorage) {
+
+    public NewBidJob(SimpMessagingTemplate simpMessagingTemplate, AuctionService service, AuctionsBidStorage bidStorage, MessageAssembler messageAssembler) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
         this.service = service;
         this.bidStorage = bidStorage;
+        this.messageAssembler = messageAssembler;
     }
 
     public synchronized void end(long auctionId) {
@@ -41,9 +43,18 @@ public class NewBidJob extends QuartzJobBean {
         AuctionOutputMessage message = new AuctionOutputMessage();
         message.setLastBidder(auctionsData.get(auctionId).getLastBidder());
         message.setLastBid(auctionsData.get(auctionId).getLastBid());
-        message.setFinished(true);
+        message.setIsFinished(true);
         message.setMessageType("AuctionEnded");
+        message.setRemainingTime(messageAssembler.calculateRemainingTime(auctionId, bidStorage.getTriggers()));
         this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
+        this.sendMessageToHome(auctionId,currentAuction);
+
+    }
+    private void sendMessageToHome(Long auctionId, Auction currentAuction) {
+        HomeOutputMessage homeOutputMessage = new HomeOutputMessage();
+        homeOutputMessage.setActiveBidders(currentAuction.getCurrentlyActiveBidders());
+        homeOutputMessage.setIsFinished(currentAuction.isFinished());
+        this.simpMessagingTemplate.convertAndSend("/home/auctions/" + auctionId, homeOutputMessage);
     }
     private synchronized Auction getAuction(Long auctionId) {
         ConcurrentMap <Long, Auction> auctionsData = bidStorage.getAuctionsData();

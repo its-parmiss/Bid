@@ -1,7 +1,6 @@
 package rahnema.tumaj.bid.backend.utils.assemblers;
 
 import org.quartz.Trigger;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.MessageContents;
@@ -9,7 +8,6 @@ import rahnema.tumaj.bid.backend.domains.Messages.MessageTypes;
 import rahnema.tumaj.bid.backend.models.Auction;
 
 import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @Component
@@ -52,7 +50,7 @@ public class MessageAssembler {
 
     public AuctionOutputMessage getFinishedMessage(Auction currentAuction) {
         AuctionOutputMessage message = new AuctionOutputMessage();
-        message.setFinished(currentAuction.isFinished());
+        message.setIsFinished(currentAuction.isFinished());
         message.setLastBid(currentAuction.getLastBid());
         message.setDescription(MessageContents.FORBIDDEN_ENTER_CLOSED);
         message.setMessageType(MessageTypes.AUCTION_FINISHED);
@@ -82,7 +80,7 @@ public class MessageAssembler {
     }
 
 
-    private long calculateRemainingTime(Long auctionId, ConcurrentMap<Long, Trigger> triggers) {
+    public long calculateRemainingTime(Long auctionId, ConcurrentMap<Long, Trigger> triggers) {
         if (triggers.get(auctionId) != null) {
             return (  triggers.get(auctionId).getStartTime().getTime() - new Date().getTime() ) / 1000 ;
         }
