@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.utils;
+package rahnema.tumaj.bid.backend.utils.handlers;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -7,6 +7,7 @@ import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import rahnema.tumaj.bid.backend.domains.Messages.HomeOutputMessage;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
+import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
 
 import java.util.List;
 import java.util.Map;

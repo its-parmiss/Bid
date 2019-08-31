@@ -2,7 +2,6 @@ package rahnema.tumaj.bid.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,8 +9,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import rahnema.tumaj.bid.backend.domains.AuthenticationRequest;
-import rahnema.tumaj.bid.backend.domains.AuthenticationResponse;
+import rahnema.tumaj.bid.backend.domains.authentication.AuthenticationRequest;
+import rahnema.tumaj.bid.backend.domains.authentication.AuthenticationResponse;
 import rahnema.tumaj.bid.backend.services.UserDetailsServiceImpl;
 import rahnema.tumaj.bid.backend.utils.athentication.JwtTokenUtil;
 import rahnema.tumaj.bid.backend.utils.athentication.TokenUtil;

@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.services;
+package rahnema.tumaj.bid.backend.services.Message;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import rahnema.tumaj.bid.backend.models.Auction;

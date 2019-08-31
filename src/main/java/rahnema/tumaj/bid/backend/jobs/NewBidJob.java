@@ -12,7 +12,7 @@ import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.HomeOutputMessage;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
-import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
+import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.assemblers.MessageAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 

@@ -1,4 +1,4 @@
-package rahnema.tumaj.bid.backend.services;
+package rahnema.tumaj.bid.backend.services.Message;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -6,10 +6,7 @@ import org.springframework.stereotype.Component;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
 import rahnema.tumaj.bid.backend.domains.Messages.HomeOutputMessage;
 import rahnema.tumaj.bid.backend.models.Auction;
-import rahnema.tumaj.bid.backend.services.auction.AuctionService;
-import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
-import rahnema.tumaj.bid.backend.utils.DisconnectHandler;
-import rahnema.tumaj.bid.backend.utils.SubscribeHandler;
+import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.assemblers.MessageAssembler;
 
 import java.util.concurrent.ConcurrentMap;
@@ -18,18 +15,12 @@ import java.util.concurrent.ConcurrentMap;
 public class MessageServiceImp implements MessageService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final AuctionService service;
     private final AuctionsBidStorage bidStorage;
-    private final DisconnectHandler disconnectHandler;
-    private final SubscribeHandler subscribeHandler;
     private final MessageAssembler messageAssembler;
 
-    public MessageServiceImp(SimpMessagingTemplate simpMessagingTemplate, AuctionService service, AuctionsBidStorage bidStorage, DisconnectHandler disconnectHandler, SubscribeHandler subscribeHandler, MessageAssembler messageAssembler) {
+    public MessageServiceImp(SimpMessagingTemplate simpMessagingTemplate, AuctionsBidStorage bidStorage, MessageAssembler messageAssembler) {
         this.simpMessagingTemplate = simpMessagingTemplate;
-        this.service = service;
         this.bidStorage = bidStorage;
-        this.disconnectHandler = disconnectHandler;
-        this.subscribeHandler = subscribeHandler;
         this.messageAssembler = messageAssembler;
     }
 

@@ -3,7 +3,6 @@ package rahnema.tumaj.bid.backend.services.auction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.format.datetime.DateFormatter;
 import org.springframework.stereotype.Service;
 import rahnema.tumaj.bid.backend.domains.Image.ImageInputDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionInputDTO;
@@ -13,17 +12,10 @@ import rahnema.tumaj.bid.backend.models.Images;
 import rahnema.tumaj.bid.backend.repositories.AuctionRepository;
 import rahnema.tumaj.bid.backend.repositories.CategoryRepository;
 import rahnema.tumaj.bid.backend.services.Images.ImageService;
-import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
+import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.CategoryNotFoundException;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 

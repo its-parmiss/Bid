@@ -3,7 +3,7 @@ package rahnema.tumaj.bid.backend.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import rahnema.tumaj.bid.backend.domains.AuthenticationResponse;
+import rahnema.tumaj.bid.backend.domains.authentication.AuthenticationResponse;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;

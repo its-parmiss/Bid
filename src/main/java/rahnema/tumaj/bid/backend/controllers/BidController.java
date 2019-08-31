@@ -14,7 +14,7 @@ import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.services.bid.BidService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
-import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
+import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.assemblers.MessageAssembler;
 
 import java.util.ArrayList;

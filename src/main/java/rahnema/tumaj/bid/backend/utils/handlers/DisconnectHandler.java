@@ -1,11 +1,11 @@
-package rahnema.tumaj.bid.backend.utils;
+package rahnema.tumaj.bid.backend.utils.handlers;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-import rahnema.tumaj.bid.backend.controllers.EnterExitAuctionController;
 import rahnema.tumaj.bid.backend.domains.Messages.AuctionOutputMessage;
 import rahnema.tumaj.bid.backend.models.Auction;
+import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
 
 @Component
 public class DisconnectHandler {
