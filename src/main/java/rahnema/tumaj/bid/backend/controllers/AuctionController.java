@@ -14,12 +14,14 @@ import rahnema.tumaj.bid.backend.domains.auction.AuctionListDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
 import rahnema.tumaj.bid.backend.domains.bookmark.ScheduleBookmarkResponse;
 import rahnema.tumaj.bid.backend.jobs.BookmarkJob;
+import rahnema.tumaj.bid.backend.jobs.NewBidJob;
 import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.Images.ImageService;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
 import rahnema.tumaj.bid.backend.storage.StorageService;
+import rahnema.tumaj.bid.backend.utils.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssemler;
 import rahnema.tumaj.bid.backend.utils.assemblers.CategoryAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
@@ -44,8 +46,9 @@ public class AuctionController {
     private final CategoryAssembler categoryAssembler;
 
     private final SimpMessagingTemplate template;
+    private final AuctionsBidStorage bidStorage;
 
-    public AuctionController(CategoryAssembler categoryAssembler, StorageService storageService, ImageService imageService, AuctionService auctionService, AuctionAssemler assembler, Scheduler scheduler, UserService userService, SimpMessagingTemplate template) {
+    public AuctionController(AuctionsBidStorage auctionsBidStorage,CategoryAssembler categoryAssembler, StorageService storageService, ImageService imageService, AuctionService auctionService, AuctionAssemler assembler, Scheduler scheduler, UserService userService, SimpMessagingTemplate template) {
         this.categoryAssembler = categoryAssembler;
         this.storageService = storageService;
         this.imageService = imageService;
@@ -54,6 +57,7 @@ public class AuctionController {
         this.scheduler = scheduler;
         this.userService = userService;
         this.template = template;
+        this.bidStorage=auctionsBidStorage;
     }
 
     @PostMapping("/auctions")
@@ -77,6 +81,10 @@ public class AuctionController {
         } else
             throw new IllegalAuctionInputException();
     }
+
+
+
+
 
 
     private JobDetail buildJobDetail(Auction auction) {
