@@ -90,6 +90,7 @@ public class BidController {
                 bidStorage.getJobDetails().put(auctionId, new ArrayList<>());
             }
             for (JobDetail j : bidStorage.getJobDetails().get(auctionId)) {
+                System.out.println("j = " + j);
                 scheduler.deleteJob(j.getKey());
             }
             ArrayList<JobDetail> jobs = bidStorage.getJobDetails().get(auctionId);

@@ -281,9 +281,14 @@ public class AuctionController {
 
     public synchronized void ScheduleFirstBidJob(Auction auction) {
         try {
+            System.out.println("auction = " + auction.getId());
             JobDetail jobDetail = buildFirstBidJobDetails(auction.getId());
             Trigger trigger = buildFirstBidJobTrigger(jobDetail, new Date(auction.getStartDate().getTime() + 30000));
             bidStorage.getTriggers().put(auction.getId(),trigger);
+            bidStorage.getJobDetails().put(auction.getId(), new ArrayList<>());
+            ArrayList<JobDetail> jobs = bidStorage.getJobDetails().get(auction.getId());
+            jobs.add(jobDetail);
+            bidStorage.getJobDetails().put(auction.getId(), jobs);
             scheduler.scheduleJob(jobDetail, trigger);
         } catch (SchedulerException e) {
             e.printStackTrace();
