@@ -32,7 +32,6 @@ public class BidController {
 
     @Autowired
     private Scheduler scheduler;
-    private final ConcurrentMap<Long, ArrayList<JobDetail>> jobDetails = new ConcurrentHashMap<>();
     private final BidService bidService;
     private final UserService userService;
     private final AuctionService auctionService;
@@ -87,15 +86,15 @@ public class BidController {
     private synchronized void scheduleBid(Long auctionId) {
         try {
             JobDetail jobDetail = buildJobDetail(auctionId);
-            if (!jobDetails.containsKey(auctionId)) {
-                jobDetails.put(auctionId, new ArrayList<>());
+            if (!bidStorage.getJobDetails().containsKey(auctionId)) {
+                bidStorage.getJobDetails().put(auctionId, new ArrayList<>());
             }
-            for (JobDetail j : jobDetails.get(auctionId)) {
+            for (JobDetail j : bidStorage.getJobDetails().get(auctionId)) {
                 scheduler.deleteJob(j.getKey());
             }
-            ArrayList<JobDetail> jobs = jobDetails.get(auctionId);
+            ArrayList<JobDetail> jobs = bidStorage.getJobDetails().get(auctionId);
             jobs.add(jobDetail);
-            jobDetails.put(auctionId, jobs);
+            bidStorage.getJobDetails().put(auctionId, jobs);
             Trigger trigger = buildJobTrigger(jobDetail, new Date(new Date().getTime() + 30000));
             System.out.println("trigger.getEndTime() = " + trigger.getEndTime());
             System.out.println("trigger.getStartTime() = " + trigger.getStartTime());

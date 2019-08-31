@@ -19,6 +19,7 @@ public class AuctionsBidStorage {
     private ConcurrentMap<Long, Auction> auctionsData;
     private ConcurrentMap<String, Long> usersData;
     private ConcurrentMap<Long, Trigger> triggers;
+    private final ConcurrentMap<Long, ArrayList<JobDetail>> jobDetails = new ConcurrentHashMap<>();
 
 
     public AuctionsBidStorage(AuctionRepository auctionRepository) {
@@ -37,6 +38,9 @@ public class AuctionsBidStorage {
         return triggers;
     }
 
+    public ConcurrentMap<Long, ArrayList<JobDetail>> getJobDetails() {
+        return jobDetails;
+    }
     //    //TODO
 //    public void saveCacheToDB(){
 //

@@ -18,6 +18,7 @@ import rahnema.tumaj.bid.backend.models.User;
 import rahnema.tumaj.bid.backend.services.Images.ImageService;
 import rahnema.tumaj.bid.backend.services.auction.AuctionService;
 import rahnema.tumaj.bid.backend.services.user.UserService;
+import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.storage.StorageService;
 import rahnema.tumaj.bid.backend.utils.assemblers.AuctionAssembler;
 import rahnema.tumaj.bid.backend.utils.assemblers.CategoryAssembler;
@@ -41,10 +42,10 @@ public class AuctionController {
 
     private final UserService userService;
     private final CategoryAssembler categoryAssembler;
-
+    private final AuctionsBidStorage bidStorage;
     private final SimpMessagingTemplate template;
 
-    public AuctionController(CategoryAssembler categoryAssembler, StorageService storageService, ImageService imageService, AuctionService auctionService, AuctionAssembler assembler, Scheduler scheduler, UserService userService, SimpMessagingTemplate template) {
+    public AuctionController(CategoryAssembler categoryAssembler, StorageService storageService, ImageService imageService, AuctionService auctionService, AuctionAssembler assembler, Scheduler scheduler, UserService userService, AuctionsBidStorage bidStorage, SimpMessagingTemplate template) {
         this.categoryAssembler = categoryAssembler;
         this.storageService = storageService;
         this.imageService = imageService;
@@ -52,6 +53,7 @@ public class AuctionController {
         this.assembler = assembler;
         this.scheduler = scheduler;
         this.userService = userService;
+        this.bidStorage = bidStorage;
         this.template = template;
     }
 
@@ -281,6 +283,7 @@ public class AuctionController {
         try {
             JobDetail jobDetail = buildFirstBidJobDetails(auction.getId());
             Trigger trigger = buildFirstBidJobTrigger(jobDetail, new Date(auction.getStartDate().getTime() + 30000));
+            bidStorage.getTriggers().put(auction.getId(),trigger);
             scheduler.scheduleJob(jobDetail, trigger);
         } catch (SchedulerException e) {
             e.printStackTrace();

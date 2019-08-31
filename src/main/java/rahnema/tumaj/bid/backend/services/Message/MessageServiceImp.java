@@ -27,7 +27,7 @@ public class MessageServiceImp implements MessageService {
 
     @Override
     public void enterAuction(ConcurrentMap<Long, Auction> auctionsData, ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId, Auction currentAuction) {
-        if(currentAuction.getStartDate().before(new Date()))
+        if(currentAuction.getStartDate().after(new Date()))
         {
             AuctionOutputMessage message = messageAssembler.getNotStartedMessage();
             this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), message);
