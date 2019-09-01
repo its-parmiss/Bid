@@ -15,6 +15,7 @@ import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.handlers.DisconnectHandler;
 import rahnema.tumaj.bid.backend.utils.handlers.SubscribeHandler;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 

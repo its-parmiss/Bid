@@ -9,6 +9,7 @@ import rahnema.tumaj.bid.backend.models.Auction;
 import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.assemblers.MessageAssembler;
 
+import java.util.Date;
 import java.util.concurrent.ConcurrentMap;
 
 @Component
@@ -26,7 +27,12 @@ public class MessageServiceImp implements MessageService {
 
     @Override
     public void enterAuction(ConcurrentMap<Long, Auction> auctionsData, ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId, Auction currentAuction) {
-        if (currentAuction.isFinished())
+        if(currentAuction.getStartDate().after(new Date()))
+        {
+            AuctionOutputMessage message = messageAssembler.getNotStartedMessage();
+            this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), message);
+        }
+        else if (currentAuction.isFinished())
             this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getFinishedMessage(currentAuction));
         else if (isUserAlreadyIn(usersData, user, currentAuction))
             this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getAlreadyInMessage());

@@ -13,4 +13,7 @@ public class MessageTypes {
 
     public static final String AUCTION_FULL = "AuctionIsFull";
 
+    public static final String NOT_STARTED = "AuctionNotStarted";
+
+
 }

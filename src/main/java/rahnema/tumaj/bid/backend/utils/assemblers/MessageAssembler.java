@@ -20,13 +20,20 @@ public class MessageAssembler {
         return message;
     }
 
-    public AuctionOutputMessage getEndAuctionMessage(long auctionId, ConcurrentMap<Long, Auction> auctionsData,ConcurrentMap<Long, Trigger> triggers) {
+    public AuctionOutputMessage getEndAuctionMessage(long auctionId, ConcurrentMap<Long, Auction> auctionsData, ConcurrentMap<Long, Trigger> triggers) {
         AuctionOutputMessage message = new AuctionOutputMessage();
         message.setLastBidder(auctionsData.get(auctionId).getLastBidder());
         message.setLastBid(auctionsData.get(auctionId).getLastBid());
         message.setIsFinished(true);
         message.setMessageType("AuctionEnded");
         message.setRemainingTime(this.calculateRemainingTime(auctionId, triggers));
+        return message;
+    }
+
+    public AuctionOutputMessage getNotStartedMessage() {
+        AuctionOutputMessage message = new AuctionOutputMessage();
+        message.setDescription(MessageContents.FORBIDDEN_ENTER_NOT_STARTED);
+        message.setMessageType(MessageTypes.NOT_STARTED);
         return message;
     }
 
@@ -38,7 +45,7 @@ public class MessageAssembler {
     }
 
     public AuctionOutputMessage getUpdateMessage(ConcurrentMap<Long, Auction> auctionsData, Auction currentAuction,
-                                                ConcurrentMap<Long, Trigger> triggers ) {
+                                                 ConcurrentMap<Long, Trigger> triggers) {
         AuctionOutputMessage message = new AuctionOutputMessage();
         message.setAuctionId(String.valueOf(currentAuction.getId()));
         setMessageLastBid(currentAuction, message);
@@ -94,12 +101,9 @@ public class MessageAssembler {
 
     public long calculateRemainingTime(Long auctionId, ConcurrentMap<Long, Trigger> triggers) {
         if (triggers.get(auctionId) != null) {
-            return (  triggers.get(auctionId).getStartTime().getTime() - new Date().getTime() ) / 1000 ;
-        }
-        else return -1;
+            return (triggers.get(auctionId).getStartTime().getTime() - new Date().getTime()) / 1000;
+        } else return -1;
     }
-
-
 
 
 }
