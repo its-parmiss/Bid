@@ -34,22 +34,23 @@ public class NewBidJob extends QuartzJobBean {
         this.messageAssembler = messageAssembler;
     }
 
-    public synchronized void end(long auctionId) {
+    private synchronized void end(long auctionId) {
         ConcurrentMap<Long, Auction> auctionsData = bidStorage.getAuctionsData();
         Auction currentAuction = getAuction(auctionId);
-        currentAuction.setFinished(true);
-        auctionsData.put(auctionId, currentAuction);
-        service.saveAuction(currentAuction);
-        AuctionOutputMessage message = new AuctionOutputMessage();
-        message.setLastBidder(auctionsData.get(auctionId).getLastBidder());
-        message.setLastBid(auctionsData.get(auctionId).getLastBid());
-        message.setIsFinished(true);
-        message.setMessageType("AuctionEnded");
-        message.setRemainingTime(messageAssembler.calculateRemainingTime(auctionId, bidStorage.getTriggers()));
+        updateAuctionOnEnd(auctionId, auctionsData, currentAuction);
+        AuctionOutputMessage message = messageAssembler.getEndAuctionMessage(auctionId, auctionsData,bidStorage.getTriggers());
         this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
         this.sendMessageToHome(auctionId,currentAuction);
 
     }
+
+    private void updateAuctionOnEnd(long auctionId, ConcurrentMap<Long, Auction> auctionsData, Auction currentAuction) {
+        currentAuction.setFinished(true);
+        auctionsData.put(auctionId, currentAuction);
+        service.saveAuction(currentAuction);
+    }
+
+
     private void sendMessageToHome(Long auctionId, Auction currentAuction) {
         HomeOutputMessage homeOutputMessage = new HomeOutputMessage();
         homeOutputMessage.setActiveBidders(currentAuction.getCurrentlyActiveBidders());

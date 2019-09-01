@@ -20,7 +20,15 @@ public class MessageAssembler {
         return message;
     }
 
-
+    public AuctionOutputMessage getEndAuctionMessage(long auctionId, ConcurrentMap<Long, Auction> auctionsData,ConcurrentMap<Long, Trigger> triggers) {
+        AuctionOutputMessage message = new AuctionOutputMessage();
+        message.setLastBidder(auctionsData.get(auctionId).getLastBidder());
+        message.setLastBid(auctionsData.get(auctionId).getLastBid());
+        message.setIsFinished(true);
+        message.setMessageType("AuctionEnded");
+        message.setRemainingTime(this.calculateRemainingTime(auctionId, triggers));
+        return message;
+    }
 
     public AuctionOutputMessage getAlreadyInMessage() {
         AuctionOutputMessage message = new AuctionOutputMessage();
@@ -54,6 +62,7 @@ public class MessageAssembler {
         message.setLastBid(currentAuction.getLastBid());
         message.setDescription(MessageContents.FORBIDDEN_ENTER_CLOSED);
         message.setMessageType(MessageTypes.AUCTION_FINISHED);
+        message.setRemainingTime(0L);
         return message;
     }
 
@@ -62,13 +71,16 @@ public class MessageAssembler {
         AuctionOutputMessage message = new AuctionOutputMessage();
         message.setDescription(MessageContents.FORBIDDEN_EXIT_LAST_BIDDER);
         message.setMessageType(MessageTypes.EXIT_FORBIDDEN);
+        message.setRemainingTime(-1L);
         return message;
     }
 
-    public AuctionOutputMessage getUpdateOnExitMessage(ConcurrentMap<Long, Auction> auctionsData, Long auctionId) {
+    public AuctionOutputMessage getUpdateOnExitMessage(ConcurrentMap<Long, Auction> auctionsData, Long auctionId,
+                                                       ConcurrentMap<Long, Trigger> triggers) {
         AuctionOutputMessage message = new AuctionOutputMessage();
         message.setActiveBidders(auctionsData.get(auctionId).getCurrentlyActiveBidders());
         message.setMessageType(MessageTypes.UPDATE_BIDDERS);
+        message.setRemainingTime(this.calculateRemainingTime(auctionId, triggers));
         return message;
     }
 

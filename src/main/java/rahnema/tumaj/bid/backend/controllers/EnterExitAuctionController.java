@@ -48,7 +48,6 @@ public class EnterExitAuctionController {
     @EventListener
     public void onSubscribeEvent(SessionSubscribeEvent event) {
         subscribeHandler.invoke(event);
-
     }
 
     @MessageMapping("/enter")
