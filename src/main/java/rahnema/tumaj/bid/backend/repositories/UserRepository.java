@@ -11,6 +11,5 @@ public interface UserRepository extends CrudRepository<User, Long> {
     // TODO: use ignore case instead this @deprecated (change implementation in
     Optional<User> findByEmail(String email);
     Optional<User> findByEmailIgnoreCase(String email);
-    Optional<User> findByResetToken(String token);
     boolean existsByEmail(String email);
 }

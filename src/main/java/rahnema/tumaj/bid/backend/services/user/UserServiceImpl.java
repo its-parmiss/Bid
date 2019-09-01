@@ -63,11 +63,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findByResetToken(String token) {
-        return userRepository.findByResetToken(token);
-    }
-
-    @Override
     public User getUserWithToken(String token) {
         System.out.println(token);
         String email = tokenUtil

@@ -13,6 +13,5 @@ public interface UserService {
     User addOne(UserInputDTO user);
     Optional<User> findByEmail(String email);
     User saveUser(User user);
-    Optional<User> findByResetToken(String token);
     User getUserWithToken(String token);
 }

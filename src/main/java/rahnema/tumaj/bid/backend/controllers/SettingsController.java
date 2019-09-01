@@ -114,11 +114,19 @@ public class SettingsController {
         if (securityController.bCryptPasswordEncoder
                 .matches(currentPassword, user.getPassword()) &&
                 userValidator.isUserPasswordValid(newPassword, ValidatorConstants.PASSWORD)) {
-            passwordController.changeUserPassword(newPassword, user);
+            changeUserPassword(newPassword, user);
             return tokenUtil.generateNewAuthorization(user);
         } else {
             throw new IllegalUserInputException();
         }
+    }
+
+    private void changeUserPassword(String password, User user) {
+        user.setPassword(
+                securityController.bCryptPasswordEncoder
+                        .encode(password)
+        );
+        userService.saveUser(user);
     }
 
 }

@@ -31,10 +31,8 @@ public class User {
     String profilePicture;
     @Column(name = "created_at")
     Date createdAt;
-    @Column(name = "reset_token")
-    String resetToken;
     @Column(name = "enabled")
-        boolean enabled;
+    boolean enabled;
 
     public User() {
         super();
@@ -65,4 +63,9 @@ public class User {
     @JsonBackReference
     @OneToOne(mappedBy = "user")
     ConfirmationToken confirmationToken;
+
+    @JsonBackReference
+    @OneToOne(mappedBy = "user")
+    ForgotToken forgotToken;
+
 }
