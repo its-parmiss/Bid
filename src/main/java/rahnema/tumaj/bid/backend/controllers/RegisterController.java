@@ -68,9 +68,11 @@ public class RegisterController {
         ConfirmationToken confirmationToken = confirmationTokenService.findByConfirmationToken(token)
                 .orElseThrow(TokenNotFoundException::new);
         User user = confirmationToken.getUser();
+        if(user.isEnabled())
+            throw new TokenNotFoundException();
         user.setEnabled(true);
         User savedUser = userService.saveUser(user);
-        return "Your Account Has Been Confirmed!";
+        return "Your account has been confirmed!";
     }
 
     private void sendVerificationEmailToUser(@RequestBody UserInputDTO user, ConfirmationToken confirmationToken) {
