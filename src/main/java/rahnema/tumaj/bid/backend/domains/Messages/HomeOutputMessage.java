@@ -6,4 +6,6 @@ import lombok.Data;
 public class HomeOutputMessage {
     Boolean isFinished;
     Integer activeBidders;
+    Boolean isStarted;
+    String type;
 }

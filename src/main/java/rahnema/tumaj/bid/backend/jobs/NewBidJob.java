@@ -16,6 +16,7 @@ import rahnema.tumaj.bid.backend.storage.AuctionsBidStorage;
 import rahnema.tumaj.bid.backend.utils.assemblers.MessageAssembler;
 import rahnema.tumaj.bid.backend.utils.exceptions.NotFoundExceptions.AuctionNotFoundException;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 @Component
@@ -41,6 +42,13 @@ public class NewBidJob extends QuartzJobBean {
         AuctionOutputMessage message = messageAssembler.getEndAuctionMessage(auctionId, auctionsData,bidStorage.getTriggers());
         this.simpMessagingTemplate.convertAndSend("/auction/" + auctionId, message);
         this.sendMessageToHome(auctionId,currentAuction);
+        Map<String,Long> userData =bidStorage.getUsersData();
+        //TODO iterate nakon madar sag
+        for(String user:userData.keySet()){
+            if(userData.get(user).equals(auctionId)){
+                bidStorage.getUsersData().remove(user);
+            }
+        }
 
     }
 
@@ -55,6 +63,7 @@ public class NewBidJob extends QuartzJobBean {
         HomeOutputMessage homeOutputMessage = new HomeOutputMessage();
         homeOutputMessage.setActiveBidders(currentAuction.getCurrentlyActiveBidders());
         homeOutputMessage.setIsFinished(currentAuction.isFinished());
+        homeOutputMessage.setType("firstBid");
         this.simpMessagingTemplate.convertAndSend("/home/auctions/" + auctionId, homeOutputMessage);
     }
     private synchronized Auction getAuction(Long auctionId) {
@@ -73,9 +82,7 @@ public class NewBidJob extends QuartzJobBean {
         logger.info("Executing Job with key {}", jobExecutionContext.getJobDetail().getKey());
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
         Long auctionId= jobDataMap.getLong("auctionId");
-        System.out.println("bj before end");
         end(auctionId);
-        System.out.println("bj after end");
     }
 
 }

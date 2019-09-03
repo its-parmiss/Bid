@@ -84,7 +84,7 @@ public class MessageServiceImp implements MessageService {
     }
 
     private boolean isUserAlreadyIn(ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Auction currentAuction) {
-        return usersData.containsKey(user.getName()) && usersData.get(user.getName()).equals(currentAuction.getId());
+        return usersData.containsKey(user.getName());
     }
 
 

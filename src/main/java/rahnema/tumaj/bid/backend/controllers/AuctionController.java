@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionInputDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionListDTO;
 import rahnema.tumaj.bid.backend.domains.auction.AuctionOutputDTO;
+import rahnema.tumaj.bid.backend.jobs.AuctionStartedJob;
 import rahnema.tumaj.bid.backend.jobs.BookmarkJob;
 import rahnema.tumaj.bid.backend.jobs.NewBidJob;
 import rahnema.tumaj.bid.backend.models.Auction;
@@ -64,7 +65,6 @@ public class AuctionController {
             Auction auction = passAuctionToService(auctionInput, user);
 
             long notificationTime = auction.getStartDate().getTime() - (1000 * 60 * 10);
-
             JobDetail jobDetail = buildJobDetail(auction);
             Trigger trigger = buildJobTrigger(jobDetail, new Date(notificationTime));
 
@@ -74,6 +74,7 @@ public class AuctionController {
                 ex.printStackTrace();
             }
             ScheduleFirstBidJob(auction);
+            ScheduleStartedMessage(auction);
             return assembler.assemble(auction);
         } else
             throw new IllegalAuctionInputException();
@@ -267,7 +268,20 @@ public class AuctionController {
                 .build();
     }
 
-    private Trigger buildFirstBidJobTrigger(JobDetail jobDetail, Date startAt) {
+    private JobDetail buildStartedJobDetails(Long auctionId) {
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("auctionId", auctionId);
+        String jobName = UUID.randomUUID().toString();
+        String jobGroup = "auction-jobs";
+        return JobBuilder.newJob(AuctionStartedJob.class)
+                .withIdentity(jobName, jobGroup)
+                .withDescription("Send auction job")
+                .usingJobData(jobDataMap)
+                .storeDurably()
+                .build();
+    }
+
+    private Trigger buildStartedJobTrigger(JobDetail jobDetail, Date startAt) {
         Trigger trigger = TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
                 .withIdentity(jobDetail.getKey().getName(), "auction-triggers")
@@ -279,6 +293,26 @@ public class AuctionController {
     }
 
 
+    private Trigger buildFirstBidJobTrigger(JobDetail jobDetail, Date startAt) {
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .forJob(jobDetail)
+                .withIdentity(jobDetail.getKey().getName(), "auction-triggers")
+                .withDescription("Send auction Trigger")
+                .startAt(startAt)
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
+                .build();
+        return trigger;
+    }
+
+    public synchronized void ScheduleStartedMessage(Auction auction){
+        try {
+            JobDetail jobDetail = buildStartedJobDetails(auction.getId());
+            Trigger trigger = buildStartedJobTrigger(jobDetail, new Date(auction.getStartDate().getTime()));
+            scheduler.scheduleJob(jobDetail, trigger);
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+    }
     public synchronized void ScheduleFirstBidJob(Auction auction) {
         try {
             System.out.println("auction = " + auction.getId());

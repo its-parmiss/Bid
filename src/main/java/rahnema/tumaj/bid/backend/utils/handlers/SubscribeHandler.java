@@ -54,6 +54,7 @@ public class SubscribeHandler {
         HomeOutputMessage homeOutputMessage = new HomeOutputMessage();
         homeOutputMessage.setActiveBidders(currentAuction.getCurrentlyActiveBidders());
         homeOutputMessage.setIsFinished(currentAuction.isFinished());
+        homeOutputMessage.setType("onSubscribe");
         this.simpMessagingTemplate.convertAndSend("/home/auctions/" + auctionId, homeOutputMessage);
     }
 }
