@@ -90,6 +90,9 @@ public class PasswordController {
                 securityController.bCryptPasswordEncoder
                         .encode(password)
         );
+
+
+
         userService.saveUser(user);
         forgotToken.setForgotToken("Activated");
         forgotTokenService.save(forgotToken);
