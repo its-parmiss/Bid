@@ -52,7 +52,7 @@ public class MessageServiceImp implements MessageService {
 
     @Override
     public void exitAuction(ConcurrentMap<Long, Auction> auctionsData, ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId, Auction currentAuction) {
-        if (isUserAlreadyIn(usersData, user, auctionId))
+        if (!isUserAlreadyIn(usersData, user, auctionId))
             this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getNotInMessage());
         else if (isExitOk(user, currentAuction))
             exitUserFromAuction(auctionsData, usersData, user, auctionId, currentAuction);

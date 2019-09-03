@@ -14,7 +14,7 @@ import java.util.Set;
 @Table(name="Users")
 @Data
 @ToString(exclude = {"auctions", "myAuctions","confirmationToken"})
-@EqualsAndHashCode(exclude={"confirmationToken", "bids"})
+@EqualsAndHashCode(exclude={"confirmationToken", "bids", "myAuctions", "auctions", "forgotToken"})
 public class User {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
