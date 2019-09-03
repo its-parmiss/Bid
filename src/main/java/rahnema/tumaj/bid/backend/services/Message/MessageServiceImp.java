@@ -27,20 +27,23 @@ public class MessageServiceImp implements MessageService {
 
     @Override
     public void enterAuction(ConcurrentMap<Long, Auction> auctionsData, ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId, Auction currentAuction) {
-        if(currentAuction.getStartDate().after(new Date()))
-        {
+        if (currentAuction.getStartDate().after(new Date())) {
             AuctionOutputMessage message = messageAssembler.getNotStartedMessage();
-            this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), message);
-        }
-        else if (currentAuction.isFinished())
-            this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getFinishedMessage(currentAuction));
-        else if (isUserAlreadyIn(usersData, user, currentAuction))
-            this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getAlreadyInMessage());
-        else if (isEnterOk(auctionsData, currentAuction))
+
+            System.out.println("user.getName() 44444444444444444 entering auction = " + user.getName() ); this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), message);
+        } else if (currentAuction.isFinished()) {
+
+            System.out.println("user.getName() 33333333333333333 entering auction = " + user.getName() ); this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getFinishedMessage(currentAuction));
+        } else if (isUserAlreadyIn(usersData, user, currentAuction)) {
+
+            System.out.println("user.getName() 2222222222222222222 entering auction = " + user.getName() );this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getAlreadyInMessage());
+        } else if (isEnterOk(auctionsData, currentAuction)) {
             enterUserToAuction(auctionsData, usersData, user, auctionId, currentAuction);
-        else
-            this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getFullMessage());
-    }
+            System.out.println("user.getName() 1111111111 entering auction = " + user.getName() );
+        } else {
+
+            System.out.println("user.getName() 555555555555555555 entering auction = " + user.getName() );   this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getFullMessage());
+        }}
 
     private void enterUserToAuction(ConcurrentMap<Long, Auction> auctionsData, ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId, Auction currentAuction) {
         updateAuctionOnEnter(auctionsData, usersData, user, currentAuction);
@@ -52,12 +55,16 @@ public class MessageServiceImp implements MessageService {
 
     @Override
     public void exitAuction(ConcurrentMap<Long, Auction> auctionsData, ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId, Auction currentAuction) {
-        if (isUserAlreadyIn(usersData, user, auctionId))
+        if (isNotUserAlreadyIn(usersData, user, auctionId)) {
+
+            System.out.println("user.getName() 99999999999 exiting auction = " + user.getName() );
             this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getNotInMessage());
-        else if (isExitOk(user, currentAuction))
+        }else if (isExitOk(user, currentAuction)) {
+            System.out.println("user.getName() 345353453 exiting auction = " + user.getName() );
             exitUserFromAuction(auctionsData, usersData, user, auctionId, currentAuction);
-        else if (isUserLastBidder(user, currentAuction))
-            this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getLastBidderMessage());
+        }else if (isUserLastBidder(user, currentAuction)) {
+            System.out.println("user.getName() 88888888888888888 exiting auction = " + user.getName() );
+        }this.simpMessagingTemplate.convertAndSendToUser(user.getName(), getAuctionDestination(auctionId), messageAssembler.getLastBidderMessage());
     }
 
     private void exitUserFromAuction(ConcurrentMap<Long, Auction> auctionsData, ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId, Auction currentAuction) {
@@ -75,8 +82,8 @@ public class MessageServiceImp implements MessageService {
         return !currentAuction.getLastBidder().equals(user.getName()) || currentAuction.isFinished();
     }
 
-    private boolean isUserAlreadyIn(ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId) {
-        return !usersData.containsKey(user.getName()) && usersData.get(user.getName()).equals(auctionId);
+    private boolean isNotUserAlreadyIn(ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId) {
+        return !(usersData.containsKey(user.getName()) && usersData.get(user.getName()).equals(auctionId));
     }
 
     private boolean isEnterOk(ConcurrentMap<Long, Auction> auctionsData, Auction currentAuction) {

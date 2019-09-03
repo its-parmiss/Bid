@@ -82,6 +82,8 @@ public class EnterExitAuctionController {
     }
 
     private void handleExitRequestMessage(ConcurrentMap<Long, Auction> auctionsData, ConcurrentMap<String, Long> usersData, UsernamePasswordAuthenticationToken user, Long auctionId, Auction currentAuction) {
+
+        System.out.println("user.getName() exiting auction = " + user.getName() );
         this.messageService.exitAuction(auctionsData,usersData,user,auctionId,currentAuction);
     }
 }

@@ -13,8 +13,8 @@ import java.util.Set;
 @Entity
 @Table(name="Users")
 @Data
-@ToString(exclude = {"auctions", "myAuctions","confirmationToken"})
-@EqualsAndHashCode(exclude={"confirmationToken", "bids"})
+@ToString(exclude = {"auctions", "myAuctions"})
+@EqualsAndHashCode(exclude={"bids", "myAuctions", "auctions"})
 public class User {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -59,13 +59,5 @@ public class User {
     @JsonBackReference
     @OneToMany(fetch=FetchType.EAGER,mappedBy = "bidder")
     Set<Bid> bids;
-
-    @JsonBackReference
-    @OneToOne(mappedBy = "user")
-    ConfirmationToken confirmationToken;
-
-    @JsonBackReference
-    @OneToOne(mappedBy = "user")
-    ForgotToken forgotToken;
 
 }
